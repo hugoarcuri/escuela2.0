@@ -1,0 +1,94 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./escuela.db"
+}
+
+model Escuela {
+  id        Int      @id @default(autoincrement())
+  nombre    String
+  distrito  String?
+  telefono  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  cursos    Curso[]
+  alumnos   Alumno[]
+}
+
+model Curso {
+  id        Int       @id @default(autoincrement())
+  nombre    String
+  anio      Int
+  division  String
+  turno     String
+  escuelaId Int
+  escuela   Escuela   @relation(fields: [escuelaId], references: [id], onDelete: Cascade)
+  materias  Materia[]
+  alumnos   Alumno[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  @@unique([nombre, escuelaId])
+}
+
+model Materia {
+  id        Int       @id @default(autoincrement())
+  nombre    String
+  cursoId   Int
+  curso     Curso     @relation(fields: [cursoId], references: [id], onDelete: Cascade)
+  alumnos   Alumno[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  @@unique([nombre, cursoId])
+}
+
+model Alumno {
+  id              Int               @id @default(autoincrement())
+  apellidoNombre  String
+  nota1           Float?
+  nota2           Float?
+  nota3           Float?
+  nota4           Float?
+  nota5           Float?
+  nota6           Float?
+  notaFinalManual Float?
+  observaciones   String            @default("")
+  anioLectivo     Int               @default(2025)
+  escuelaId       Int
+  cursoId         Int
+  materiaId       Int
+  escuela         Escuela           @relation(fields: [escuelaId], references: [id], onDelete: Cascade)
+  curso           Curso             @relation(fields: [cursoId], references: [id], onDelete: Cascade)
+  materia         Materia           @relation(fields: [materiaId], references: [id], onDelete: Cascade)
+  historial       HistorialCambio[]
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+}
+
+model HistorialCambio {
+  id           Int      @id @default(autoincrement())
+  alumnoId     Int
+  alumno       Alumno   @relation(fields: [alumnoId], references: [id], onDelete: Cascade)
+  campo        String
+  valorAnterior String?
+  valorNuevo    String?
+  createdAt    DateTime @default(now())
+}
+
+model Setting {
+  id    Int    @id @default(autoincrement())
+  clave String @unique
+  valor String
+}
+
+model FormLink {
+  id          Int      @id @default(autoincrement())
+  token       String   @unique
+  escuelaId   Int
+  cursoId     Int
+  materiaId   Int
+  anioLectivo Int      @default(2025)
+  createdAt   DateTime @default(now())
+}
