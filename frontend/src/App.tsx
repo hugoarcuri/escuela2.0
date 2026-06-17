@@ -32,8 +32,9 @@ export default function App() {
   const [notaFinalMode, setNotaFinalMode] = useState("auto");
   const [theme, setTheme] = useState<"light" | "dark">(() => (localStorage.getItem("theme") as "light" | "dark") || "light");
 
-  const lastCurso = useRef<Record<number, number>>(() => { try { return JSON.parse(localStorage.getItem("lastCurso") || "{}"); } catch { return {}; } }());
-  const lastMateria = useRef<Record<number, number>>(() => { try { return JSON.parse(localStorage.getItem("lastMateria") || "{}"); } catch { return {}; } }());
+  function loadSaved(key: string): Record<number, number> { try { return JSON.parse(localStorage.getItem(key) || "{}"); } catch { return {}; } }
+  const lastCurso = useRef<Record<number, number>>(loadSaved("lastCurso"));
+  const lastMateria = useRef<Record<number, number>>(loadSaved("lastMateria"));
 
   const { confirm, modal: confirmModal } = useConfirm();
   const { prompt, modal: promptModal } = usePrompt();
