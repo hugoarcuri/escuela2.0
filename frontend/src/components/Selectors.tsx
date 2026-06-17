@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import type { Escuela, Curso, Materia } from "../types";
-import { Search, Gear } from "./Icons";
+import { Search, Gear, Pencil } from "./Icons";
 
 interface Props {
   escuelas: Escuela[];
@@ -15,6 +15,7 @@ interface Props {
   onMateriaChange: (id: number | "") => void;
   onSearchChange: (s: string) => void;
   onAdminEscuela: () => void;
+  onEditEscuela: (id: number) => void;
   onAdminCurso: () => void;
   onAdminMateria: () => void;
 }
@@ -23,7 +24,7 @@ export default function Selectors({
   escuelas, cursos, materias,
   escuelaId, cursoId, materiaId, search,
   onEscuelaChange, onCursoChange, onMateriaChange, onSearchChange,
-  onAdminEscuela, onAdminCurso, onAdminMateria,
+  onAdminEscuela, onEditEscuela, onAdminCurso, onAdminMateria,
 }: Props) {
   const s: React.CSSProperties = {
     backgroundColor: "var(--bg-card)", color: "var(--text-primary)", borderColor: "var(--border-color)",
@@ -66,14 +67,21 @@ export default function Selectors({
                   className="w-full text-left px-3 py-2 text-sm hover:bg-[var(--hover-bg)] transition-colors"
                   style={{ color: "var(--text-secondary)" }}>Seleccionar escuela</button>
                 {escuelas.map(e => (
-                  <button key={e.id} onClick={() => { onEscuelaChange(e.id); setEscuelaOpen(false); }}
-                    className="w-full text-left px-3 py-2 hover:bg-[var(--hover-bg)] transition-colors"
+                  <div key={e.id} className="flex items-center group"
                     style={{ backgroundColor: e.id === escuelaId ? "var(--hover-bg)" : "transparent" }}>
-                    <div className="flex flex-col leading-tight">
-                      <span className="text-sm">{e.nombre}</span>
-                      {e.distrito && <span className="text-[10px] opacity-60">{e.distrito}</span>}
-                    </div>
-                  </button>
+                    <button onClick={() => { onEscuelaChange(e.id); setEscuelaOpen(false); }}
+                      className="flex-1 text-left px-3 py-2 hover:bg-[var(--hover-bg)] transition-colors">
+                      <div className="flex flex-col leading-tight">
+                        <span className="text-sm">{e.nombre}</span>
+                        {e.distrito && <span className="text-[10px] opacity-60">{e.distrito}</span>}
+                      </div>
+                    </button>
+                    <button onClick={(ev) => { ev.stopPropagation(); onEditEscuela(e.id); setEscuelaOpen(false); }}
+                      className="p-1.5 mr-1 rounded opacity-0 group-hover:opacity-100 hover:bg-[var(--hover-bg)] transition-all"
+                      title="Editar escuela" style={{ color: "var(--accent)" }}>
+                      <Pencil size={13} />
+                    </button>
+                  </div>
                 ))}
               </div>
             )}

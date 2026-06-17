@@ -4,6 +4,7 @@ import { getEscuelas, createEscuela, updateEscuela, deleteEscuela } from "../api
 import { useConfirm, useAlert } from "./Modals";
 
 interface Props {
+  editId?: number | null;
   onClose: () => void;
   onChanged: () => void;
 }
@@ -12,14 +13,21 @@ const s: React.CSSProperties = {
   backgroundColor: "var(--bg-card)", color: "var(--text-primary)", borderColor: "var(--border-color)",
 };
 
-export default function AdminEscuela({ onClose, onChanged }: Props) {
+export default function AdminEscuela({ editId, onClose, onChanged }: Props) {
   const [list, setList] = useState<Escuela[]>([]);
   const [form, setForm] = useState<EscuelaFormData>({ nombre: "", distrito: "", telefono: "" });
   const [editing, setEditing] = useState<Escuela | null>(null);
   const { confirm, modal: confirmModal } = useConfirm();
   const { alert, modal: alertModal } = useAlert();
 
-  const load = useCallback(async () => { setList(await getEscuelas()); }, []);
+  const load = useCallback(async () => {
+    const schools = await getEscuelas();
+    setList(schools);
+    if (editId) {
+      const found = schools.find(s => s.id === editId);
+      if (found) editItem(found);
+    }
+  }, [editId]);
   useEffect(() => { load(); }, [load]);
 
   function resetForm() { setForm({ nombre: "", distrito: "", telefono: "" }); setEditing(null); }

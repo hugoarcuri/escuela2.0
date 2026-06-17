@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { getEscuelas, getCursos, getMaterias, getAlumnos, deleteAlumno, deleteAllAlumnos, getSettings, saveSettings, getBackupUrl, importBackup } from "./api";
 import type { Escuela, Curso, Materia, Alumno } from "./types";
 import Header from "./components/Header";
@@ -25,11 +25,15 @@ export default function App() {
   const [formOpen, setFormOpen] = useState(false);
   const [editingAlumno, setEditingAlumno] = useState<Alumno | null>(null);
   const [adminEscuelaOpen, setAdminEscuelaOpen] = useState(false);
+  const [editEscuelaId, setEditEscuelaId] = useState<number | null>(null);
   const [adminCursoOpen, setAdminCursoOpen] = useState(false);
   const [adminMateriaOpen, setAdminMateriaOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [notaFinalMode, setNotaFinalMode] = useState("auto");
   const [theme, setTheme] = useState<"light" | "dark">(() => (localStorage.getItem("theme") as "light" | "dark") || "light");
+
+  const lastCurso = useRef<Record<number, number>>(() => { try { return JSON.parse(localStorage.getItem("lastCurso") || "{}"); } catch { return {}; } }());
+  const lastMateria = useRef<Record<number, number>>(() => { try { return JSON.parse(localStorage.getItem("lastMateria") || "{}"); } catch { return {}; } }());
 
   const { confirm, modal: confirmModal } = useConfirm();
   const { prompt, modal: promptModal } = usePrompt();
@@ -43,19 +47,43 @@ export default function App() {
   useEffect(() => { getEscuelas().then(setEscuelas); }, []);
 
   useEffect(() => {
-    if (escuelaId) getCursos(Number(escuelaId)).then(setCursos);
-    else { setCursos([]); setCursoId(""); setMaterias([]); setMateriaId(""); setAlumnos([]); }
+    if (escuelaId) {
+      const id = Number(escuelaId);
+      getCursos(id).then(list => {
+        setCursos(list);
+        const saved = lastCurso.current[id];
+        if (saved && list.some(c => c.id === saved)) setCursoId(saved);
+        else setCursoId("");
+      });
+    } else { setCursos([]); setCursoId(""); setMaterias([]); setMateriaId(""); setAlumnos([]); }
   }, [escuelaId]);
 
   useEffect(() => {
     if (cursoId) {
-      getMaterias(Number(cursoId)).then(list => {
+      const id = Number(cursoId);
+      getMaterias(id).then(list => {
         setMaterias(list);
-        if (list.length === 1) setMateriaId(list[0].id);
+        const saved = lastMateria.current[id];
+        if (saved && list.some(m => m.id === saved)) setMateriaId(saved);
+        else if (list.length === 1) setMateriaId(list[0].id);
         else setMateriaId("");
       });
     } else { setMaterias([]); setMateriaId(""); setAlumnos([]); }
   }, [cursoId]);
+
+  useEffect(() => {
+    if (escuelaId && cursoId) {
+      lastCurso.current[Number(escuelaId)] = Number(cursoId);
+      localStorage.setItem("lastCurso", JSON.stringify(lastCurso.current));
+    }
+  }, [escuelaId, cursoId]);
+
+  useEffect(() => {
+    if (cursoId && materiaId) {
+      lastMateria.current[Number(cursoId)] = Number(materiaId);
+      localStorage.setItem("lastMateria", JSON.stringify(lastMateria.current));
+    }
+  }, [cursoId, materiaId]);
 
   const loadAlumnos = useCallback(() => {
     if (escuelaId && cursoId && materiaId) {
@@ -119,7 +147,8 @@ export default function App() {
             onCursoChange={setCursoId}
             onMateriaChange={setMateriaId}
             onSearchChange={setSearch}
-            onAdminEscuela={() => setAdminEscuelaOpen(true)}
+            onAdminEscuela={() => { setEditEscuelaId(null); setAdminEscuelaOpen(true); }}
+            onEditEscuela={(id) => { setEditEscuelaId(id); setAdminEscuelaOpen(true); }}
             onAdminCurso={() => setAdminCursoOpen(true)}
             onAdminMateria={() => setAdminMateriaOpen(true)}
           />
@@ -176,7 +205,7 @@ export default function App() {
         />
       )}
 
-      {adminEscuelaOpen && <AdminEscuela onClose={() => setAdminEscuelaOpen(false)} onChanged={refreshAll} />}
+      {adminEscuelaOpen && <AdminEscuela editId={editEscuelaId} onClose={() => { setAdminEscuelaOpen(false); setEditEscuelaId(null); }} onChanged={refreshAll} />}
       {adminCursoOpen && <AdminCurso onClose={() => setAdminCursoOpen(false)} onChanged={refreshAll} />}
       {adminMateriaOpen && <AdminMateria onClose={() => setAdminMateriaOpen(false)} onChanged={refreshAll} />}
 
