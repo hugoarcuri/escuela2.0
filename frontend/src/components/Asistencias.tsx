@@ -3,6 +3,20 @@ import type { Alumno, Asistencia } from "../types";
 import { getAsistenciasDelMes, getAsistenciasDelAnio, saveAsistenciasBatch } from "../api";
 import { useAlert } from "./Modals";
 
+interface Feriado { fecha: string; nombre: string; tipo: string; }
+let feriadosCache: Record<string, Feriado[]> = {};
+
+async function fetchFeriados(anio: number): Promise<Feriado[]> {
+  if (feriadosCache[anio]) return feriadosCache[anio];
+  try {
+    const r = await fetch(`https://argentinadatos.com/v1/feriados/${anio}`);
+    if (!r.ok) return [];
+    const data: Feriado[] = await r.json();
+    feriadosCache[anio] = data;
+    return data;
+  } catch { return []; }
+}
+
 interface Props {
   alumnos: Alumno[];
   materiaId: number;
@@ -43,11 +57,15 @@ export default function Asistencias({ alumnos, materiaId }: Props) {
   // monthly state
   const [classDates, setClassDates] = useState<Record<number, string>>({});
   const [asistencias, setAsistencias] = useState<Record<string, string>>({});
+  const [feriados, setFeriados] = useState<Feriado[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const { alert, modal: alertModal } = useAlert();
 
   const semanas = obtenerSemanas(anio, mes);
+  const feriadosMap = new Map(feriados.map(f => [f.fecha, f]));
+
+  useEffect(() => { fetchFeriados(anio).then(setFeriados); }, [anio]);
 
   // Init class dates when month changes
   useEffect(() => {
@@ -165,9 +183,12 @@ export default function Asistencias({ alumnos, materiaId }: Props) {
           ))}
         </div>
         {vista === "dia" && (
-          <input type="date" value={dia} onChange={e => setDia(e.target.value)}
-            className="rounded-lg border px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]"
-            style={{ backgroundColor: "var(--bg-card)", color: "var(--text-primary)", borderColor: "var(--border-color)" }} />
+          <>
+            <input type="date" value={dia} onChange={e => setDia(e.target.value)}
+              className="rounded-lg border px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]"
+              style={{ backgroundColor: feriadosMap.has(dia) ? "#555" : "var(--bg-card)", color: "var(--text-primary)", borderColor: "var(--border-color)" }} />
+            {feriadosMap.has(dia) && <span className="text-xs" style={{ color: "#888" }}>🗓 {feriadosMap.get(dia)!.nombre}</span>}
+          </>
         )}
         {vista !== "dia" && (
           <>
@@ -209,22 +230,33 @@ export default function Asistencias({ alumnos, materiaId }: Props) {
                 <th className="px-2 py-2 text-center font-medium text-xs uppercase tracking-wider border-b sticky top-0 z-10"
                   style={{ ...thStyle, minWidth: 90 }}>Asistencia</th>
               )}
-              {vista === "mes" && semanas.map(s => (
+              {vista === "mes" && semanas.map(s => {
+                const feriado = classDates[s.semana] ? feriadosMap.get(classDates[s.semana]) : undefined;
+                return (
                 <th key={s.semana} className="px-1 py-2 text-center font-medium text-xs uppercase tracking-wider border-b sticky top-0 z-10"
                   style={{ ...thStyle, minWidth: 90 }}>
                   <div>Sem {s.semana}</div>
                   <input type="date" value={classDates[s.semana] || ""}
                     onChange={e => setClassDates(prev => ({ ...prev, [s.semana]: e.target.value }))}
                     className="mt-1 rounded border px-1 py-0.5 text-[10px] w-full outline-none"
-                    style={{ backgroundColor: "var(--bg-card)", color: "var(--text-primary)", borderColor: "var(--border-color)" }} />
-                  <button onClick={() => marcarTodos(String(s.semana), "P")}
-                    className="text-[10px] px-1 py-0.5 mt-1 rounded hover:opacity-80"
-                    style={{ color: "var(--success)" }}>P</button>
-                  <button onClick={() => marcarTodos(String(s.semana), "A")}
-                    className="text-[10px] px-1 py-0.5 mt-1 rounded hover:opacity-80 ml-0.5"
-                    style={{ color: "var(--danger)" }}>A</button>
+                    style={{
+                      backgroundColor: feriado ? "#555" : "var(--bg-card)",
+                      color: feriado ? "#ccc" : "var(--text-primary)",
+                      borderColor: feriado ? "#666" : "var(--border-color)",
+                    }}
+                    title={feriado ? feriado.nombre : ""} />
+                  {feriado && <div className="text-[8px] mt-0.5 truncate" style={{ color: "#888" }}>{feriado.nombre}</div>}
+                  {!feriado && <>
+                    <button onClick={() => marcarTodos(String(s.semana), "P")}
+                      className="text-[10px] px-1 py-0.5 mt-1 rounded hover:opacity-80"
+                      style={{ color: "var(--success)" }}>P</button>
+                    <button onClick={() => marcarTodos(String(s.semana), "A")}
+                      className="text-[10px] px-1 py-0.5 mt-1 rounded hover:opacity-80 ml-0.5"
+                      style={{ color: "var(--danger)" }}>A</button>
+                  </>}
                 </th>
-              ))}
+                );
+              })}
               {vista === "anio" && MESES.map((m, i) => (
                 <th key={i} className="px-1 py-2 text-center font-medium text-xs uppercase tracking-wider border-b sticky top-0 z-10"
                   style={{ ...thStyle, minWidth: 60 }}>{m.slice(0, 3)}</th>
@@ -263,18 +295,25 @@ export default function Asistencias({ alumnos, materiaId }: Props) {
                   {vista === "mes" && semanas.map(s => {
                     const fecha = classDates[s.semana];
                     if (!fecha) return <td key={s.semana} className="px-1 py-1.5 border-b" style={{ borderColor: "var(--border-color)" }} />;
+                    const esFeriado = feriadosMap.has(fecha);
                     const estado = asistencias[`${a.id}:${s.semana}`] || "P";
                     const est = ESTADOS.find(e => e.key === estado)!;
-                    total++;
-                    if (estado === "P") presente++;
+                    if (!esFeriado) { total++; if (estado === "P") presente++; }
                     return (
-                      <td key={s.semana} className="px-1 py-1.5 text-center border-b" style={{ borderColor: "var(--border-color)" }}>
+                      <td key={s.semana} className="px-1 py-1.5 text-center border-b" style={{
+                        borderColor: "var(--border-color)",
+                        backgroundColor: esFeriado ? "#444" : "transparent",
+                      }}>
+                        {esFeriado ? (
+                          <span className="text-xs" style={{ color: "#888" }}>☕</span>
+                        ) : (
                         <button onClick={() => toggleEstado(a.id, String(s.semana))}
                           className="w-8 h-8 rounded-full text-xs font-bold border-2 transition-all hover:scale-110"
                           style={{ backgroundColor: estado === "P" ? "transparent" : est.color + "20", color: est.color, borderColor: est.color }}
                           title={est.title}>
                           {est.label}
                         </button>
+                        )}
                       </td>
                     );
                   })}
