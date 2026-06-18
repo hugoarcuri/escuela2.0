@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import type { Alumno, Asistencia } from "../types";
 import { getAsistenciasDelMes, getAsistenciasDelAnio, saveAsistenciasBatch } from "../api";
-import { useAlert } from "./Modals";
+import { supabase } from "../supabase";
 
 interface Feriado { fecha: string; nombre: string; tipo: string; }
 let feriadosCache: Record<string, Feriado[]> = {};
@@ -59,8 +59,14 @@ export default function Asistencias({ alumnos, materiaId }: Props) {
   const [asistencias, setAsistencias] = useState<Record<string, string>>({});
   const [feriados, setFeriados] = useState<Feriado[]>([]);
   const [loading, setLoading] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const { alert, modal: alertModal } = useAlert();
+  const [toast, setToast] = useState("");
+  const toastTimer = useRef<ReturnType<typeof setTimeout>>();
+
+  function showToast(msg: string) {
+    setToast(msg);
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToast(""), 2000);
+  }
 
   const semanas = obtenerSemanas(anio, mes);
   const feriadosMap = new Map(feriados.map(f => [f.fecha, f]));
@@ -120,43 +126,36 @@ export default function Asistencias({ alumnos, materiaId }: Props) {
     return () => { cancelled = true; };
   }, [vista, materiaId, anio, mes, dia]);
 
-  function toggleEstado(alumnoId: number, keySuffix: string) {
+  function toggleEstado(alumnoId: number, keySuffix: string, fecha: string) {
     setAsistencias(prev => {
       const key = `${alumnoId}:${keySuffix}`;
       const current = prev[key] || "P";
       const idx = ESTADOS.findIndex(e => e.key === current);
       const next = ESTADOS[(idx + 1) % ESTADOS.length].key;
+      autoSave(fecha, alumnoId, next);
       return { ...prev, [key]: next };
     });
   }
 
-  function marcarTodos(keySuffix: string, estado: string) {
+  function marcarTodos(keySuffix: string, estado: string, fecha: string) {
     setAsistencias(prev => {
       const next = { ...prev };
       for (const a of alumnos) next[`${a.id}:${keySuffix}`] = estado;
+      saveAsistenciasBatch(alumnos.map(a => ({ alumnoId: a.id, materiaId, fecha, estado })));
+      showToast(`✓ Todos ${estado}`);
       return next;
     });
   }
 
-  async function handleSave() {
-    setSaving(true);
+  async function autoSave(fecha: string, alumnoId: number, estado: string) {
     try {
-      let records: { alumnoId: number; materiaId: number; fecha: string; estado: string }[] = [];
-      if (vista === "dia") {
-        for (const a of alumnos) records.push({ alumnoId: a.id, materiaId, fecha: dia, estado: asistencias[`${a.id}`] || "P" });
-      } else {
-        for (const a of alumnos) {
-          for (const s of semanas) {
-            const fecha = classDates[s.semana];
-            if (!fecha) continue;
-            records.push({ alumnoId: a.id, materiaId, fecha, estado: asistencias[`${a.id}:${s.semana}`] || "P" });
-          }
-        }
-      }
-      await saveAsistenciasBatch(records);
-      await alert("Asistencias guardadas");
-    } catch { await alert("Error al guardar"); }
-    setSaving(false);
+      const { error } = await supabase.from("asistencias").upsert(
+        { alumnoId, materiaId, fecha, estado },
+        { onConflict: "alumnoId,materiaId,fecha" }
+      );
+      if (error) throw error;
+      showToast("✓ Guardado");
+    } catch { showToast("✗ Error al guardar"); }
   }
 
   const thStyle: React.CSSProperties = { backgroundColor: "var(--bg-card)", borderColor: "var(--border-color)", color: "var(--text-secondary)" };
@@ -167,6 +166,12 @@ export default function Asistencias({ alumnos, materiaId }: Props) {
 
   return (
     <div>
+      {toast && (
+        <div className="fixed top-4 right-4 z-50 px-4 py-2 rounded-lg text-sm font-medium shadow-lg"
+          style={{ backgroundColor: toast.includes("✗") ? "var(--danger)" : "var(--success)", color: "#fff" }}>
+          {toast}
+        </div>
+      )}
       {/* Vista switcher + controls */}
       <div className="flex flex-wrap items-center gap-2 mb-4 p-3 rounded-lg" style={{ backgroundColor: "var(--bg-card)", border: "1px solid var(--border-color)" }}>
         <div className="flex gap-1">
@@ -203,15 +208,7 @@ export default function Asistencias({ alumnos, materiaId }: Props) {
           </>
         )}
         {vista !== "anio" && (
-          <>
-            <span className="text-xs" style={{ color: "var(--text-secondary)" }}>{vista === "dia" ? 1 : totalClasesMes} clase{vista === "mes" && totalClasesMes !== 1 ? "s" : ""}</span>
-            <div className="flex-1" />
-            <button onClick={handleSave} disabled={saving || loading}
-              className="px-4 py-1.5 rounded-lg text-sm font-medium text-white disabled:opacity-50"
-              style={{ backgroundColor: "var(--accent)" }}>
-              {saving ? "Guardando..." : "Guardar"}
-            </button>
-          </>
+          <span className="text-xs" style={{ color: "var(--text-secondary)" }}>{vista === "dia" ? 1 : totalClasesMes} clase{vista === "mes" && totalClasesMes !== 1 ? "s" : ""}</span>
         )}
       </div>
 
@@ -243,10 +240,10 @@ export default function Asistencias({ alumnos, materiaId }: Props) {
                     title={feriado ? feriado.nombre : ""} />
                   {feriado && <div className="text-[8px] mt-0.5 truncate" style={{ color: "#888" }}>{feriado.nombre}</div>}
                   {!feriado && <>
-                    <button onClick={() => marcarTodos(String(s.semana), "P")}
+                    <button onClick={() => marcarTodos(String(s.semana), "P", classDates[s.semana])}
                       className="text-[10px] px-1 py-0.5 mt-1 rounded hover:opacity-80"
                       style={{ color: "var(--success)" }}>P</button>
-                    <button onClick={() => marcarTodos(String(s.semana), "A")}
+                    <button onClick={() => marcarTodos(String(s.semana), "A", classDates[s.semana])}
                       className="text-[10px] px-1 py-0.5 mt-1 rounded hover:opacity-80 ml-0.5"
                       style={{ color: "var(--danger)" }}>A</button>
                   </>}
@@ -276,7 +273,7 @@ export default function Asistencias({ alumnos, materiaId }: Props) {
                   </td>
                   {vista === "dia" && (
                     <td className="px-2 py-1.5 text-center border-b" style={{ borderColor: "var(--border-color)" }}>
-                      <button onClick={() => toggleEstado(a.id, "")}
+                      <button onClick={() => toggleEstado(a.id, "", dia)}
                         className="w-9 h-9 rounded-full text-sm font-bold border-2 transition-all hover:scale-110"
                         style={{
                           backgroundColor: (asistencias[`${a.id}`] || "P") === "P" ? "transparent" : (ESTADOS.find(e => e.key === (asistencias[`${a.id}`] || "P"))?.color || "var(--success)") + "20",
@@ -303,7 +300,7 @@ export default function Asistencias({ alumnos, materiaId }: Props) {
                         {esFeriado ? (
                           <span className="text-xs" style={{ color: "#888" }}>☕</span>
                         ) : (
-                        <button onClick={() => toggleEstado(a.id, String(s.semana))}
+                        <button onClick={() => toggleEstado(a.id, String(s.semana), fecha)}
                           className="w-8 h-8 rounded-full text-xs font-bold border-2 transition-all hover:scale-110"
                           style={{ backgroundColor: estado === "P" ? "transparent" : est.color + "20", color: est.color, borderColor: est.color }}
                           title={est.title}>
@@ -338,7 +335,6 @@ export default function Asistencias({ alumnos, materiaId }: Props) {
         {vista === "mes" && ` · ${totalClasesMes} clase${totalClasesMes !== 1 ? "s" : ""} en el mes`}
         {vista === "dia" ? " · Clic en círculo: P → A → T → J" : " · Clic para cambiar estado"}
       </div>
-      {alertModal}
     </div>
   );
 }
