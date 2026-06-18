@@ -60,8 +60,14 @@ export default function AdminMateria({ onClose, onChanged }: Props) {
               <option value={0}>Curso</option>
               {cursos.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
             </select>
-            <input type="text" placeholder="Nombre materia" value={form.nombre} onChange={e => setForm(f => ({ ...f, nombre: e.target.value }))}
-              className="flex-1 rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]" style={s} />
+            <select value={form.nombre} onChange={e => setForm(f => ({ ...f, nombre: e.target.value }))}
+              className="flex-1 rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]" style={s}>
+              <option value="">Materia</option>
+              <option value="SISTEMAS">SISTEMAS</option>
+              <option value="PROGRAMACIÓN">PROGRAMACIÓN</option>
+              <option value="HARDWARE">HARDWARE</option>
+              <option value="APLICACIONES">APLICACIONES</option>
+            </select>
             <button onClick={handleSave} className="btn-primary text-sm px-3 py-2">{editing ? "Actualizar" : "Agregar"}</button>
             {editing && <button onClick={resetForm} className="btn-secondary text-sm px-3 py-2">Cancelar</button>}
           </div>

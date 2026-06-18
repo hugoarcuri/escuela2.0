@@ -54,12 +54,13 @@ export default function StudentForm({ alumno, escuelaId, cursoId, materiaId, ani
     if (!form.apellidoNombre.trim()) { setError("Apellido y Nombre son obligatorios"); return; }
     setSaving(true); setError("");
     try {
-      const data = { ...form, escuelaId, cursoId, materiaId, anioLectivo };
-      if (alumno) {
-        await updateAlumno(alumno.id, data);
-      } else {
-        await createAlumno(data);
-      }
+      const db = {
+        apellidoNombre: form.apellidoNombre,
+        nota1: getNum(form.nota1), nota2: getNum(form.nota2), nota3: getNum(form.nota3),
+        nota4: getNum(form.nota4), nota5: getNum(form.nota5), nota6: getNum(form.nota6),
+        escuelaId, cursoId, materiaId, anioLectivo,
+      };
+      if (alumno) { await updateAlumno(alumno.id, db); } else { await createAlumno(db); }
       onSaved();
     } catch (err: any) {
       setError(err?.response?.data?.error || "Error al guardar");

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { getEscuelas, getCursos, getMaterias, getAlumnos, deleteAlumno, deleteAllAlumnos, getSettings, saveSettings, getBackupUrl, importBackup } from "./api";
+import { getEscuelas, getCursos, getMaterias, getAlumnos, deleteAlumno, deleteAllAlumnos, getSettings, saveSettings, exportBackup, importBackup, setNotaFinalMode as setApiNotaMode } from "./api";
 import type { Escuela, Curso, Materia, Alumno } from "./types";
 import Header from "./components/Header";
 import Selectors from "./components/Selectors";
@@ -96,7 +96,7 @@ export default function App() {
 
   useEffect(() => {
     getSettings().then(s => {
-      if (s.notaFinalMode) setNotaFinalMode(s.notaFinalMode);
+      if (s.notaFinalMode) { setNotaFinalMode(s.notaFinalMode); setApiNotaMode(s.notaFinalMode); }
     });
   }, []);
 
@@ -123,15 +123,15 @@ export default function App() {
             </select>
           </div>
           <button onClick={() => setSettingsOpen(true)} className="btn-ghost text-xs px-3 py-1.5">Ajustes</button>
-          <a href={getBackupUrl()} className="btn-ghost text-xs px-3 py-1.5">Exportar DB</a>
+          <button onClick={exportBackup} className="btn-ghost text-xs px-3 py-1.5">Exportar DB</button>
           <button onClick={async () => {
             const input = document.createElement("input");
-            input.type = "file"; input.accept = ".db";
+            input.type = "file"; input.accept = ".json";
             input.onchange = async (e: any) => {
               const file = e.target.files?.[0];
               if (file) {
                 await importBackup(file);
-                await alert("Base de datos restaurada. Reiniciá el servidor.");
+                await alert("Datos restaurados correctamente.");
               }
             };
             input.click();
@@ -178,7 +178,7 @@ export default function App() {
                 await alert(`Se eliminaron ${r.deleted} alumno(s)`);
                 loadAlumnos();
               }} className="btn-danger" disabled={alumnos.length === 0}>Eliminar Todos</button>
-              <ImportExport escuelaId={Number(escuelaId)} cursoId={Number(cursoId)} materiaId={Number(materiaId)} onImport={loadAlumnos} />
+              <ImportExport escuelaId={Number(escuelaId)} cursoId={Number(cursoId)} materiaId={Number(materiaId)} anioLectivo={anioLectivo} onImport={loadAlumnos} />
             </div>
             <div className="mb-4">
               <GoogleFormSync escuelaId={Number(escuelaId)} cursoId={Number(cursoId)} materiaId={Number(materiaId)} anioLectivo={anioLectivo} onSync={loadAlumnos} />
@@ -229,7 +229,8 @@ export default function App() {
               </div>
               <button onClick={async () => {
                 await saveSettings({ notaFinalMode });
-                await alert("Configuración guardada. Recargá la página para aplicar cambios.");
+                setApiNotaMode(notaFinalMode);
+                await alert("Configuración guardada.");
                 setSettingsOpen(false);
               }} className="btn-primary">Guardar</button>
             </div>

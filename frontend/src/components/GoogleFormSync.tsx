@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import axios from "axios";
+import { generateFormLink, pollFormCount, getFormLink } from "../api";
 
 interface Props {
   escuelaId: number;
@@ -23,14 +23,8 @@ export default function GoogleFormSync({ escuelaId, cursoId, materiaId, anioLect
 
   useEffect(() => {
     if (escuelaId !== prevEscuelaRef.current || cursoId !== prevCursoRef.current || materiaId !== prevMateriaRef.current) {
-      setToken(null);
-      setFormUrl(null);
-      setStudentCount(0);
-      setLastCount(null);
-      setNewStudentMsg(false);
-      prevEscuelaRef.current = escuelaId;
-      prevCursoRef.current = cursoId;
-      prevMateriaRef.current = materiaId;
+      setToken(null); setFormUrl(null); setStudentCount(0); setLastCount(null); setNewStudentMsg(false);
+      prevEscuelaRef.current = escuelaId; prevCursoRef.current = cursoId; prevMateriaRef.current = materiaId;
     }
   }, [escuelaId, cursoId, materiaId]);
 
@@ -38,14 +32,11 @@ export default function GoogleFormSync({ escuelaId, cursoId, materiaId, anioLect
     if (!token) return;
     const interval = setInterval(async () => {
       try {
-        const { data } = await axios.get(`/api/form/poll/${token}`);
-        if (lastCount !== null && data.count > lastCount) {
-          setNewStudentMsg(true);
-          onSync();
-          setTimeout(() => setNewStudentMsg(false), 4000);
-        }
-        setStudentCount(data.count);
-        setLastCount(data.count);
+        const link = await getFormLink(token!);
+        if (!link) return;
+        const count = await pollFormCount(link);
+        if (lastCount !== null && count > lastCount) { setNewStudentMsg(true); onSync(); setTimeout(() => setNewStudentMsg(false), 4000); }
+        setStudentCount(count); setLastCount(count);
       } catch {}
     }, 30000);
     return () => clearInterval(interval);
@@ -55,34 +46,22 @@ export default function GoogleFormSync({ escuelaId, cursoId, materiaId, anioLect
     if (!escuelaId || !cursoId || !materiaId) return;
     setGenerating(true);
     try {
-      const { data } = await axios.post("/api/form/generate", { escuelaId, cursoId, materiaId, anioLectivo });
-      setToken(data.token);
-      setFormUrl(data.url);
-      const poll = await axios.get(`/api/form/poll/${data.token}`);
-      setStudentCount(poll.data.count);
-      setLastCount(poll.data.count);
+      const link = await generateFormLink(escuelaId, cursoId, materiaId, anioLectivo);
+      setToken(link.token);
+      setFormUrl(`${window.location.origin}/escuela2.0/#/form/${link.token}`);
+      const count = await pollFormCount(link);
+      setStudentCount(count); setLastCount(count);
     } catch (e: any) {
       console.error("Error al generar formulario", e);
-    } finally {
-      setGenerating(false);
-    }
+    } finally { setGenerating(false); }
   }
 
   async function handleCopy() {
     if (!formUrl) return;
-    try {
-      await navigator.clipboard.writeText(formUrl);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      const ta = document.createElement("textarea");
-      ta.value = formUrl;
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand("copy");
-      document.body.removeChild(ta);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+    try { await navigator.clipboard.writeText(formUrl); setCopied(true); setTimeout(() => setCopied(false), 2000); }
+    catch {
+      const ta = document.createElement("textarea"); ta.value = formUrl; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); document.body.removeChild(ta);
+      setCopied(true); setTimeout(() => setCopied(false), 2000);
     }
   }
 
@@ -97,7 +76,6 @@ export default function GoogleFormSync({ escuelaId, cursoId, materiaId, anioLect
           </button>
         )}
       </div>
-
       {formUrl && (
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2">
@@ -105,14 +83,10 @@ export default function GoogleFormSync({ escuelaId, cursoId, materiaId, anioLect
               className="flex-1 rounded-lg border px-3 py-1.5 text-xs outline-none"
               style={{ backgroundColor: "var(--bg)", color: "var(--text-primary)", borderColor: "var(--border-color)" }}
               onClick={e => (e.target as HTMLInputElement).select()} />
-            <button onClick={handleCopy} className="btn-secondary text-xs px-3 py-1.5 whitespace-nowrap">
-              {copied ? "¡Copiado!" : "Copiar enlace"}
-            </button>
+            <button onClick={handleCopy} className="btn-secondary text-xs px-3 py-1.5 whitespace-nowrap">{copied ? "¡Copiado!" : "Copiar enlace"}</button>
             <button onClick={() => { setToken(null); setFormUrl(null); setNewStudentMsg(false); }}
               className="text-xs px-2 py-1.5 rounded-lg border hover:bg-[var(--hover-bg)] transition-colors"
-              style={{ color: "var(--text-secondary)", borderColor: "var(--border-color)" }}>
-              ✕
-            </button>
+              style={{ color: "var(--text-secondary)", borderColor: "var(--border-color)" }}>✕</button>
           </div>
           <div className="flex items-center gap-3 text-xs" style={{ color: "var(--text-secondary)" }}>
             <span>Alumnos registrados: <strong>{studentCount}</strong></span>
@@ -126,7 +100,6 @@ export default function GoogleFormSync({ escuelaId, cursoId, materiaId, anioLect
           )}
         </div>
       )}
-
       {!token && (
         <p className="text-xs" style={{ color: "var(--text-secondary)" }}>
           Generá un enlace para que los alumnos se inscriban solos con solo Apellido y Nombre.

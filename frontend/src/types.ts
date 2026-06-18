@@ -7,15 +7,19 @@ export interface Curso {
 export interface Materia {
   id: number; nombre: string; cursoId: number;
 }
-export interface Alumno {
+export interface AlumnoDB {
   id: number; apellidoNombre: string;
   nota1: number | null; nota2: number | null; nota3: number | null;
-  informe1: string | null; nota1C: number | null;
   nota4: number | null; nota5: number | null; nota6: number | null;
-  informe2: string | null; nota2C: number | null;
-  notaFinal: number | null; notaFinalManual: number | null;
-  situacionFinal: string; observaciones: string;
+  notaFinalManual: number | null;
+  observaciones: string;
   anioLectivo: number; escuelaId: number; cursoId: number; materiaId: number;
+}
+export interface Alumno extends AlumnoDB {
+  informe1: string | null; nota1C: number | null;
+  informe2: string | null; nota2C: number | null;
+  notaFinal: number | null;
+  situacionFinal: string;
 }
 export interface AlumnoFormData {
   apellidoNombre: string;
@@ -27,4 +31,46 @@ export interface CursoFormData { anio: string; division: string; turno: string; 
 export interface MateriaFormData { nombre: string; cursoId: number; }
 export interface HistorialCambio {
   id: number; alumnoId: number; campo: string; valorAnterior: string | null; valorNuevo: string | null; createdAt: string;
+}
+export interface FormLink {
+  id: number; token: string; escuelaId: number; cursoId: number; materiaId: number; anioLectivo: number;
+}
+
+export function calcNota1C(a: { nota1: number | null; nota2: number | null; nota3: number | null }): number | null {
+  const nums = [a.nota1, a.nota2, a.nota3].filter((v): v is number => v !== null);
+  return nums.length > 0 ? Math.round((nums.reduce((s, v) => s + v, 0) / nums.length) * 100) / 100 : null;
+}
+export function calcNota2C(a: { nota4: number | null; nota5: number | null; nota6: number | null }): number | null {
+  const nums = [a.nota4, a.nota5, a.nota6].filter((v): v is number => v !== null);
+  return nums.length > 0 ? Math.round((nums.reduce((s, v) => s + v, 0) / nums.length) * 100) / 100 : null;
+}
+export function calcNotaFinal(n1c: number | null, n2c: number | null, notaFinalManual: number | null, modoManual: boolean): number | null {
+  if (modoManual && notaFinalManual !== null) return notaFinalManual;
+  return calcPromedio([n1c, n2c]);
+}
+export function calcPromedio(vals: (number | null)[]): number | null {
+  const nums = vals.filter((v): v is number => v !== null);
+  return nums.length > 0 ? Math.round((nums.reduce((s, v) => s + v, 0) / nums.length) * 100) / 100 : null;
+}
+export function calcSituacion(notaFinal: number | null): string {
+  if (notaFinal === null) return "";
+  return notaFinal >= 7 ? "Aprobado" : "Desaprobado";
+}
+export function calcInforme(notaC: number | null): string | null {
+  if (notaC === null) return null;
+  return notaC >= 7 ? "TEA" : "TEP";
+}
+export function mapAlumno(a: AlumnoDB, modoManual: boolean): Alumno {
+  const nota1C = calcNota1C(a);
+  const nota2C = calcNota2C(a);
+  const notaFinal = calcNotaFinal(nota1C, nota2C, a.notaFinalManual, modoManual);
+  return {
+    ...a,
+    nota1C,
+    nota2C,
+    notaFinal,
+    situacionFinal: calcSituacion(notaFinal),
+    informe1: calcInforme(nota1C),
+    informe2: calcInforme(nota2C),
+  };
 }
