@@ -239,6 +239,14 @@ export async function importList(list: string, escuelaId: number, cursoId: numbe
 }
 
 /* Asistencias */
+export async function getAsistenciasDelAnio(materiaId: number, anio: number): Promise<Asistencia[]> {
+  const start = `${anio}-01-01`;
+  const end = `${anio}-12-31`;
+  const { data, error } = await supabase.from("asistencias")
+    .select("*").eq("materiaId", materiaId).gte("fecha", start).lte("fecha", end);
+  if (error) throw error;
+  return data ?? [];
+}
 export async function getAsistenciasDelMes(materiaId: number, anio: number, mes: number): Promise<Asistencia[]> {
   const start = `${anio}-${String(mes).padStart(2, "0")}-01`;
   const endDate = new Date(anio, mes, 0);
