@@ -15,7 +15,8 @@ const ESTADOS = [
   { key: "J", label: "J", title: "Justificado", color: "var(--accent)" },
 ];
 
-const MESES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+const MESES = ["Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+const MES_NUM = (i: number) => i + 3;
 
 function obtenerSemanas(anio: number, mes: number): { semana: number; fecha: string }[] {
   const semanas: { semana: number; fecha: string }[] = [];
@@ -174,7 +175,7 @@ export default function Asistencias({ alumnos, materiaId }: Props) {
               <select value={mes} onChange={e => setMes(Number(e.target.value))}
                 className="rounded-lg border px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]"
                 style={{ backgroundColor: "var(--bg-card)", color: "var(--text-primary)", borderColor: "var(--border-color)" }}>
-                {MESES.map((m, i) => <option key={i + 1} value={i + 1}>{m}</option>)}
+                {MESES.map((m, i) => <option key={MES_NUM(i)} value={MES_NUM(i)}>{m}</option>)}
               </select>
             )}
             <select value={anio} onChange={e => setAnio(Number(e.target.value))}
@@ -278,7 +279,7 @@ export default function Asistencias({ alumnos, materiaId }: Props) {
                     );
                   })}
                   {vista === "anio" && MESES.map((_, i) => {
-                    const m = String(i + 1).padStart(2, "0");
+                    const m = String(MES_NUM(i)).padStart(2, "0");
                     const cell = asistencias[`${a.id}:${m}`];
                     return (
                       <td key={i} className="px-1 py-1.5 text-center border-b text-xs" style={{ borderColor: "var(--border-color)", color: cell && cell !== "—" ? (parseInt(cell) >= 75 ? "var(--success)" : parseInt(cell) >= 50 ? "#f59e0b" : "var(--danger)") : "var(--text-secondary)" }}>
