@@ -37,7 +37,7 @@ export interface FormLink {
 }
 export interface Asistencia {
   id: number; alumnoId: number; materiaId: number;
-  fecha: string; estado: "P" | "A" | "T" | "J";
+  fecha: string; estado: "P" | "A" | "T" | "Lic" | "F";
 }
 
 export function calcNota1C(a: { nota1: number | null; nota2: number | null; nota3: number | null }): number | null {
