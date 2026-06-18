@@ -147,7 +147,7 @@ export default function StudentTable({ alumnos, onRefresh, onEdit, onDelete }: P
   if (filtered.length === 0) return <div className="text-center py-12" style={{ color: "var(--text-secondary)" }}>No hay alumnos</div>;
 
   const CAMPOS: CampoNota[] = ["nota1", "nota2", "nota3", "nota4", "nota5", "nota6"];
-  const HEADERS = ["", "Apellido y Nombre", "Nota 1", "Nota 2", "Nota 3", "Informe 1", "1° Cuat.", "Nota 4", "Nota 5", "Nota 6", "Informe 2", "2° Cuat.", "Nota Final", "Situación", "Obs.", "Acciones"];
+  const HEADERS = ["", "Apellido y Nombre", "N 1", "N 2", "N 3", "Inf 1", "1°C", "N 4", "N 5", "N 6", "Inf 2", "2°C", "N Final", "Sit.", "Obs.", "Acc."];
 
   return (
     <div>
@@ -182,11 +182,11 @@ export default function StudentTable({ alumnos, onRefresh, onEdit, onDelete }: P
       </div>
 
       {/* Table */}
-      <div className="overflow-auto rounded-xl border" style={{ borderColor: "var(--border-color)", maxHeight: "calc(100vh - 320px)" }} ref={tableRef}>
-        <table className="w-full text-sm" style={{ minWidth: 1000 }}>
+      <div className="overflow-x-hidden overflow-y-auto rounded-xl border" style={{ borderColor: "var(--border-color)", maxHeight: "calc(100vh - 320px)" }} ref={tableRef}>
+        <table className="w-full text-sm">
           <thead><tr>
             {HEADERS.map(h => (
-              <th key={h} className="px-3 py-3 text-left font-medium text-xs uppercase tracking-wider border-b whitespace-nowrap sticky top-0 z-10"
+              <th key={h} className="px-1.5 py-2 text-center font-medium text-xs uppercase tracking-wider border-b sticky top-0 z-10"
                 style={{ ...hs, backgroundColor: "var(--bg-card)", position: "sticky", top: 0, left: h === "Apellido y Nombre" ? 0 : undefined, zIndex: h === "Apellido y Nombre" ? 20 : 10 }}>
                 {h === "" ? <input type="checkbox" onChange={toggleAll} checked={selected.size === filtered.length && filtered.length > 0} /> : h}
               </th>
@@ -195,7 +195,7 @@ export default function StudentTable({ alumnos, onRefresh, onEdit, onDelete }: P
           <tbody>
             {filtered.map((a, idx) => {
               const isEditing = (campo: CampoNota | "observaciones") => editing?.alumnoId === a.id && editing?.campo === campo;
-              const cellCls = "px-3 py-2 border-b transition-colors";
+              const cellCls = "px-1.5 py-1.5 border-b transition-colors";
               const stickyStyle: React.CSSProperties = {
                 position: "sticky", left: 0, zIndex: 2,
                 backgroundColor: "var(--bg-card)",
@@ -295,26 +295,26 @@ export default function StudentTable({ alumnos, onRefresh, onEdit, onDelete }: P
           {/* Averages row */}
           <tfoot>
             <tr style={{ backgroundColor: "var(--bg-secondary)" }}>
-              <td className="px-3 py-2 border-t font-semibold text-xs" style={cs}></td>
-              <td className="px-3 py-2 border-t font-semibold text-xs" style={cs}>Promedio</td>
+              <td className="px-1.5 py-1.5 border-t font-semibold text-xs" style={cs}></td>
+              <td className="px-1.5 py-1.5 border-t font-semibold text-xs" style={cs}>Prom</td>
               {CAMPOS.map(c => {
                 const p = promedioCol(c);
-                return <td key={c} className="px-3 py-2 border-t text-center font-semibold text-xs" style={{ ...cs, backgroundColor: p !== null ? colorNota(p) : "transparent" }}>{p ?? ""}</td>;
+                return <td key={c} className="px-1.5 py-1.5 border-t text-center font-semibold text-xs" style={{ ...cs, backgroundColor: p !== null ? colorNota(p) : "transparent" }}>{p ?? ""}</td>;
               })}
-              <td className="px-3 py-2 border-t" style={cs}></td>
-              <td className="px-3 py-2 border-t text-center font-semibold text-xs" style={cs}>{promedioParaExcel("nota1") ? "" : ""}</td>
-              <td colSpan={3} className="px-3 py-2 border-t" style={cs}></td>
-              <td className="px-3 py-2 border-t" style={cs}></td>
-              <td className="px-3 py-2 border-t" style={cs}></td>
-              <td className="px-3 py-2 border-t text-center font-bold text-xs" style={cs}>{promedioGeneral ?? ""}</td>
-              <td className="px-3 py-2 border-t" style={cs}></td>
-              <td className="px-3 py-2 border-t" style={cs}></td>
-              <td className="px-3 py-2 border-t" style={cs}></td>
+              <td className="px-1.5 py-1.5 border-t" style={cs}></td>
+              <td className="px-1.5 py-1.5 border-t text-center font-semibold text-xs" style={cs}>{promedioParaExcel("nota1") ? "" : ""}</td>
+              <td colSpan={3} className="px-1.5 py-1.5 border-t" style={cs}></td>
+              <td className="px-1.5 py-1.5 border-t" style={cs}></td>
+              <td className="px-1.5 py-1.5 border-t" style={cs}></td>
+              <td className="px-1.5 py-1.5 border-t text-center font-bold text-xs" style={cs}>{promedioGeneral ?? ""}</td>
+              <td className="px-1.5 py-1.5 border-t" style={cs}></td>
+              <td className="px-1.5 py-1.5 border-t" style={cs}></td>
+              <td className="px-1.5 py-1.5 border-t" style={cs}></td>
             </tr>
           </tfoot>
         </table>
       </div>
-      <div className="px-3 py-2 text-xs" style={{ color: "var(--text-secondary)", backgroundColor: "var(--bg-card)", borderLeft: "1px solid var(--border-color)", borderRight: "1px solid var(--border-color)", borderBottom: "1px solid var(--border-color)" }}>
+      <div className="px-1.5 py-1.5 text-xs" style={{ color: "var(--text-secondary)", backgroundColor: "var(--bg-card)", borderLeft: "1px solid var(--border-color)", borderRight: "1px solid var(--border-color)", borderBottom: "1px solid var(--border-color)" }}>
         {filtered.length} alumno{filtered.length !== 1 ? "s" : ""} · Clic en celda para editar · Enter/Tab siguiente · Esc cancelar
       </div>
     </div>
