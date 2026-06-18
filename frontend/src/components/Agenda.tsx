@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import type { AgendaItem } from "../types";
 import { getAgenda, saveAgendaItem, updateAgendaItem, deleteAgendaItem } from "../api";
 
@@ -49,11 +49,18 @@ export default function Agenda({ materiaId }: Props) {
   const [items, setItems] = useState<AgendaItem[]>([]);
   const [classDays, setClassDays] = useState<number[]>(() => loadDiasClase(materiaId));
   const [formOpen, setFormOpen] = useState(false);
+  const [toast, setToast] = useState("");
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function showToast(msg: string) {
+    setToast(msg);
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToast(""), 2000);
+  }
   const [editId, setEditId] = useState<number | null>(null);
   const [titulo, setTitulo] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [fecha, setFecha] = useState(() => snapToClassDay(new Date().toISOString().slice(0, 10), loadDiasClase(materiaId)));
-  const [hora, setHora] = useState("");
   const [tipo, setTipo] = useState<"evaluacion" | "entrega">("evaluacion");
 
   useEffect(() => { saveDiasClase(materiaId, classDays); }, [materiaId, classDays]);
@@ -63,6 +70,13 @@ export default function Agenda({ materiaId }: Props) {
   }
 
   useEffect(() => { load(); }, [materiaId]);
+
+  useEffect(() => {
+    if (!formOpen) return;
+    function handler(e: KeyboardEvent) { if (e.key === "Escape") setFormOpen(false); }
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [formOpen]);
 
   function toggleDay(n: number) {
     setClassDays(prev => prev.includes(n) ? prev.filter(d => d !== n) : [...prev, n].sort());
@@ -85,30 +99,31 @@ export default function Agenda({ materiaId }: Props) {
       setTitulo(item.titulo);
       setDescripcion(item.descripcion);
       setFecha(item.fecha);
-      setHora(item.hora);
       setTipo(item.tipo);
     } else {
       setEditId(null);
       setTitulo("");
       setDescripcion("");
       setFecha(snapToClassDay(new Date().toISOString().slice(0, 10), classDays));
-      setHora("");
       setTipo("evaluacion");
     }
     setFormOpen(true);
   }
 
   async function handleSave() {
-    if (!titulo.trim()) return;
+    if (!titulo.trim()) { showToast("✗ Escribí un título"); return; }
     try {
       if (editId) {
-        await updateAgendaItem(editId, { titulo: titulo.trim(), descripcion, fecha, hora, tipo });
+        await updateAgendaItem(editId, { titulo: titulo.trim(), descripcion, fecha, tipo });
       } else {
-        await saveAgendaItem({ materiaId, titulo: titulo.trim(), descripcion, fecha, hora, tipo });
+        await saveAgendaItem({ materiaId, titulo: titulo.trim(), descripcion, fecha, tipo });
       }
       setFormOpen(false);
       load();
-    } catch {}
+      showToast("✓ Guardado");
+    } catch (e: any) {
+      showToast("✗ Error: " + (e.message || "desconocido"));
+    }
   }
 
   async function handleDelete(id: number) {
@@ -129,6 +144,12 @@ export default function Agenda({ materiaId }: Props) {
 
   return (
     <div>
+      {toast && (
+        <div className="fixed top-4 right-4 z-50 px-4 py-2 rounded-lg text-sm font-medium shadow-lg"
+          style={{ backgroundColor: toast.includes("✗") ? "var(--danger)" : "var(--success)", color: "#fff" }}>
+          {toast}
+        </div>
+      )}
       {/* Class day selector */}
       <div className="flex flex-wrap items-center gap-2 mb-3 p-3 rounded-lg" style={{ backgroundColor: "var(--bg-card)", border: "1px solid var(--border-color)" }}>
         <span className="text-xs font-medium" style={{ color: "var(--text-secondary)" }}>Días de clase:</span>
@@ -173,24 +194,16 @@ export default function Agenda({ materiaId }: Props) {
                   {TIPOS.map(t => <option key={t.key} value={t.key}>{t.label}</option>)}
                 </select>
               </div>
-              <div className="flex gap-3">
-                <div className="flex-1">
-                  <label className="block text-sm font-medium mb-1">Fecha</label>
-                  <input type="date" value={fecha} onChange={e => handleDateChange(e.target.value)}
-                    className="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]"
-                    style={{ backgroundColor: "var(--bg-card)", color: "var(--text-primary)", borderColor: "var(--border-color)" }} />
-                  {classDays.length > 0 && (
-                    <p className="text-[10px] mt-1" style={{ color: "var(--text-secondary)" }}>
-                      Solo días: {classDays.map(d => DIAS_NOMBRE[d]).join(", ")}
-                    </p>
-                  )}
-                </div>
-                <div className="w-28">
-                  <label className="block text-sm font-medium mb-1">Hora</label>
-                  <input type="time" value={hora} onChange={e => setHora(e.target.value)}
-                    className="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]"
-                    style={{ backgroundColor: "var(--bg-card)", color: "var(--text-primary)", borderColor: "var(--border-color)" }} />
-                </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Fecha</label>
+                <input type="date" value={fecha} onChange={e => handleDateChange(e.target.value)}
+                  className="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]"
+                  style={{ backgroundColor: "var(--bg-card)", color: "var(--text-primary)", borderColor: "var(--border-color)" }} />
+                {classDays.length > 0 && (
+                  <p className="text-[10px] mt-1" style={{ color: "var(--text-secondary)" }}>
+                    Solo días: {classDays.map(d => DIAS_NOMBRE[d]).join(", ")}
+                  </p>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Descripción</label>
