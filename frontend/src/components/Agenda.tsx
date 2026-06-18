@@ -11,21 +11,73 @@ const TIPOS = [
   { key: "entrega", label: "Entrega TP", color: "#f59e0b" },
 ];
 
+const DIAS_SEM = [
+  { num: 1, label: "Lun" },
+  { num: 2, label: "Mar" },
+  { num: 3, label: "Mié" },
+  { num: 4, label: "Jue" },
+  { num: 5, label: "Vie" },
+];
+
+const DIAS_NOMBRE = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+
+function loadDiasClase(materiaId: number): number[] {
+  try {
+    const raw = localStorage.getItem(`diasClase_${materiaId}`);
+    return raw ? JSON.parse(raw) : [];
+  } catch { return []; }
+}
+
+function saveDiasClase(materiaId: number, dias: number[]) {
+  localStorage.setItem(`diasClase_${materiaId}`, JSON.stringify(dias));
+}
+
+function snapToClassDay(dateStr: string, classDays: number[]): string {
+  if (classDays.length === 0) return dateStr;
+  const d = new Date(dateStr + "T12:00:00");
+  if (classDays.includes(d.getDay())) return dateStr;
+  // find nearest class day (forward)
+  for (let i = 1; i <= 7; i++) {
+    const next = new Date(d);
+    next.setDate(d.getDate() + i);
+    if (classDays.includes(next.getDay())) return next.toISOString().slice(0, 10);
+  }
+  return dateStr;
+}
+
 export default function Agenda({ materiaId }: Props) {
   const [items, setItems] = useState<AgendaItem[]>([]);
+  const [classDays, setClassDays] = useState<number[]>(() => loadDiasClase(materiaId));
   const [formOpen, setFormOpen] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
   const [titulo, setTitulo] = useState("");
   const [descripcion, setDescripcion] = useState("");
-  const [fecha, setFecha] = useState(new Date().toISOString().slice(0, 10));
+  const [fecha, setFecha] = useState(() => snapToClassDay(new Date().toISOString().slice(0, 10), loadDiasClase(materiaId)));
   const [hora, setHora] = useState("");
   const [tipo, setTipo] = useState<"evaluacion" | "entrega">("evaluacion");
+
+  useEffect(() => { saveDiasClase(materiaId, classDays); }, [materiaId, classDays]);
 
   function load() {
     getAgenda(materiaId).then(setItems);
   }
 
   useEffect(() => { load(); }, [materiaId]);
+
+  function toggleDay(n: number) {
+    setClassDays(prev => prev.includes(n) ? prev.filter(d => d !== n) : [...prev, n].sort());
+  }
+
+  function handleDateChange(val: string) {
+    if (classDays.length > 0) {
+      const snapped = snapToClassDay(val, classDays);
+      if (snapped !== val) {
+        setFecha(snapped);
+        return;
+      }
+    }
+    setFecha(val);
+  }
 
   function openForm(item?: AgendaItem) {
     if (item) {
@@ -39,7 +91,7 @@ export default function Agenda({ materiaId }: Props) {
       setEditId(null);
       setTitulo("");
       setDescripcion("");
-      setFecha(new Date().toISOString().slice(0, 10));
+      setFecha(snapToClassDay(new Date().toISOString().slice(0, 10), classDays));
       setHora("");
       setTipo("evaluacion");
     }
@@ -77,9 +129,26 @@ export default function Agenda({ materiaId }: Props) {
 
   return (
     <div>
+      {/* Class day selector */}
+      <div className="flex flex-wrap items-center gap-2 mb-3 p-3 rounded-lg" style={{ backgroundColor: "var(--bg-card)", border: "1px solid var(--border-color)" }}>
+        <span className="text-xs font-medium" style={{ color: "var(--text-secondary)" }}>Días de clase:</span>
+        {DIAS_SEM.map(d => (
+          <label key={d.num} className="flex items-center gap-1 cursor-pointer text-xs px-2 py-1 rounded transition-colors"
+            style={{
+              backgroundColor: classDays.includes(d.num) ? "var(--accent)" : "var(--bg-secondary)",
+              color: classDays.includes(d.num) ? "#fff" : "var(--text-primary)",
+            }}>
+            <input type="checkbox" checked={classDays.includes(d.num)} onChange={() => toggleDay(d.num)} className="hidden" />
+            {d.label}
+          </label>
+        ))}
+        <span className="text-xs ml-auto" style={{ color: "var(--text-secondary)" }}>
+          {items.length} evento{items.length !== 1 ? "s" : ""}
+        </span>
+      </div>
+
       <div className="flex items-center gap-3 mb-4">
         <button onClick={() => openForm()} className="btn-primary text-sm">+ Agregar</button>
-        <span className="text-xs" style={{ color: "var(--text-secondary)" }}>{items.length} evento{items.length !== 1 ? "s" : ""}</span>
       </div>
 
       {formOpen && (
@@ -107,9 +176,14 @@ export default function Agenda({ materiaId }: Props) {
               <div className="flex gap-3">
                 <div className="flex-1">
                   <label className="block text-sm font-medium mb-1">Fecha</label>
-                  <input type="date" value={fecha} onChange={e => setFecha(e.target.value)}
+                  <input type="date" value={fecha} onChange={e => handleDateChange(e.target.value)}
                     className="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]"
                     style={{ backgroundColor: "var(--bg-card)", color: "var(--text-primary)", borderColor: "var(--border-color)" }} />
+                  {classDays.length > 0 && (
+                    <p className="text-[10px] mt-1" style={{ color: "var(--text-secondary)" }}>
+                      Solo días: {classDays.map(d => DIAS_NOMBRE[d]).join(", ")}
+                    </p>
+                  )}
                 </div>
                 <div className="w-28">
                   <label className="block text-sm font-medium mb-1">Hora</label>
@@ -150,8 +224,7 @@ export default function Agenda({ materiaId }: Props) {
               {grouped[month].map(item => {
                 const tipoInfo = TIPOS.find(t => t.key === item.tipo);
                 const dia = item.fecha.slice(8, 10);
-                const diasSem = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
-                const diaSem = diasSem[new Date(item.fecha + "T12:00:00").getDay()];
+                const diaSem = DIAS_NOMBRE[new Date(item.fecha + "T12:00:00").getDay()];
                 return (
                   <div key={item.id} className="flex items-start gap-3 px-4 py-3 border-b transition-colors"
                     style={{ borderColor: "var(--border-color)" }}
