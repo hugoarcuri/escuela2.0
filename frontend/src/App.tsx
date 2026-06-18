@@ -22,7 +22,10 @@ export default function App() {
   const [cursoId, setCursoId] = useState<number | "">("");
   const [materiaId, setMateriaId] = useState<number | "">("");
   const [search, setSearch] = useState("");
-  const [anioLectivo, setAnioLectivo] = useState(new Date().getFullYear());
+  const [anioLectivo, setAnioLectivo] = useState(() => {
+    const saved = localStorage.getItem("anioLectivo");
+    return saved ? Number(saved) : new Date().getFullYear();
+  });
   const [formOpen, setFormOpen] = useState(false);
   const [editingAlumno, setEditingAlumno] = useState<Alumno | null>(null);
   const [adminEscuelaOpen, setAdminEscuelaOpen] = useState(false);
@@ -37,6 +40,7 @@ export default function App() {
   function loadSaved(key: string): Record<number, number> { try { return JSON.parse(localStorage.getItem(key) || "{}"); } catch { return {}; } }
   const lastCurso = useRef<Record<number, number>>(loadSaved("lastCurso"));
   const lastMateria = useRef<Record<number, number>>(loadSaved("lastMateria"));
+  const [restored, setRestored] = useState(false);
 
   const { confirm, modal: confirmModal } = useConfirm();
   const { prompt, modal: promptModal } = usePrompt();
@@ -47,11 +51,23 @@ export default function App() {
     localStorage.setItem("theme", theme);
   }, [theme]);
 
-  useEffect(() => { getEscuelas().then(setEscuelas); }, []);
+  useEffect(() => {
+    getEscuelas().then(list => {
+      setEscuelas(list);
+      if (!restored) {
+        const savedId = localStorage.getItem("lastEscuelaId");
+        if (savedId && list.some(e => e.id === Number(savedId))) {
+          setEscuelaId(Number(savedId));
+        }
+        setRestored(true);
+      }
+    });
+  }, [restored]);
 
   useEffect(() => {
     if (escuelaId) {
       const id = Number(escuelaId);
+      localStorage.setItem("lastEscuelaId", String(id));
       getCursos(id).then(list => {
         setCursos(list);
         const saved = lastCurso.current[id];
@@ -95,6 +111,7 @@ export default function App() {
   }, [escuelaId, cursoId, materiaId, anioLectivo, search]);
 
   useEffect(() => { loadAlumnos(); }, [loadAlumnos]);
+  useEffect(() => { localStorage.setItem("anioLectivo", String(anioLectivo)); }, [anioLectivo]);
 
   useEffect(() => {
     getSettings().then(s => {
