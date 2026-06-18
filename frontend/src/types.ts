@@ -78,3 +78,14 @@ export function mapAlumno(a: AlumnoDB, modoManual: boolean): Alumno {
     informe2: calcInforme(nota2C),
   };
 }
+
+export interface AgendaItem {
+  id: number;
+  materiaId: number;
+  titulo: string;
+  descripcion: string;
+  fecha: string;
+  hora: string;
+  tipo: "evaluacion" | "entrega";
+  googleEventId: string;
+}

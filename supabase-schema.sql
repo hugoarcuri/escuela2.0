@@ -74,6 +74,19 @@ CREATE TABLE IF NOT EXISTS "formLinks" (
   "createdAt" TIMESTAMPTZ DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS agenda (
+  id SERIAL PRIMARY KEY,
+  "materiaId" INTEGER NOT NULL REFERENCES materias(id) ON DELETE CASCADE,
+  titulo TEXT NOT NULL,
+  descripcion TEXT DEFAULT '',
+  fecha DATE NOT NULL,
+  hora TEXT DEFAULT '',
+  tipo TEXT NOT NULL DEFAULT 'evaluacion',
+  "googleEventId" TEXT DEFAULT '',
+  "createdAt" TIMESTAMPTZ DEFAULT NOW(),
+  "updatedAt" TIMESTAMPTZ DEFAULT NOW()
+);
+
 DROP TABLE IF EXISTS asistencias;
 CREATE TABLE IF NOT EXISTS asistencias (
   id SERIAL PRIMARY KEY,
@@ -94,6 +107,7 @@ ALTER TABLE alumnos ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "historialCambio" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE settings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "formLinks" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE agenda ENABLE ROW LEVEL SECURITY;
 ALTER TABLE asistencias ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "allow_all" ON escuelas;
@@ -103,6 +117,7 @@ DROP POLICY IF EXISTS "allow_all" ON alumnos;
 DROP POLICY IF EXISTS "allow_all" ON "historialCambio";
 DROP POLICY IF EXISTS "allow_all" ON settings;
 DROP POLICY IF EXISTS "allow_all" ON "formLinks";
+DROP POLICY IF EXISTS "allow_all" ON agenda;
 DROP POLICY IF EXISTS "allow_all" ON asistencias;
 
 CREATE POLICY "allow_all" ON escuelas FOR ALL USING (true) WITH CHECK (true);

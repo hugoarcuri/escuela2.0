@@ -1,5 +1,5 @@
 import { supabase } from "./supabase";
-import type { Escuela, Curso, Materia, Alumno, AlumnoDB, EscuelaFormData, CursoFormData, MateriaFormData, FormLink, Asistencia } from "./types";
+import type { Escuela, Curso, Materia, Alumno, AlumnoDB, EscuelaFormData, CursoFormData, MateriaFormData, FormLink, Asistencia, AgendaItem } from "./types";
 import { mapAlumno } from "./types";
 
 /* Escuelas */
@@ -258,6 +258,30 @@ export async function getAsistenciasDelMes(materiaId: number, anio: number, mes:
 }
 export async function saveAsistenciasBatch(records: { alumnoId: number; materiaId: number; fecha: string; estado: string }[]): Promise<void> {
   const { error } = await supabase.from("asistencias").upsert(records, { onConflict: "alumnoId,materiaId,fecha" });
+  if (error) throw error;
+}
+
+/* Agenda */
+export async function getAgenda(materiaId: number): Promise<AgendaItem[]> {
+  const { data, error } = await supabase.from("agenda")
+    .select("*").eq("materiaId", materiaId).order("fecha", { ascending: true });
+  if (error) throw error;
+  return data ?? [];
+}
+
+export async function saveAgendaItem(item: { materiaId: number; titulo: string; descripcion?: string; fecha: string; hora?: string; tipo: "evaluacion" | "entrega" }): Promise<AgendaItem> {
+  const { data, error } = await supabase.from("agenda").insert(item).select().single();
+  if (error) throw error;
+  return data;
+}
+
+export async function updateAgendaItem(id: number, item: { titulo?: string; descripcion?: string; fecha?: string; hora?: string; tipo?: "evaluacion" | "entrega" }): Promise<void> {
+  const { error } = await supabase.from("agenda").update(item).eq("id", id);
+  if (error) throw error;
+}
+
+export async function deleteAgendaItem(id: number): Promise<void> {
+  const { error } = await supabase.from("agenda").delete().eq("id", id);
   if (error) throw error;
 }
 

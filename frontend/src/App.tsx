@@ -8,6 +8,7 @@ import StudentForm from "./components/StudentForm";
 import ImportExport from "./components/ImportExport";
 import GoogleFormSync from "./components/GoogleFormSync";
 import Asistencias from "./components/Asistencias";
+import Agenda from "./components/Agenda";
 import AdminEscuela from "./components/AdminEscuela";
 import AdminCurso from "./components/AdminCurso";
 import AdminMateria from "./components/AdminMateria";
@@ -36,7 +37,7 @@ export default function App() {
   const [adminMateriaOpen, setAdminMateriaOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [notaFinalMode, setNotaFinalMode] = useState("auto");
-  const [tab, setTab] = useState<"alumnos" | "asistencias">("alumnos");
+  const [tab, setTab] = useState<"alumnos" | "asistencias" | "agenda">("alumnos");
   const [theme, setTheme] = useState<"light" | "dark">(() => (localStorage.getItem("theme") as "light" | "dark") || "light");
   const lastCurso = useRef<Record<number, number>>(loadSaved("lastCurso"));
   const lastMateria = useRef<Record<number, number>>(loadSaved("lastMateria"));
@@ -227,6 +228,13 @@ export default function App() {
                   color: tab === "asistencias" ? "var(--text-primary)" : "var(--text-secondary)",
                   borderColor: "var(--border-color)",
                 }}>Asistencias</button>
+              <button onClick={() => setTab("agenda")}
+                className="px-4 py-2 text-sm font-medium rounded-t-lg border border-b-0 -mb-px transition-colors"
+                style={{
+                  backgroundColor: tab === "agenda" ? "var(--bg-card)" : "transparent",
+                  color: tab === "agenda" ? "var(--text-primary)" : "var(--text-secondary)",
+                  borderColor: "var(--border-color)",
+                }}>Agenda</button>
             </div>
             {tab === "alumnos" && (
               <>
@@ -261,6 +269,9 @@ export default function App() {
             )}
             {tab === "asistencias" && (
               <Asistencias alumnos={alumnos} materiaId={Number(materiaId)} />
+            )}
+            {tab === "agenda" && (
+              <Agenda materiaId={Number(materiaId)} />
             )}
           </>
         )}
