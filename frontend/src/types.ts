@@ -36,7 +36,7 @@ export interface FormLink {
   id: number; token: string; escuelaId: number; cursoId: number; materiaId: number; anioLectivo: number;
 }
 export interface Asistencia {
-  id: number; alumnoId: number; escuelaId: number; cursoId: number; materiaId: number;
+  id: number; alumnoId: number; materiaId: number;
   fecha: string; estado: "P" | "A" | "T" | "J";
 }
 

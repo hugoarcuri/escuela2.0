@@ -260,7 +260,7 @@ export default function App() {
               </>
             )}
             {tab === "asistencias" && (
-              <Asistencias alumnos={alumnos} escuelaId={Number(escuelaId)} cursoId={Number(cursoId)} materiaId={Number(materiaId)} />
+              <Asistencias alumnos={alumnos} materiaId={Number(materiaId)} />
             )}
           </>
         )}

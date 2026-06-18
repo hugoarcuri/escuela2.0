@@ -239,25 +239,17 @@ export async function importList(list: string, escuelaId: number, cursoId: numbe
 }
 
 /* Asistencias */
-export async function getAsistencias(alumnoId: number, fecha: string): Promise<Asistencia | null> {
-  const { data, error } = await supabase.from("asistencias").select("*").eq("alumnoId", alumnoId).eq("fecha", fecha).maybeSingle();
-  if (error) throw error;
-  return data;
-}
-export async function getAsistenciasPorFecha(escuelaId: number, cursoId: number, materiaId: number, fecha: string): Promise<Asistencia[]> {
-  const { data, error } = await supabase.from("asistencias").select("*").eq("escuelaId", escuelaId).eq("cursoId", cursoId).eq("materiaId", materiaId).eq("fecha", fecha);
+export async function getAsistenciasDelMes(materiaId: number, anio: number, mes: number): Promise<Asistencia[]> {
+  const start = `${anio}-${String(mes).padStart(2, "0")}-01`;
+  const endDate = new Date(anio, mes, 0);
+  const end = `${anio}-${String(mes).padStart(2, "0")}-${String(endDate.getDate()).padStart(2, "0")}`;
+  const { data, error } = await supabase.from("asistencias")
+    .select("*").eq("materiaId", materiaId).gte("fecha", start).lte("fecha", end);
   if (error) throw error;
   return data ?? [];
 }
-export async function saveAsistencia(alumnoId: number, escuelaId: number, cursoId: number, materiaId: number, fecha: string, estado: string): Promise<void> {
-  const { error } = await supabase.from("asistencias").upsert(
-    { alumnoId, escuelaId, cursoId, materiaId, fecha, estado },
-    { onConflict: "alumnoId,fecha" }
-  );
-  if (error) throw error;
-}
-export async function saveAsistenciasBatch(records: { alumnoId: number; escuelaId: number; cursoId: number; materiaId: number; fecha: string; estado: string }[]): Promise<void> {
-  const { error } = await supabase.from("asistencias").upsert(records, { onConflict: "alumnoId,fecha" });
+export async function saveAsistenciasBatch(records: { alumnoId: number; materiaId: number; fecha: string; estado: string }[]): Promise<void> {
+  const { error } = await supabase.from("asistencias").upsert(records, { onConflict: "alumnoId,materiaId,fecha" });
   if (error) throw error;
 }
 

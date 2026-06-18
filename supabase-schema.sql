@@ -77,14 +77,12 @@ CREATE TABLE IF NOT EXISTS "formLinks" (
 CREATE TABLE IF NOT EXISTS asistencias (
   id SERIAL PRIMARY KEY,
   "alumnoId" INTEGER NOT NULL REFERENCES alumnos(id) ON DELETE CASCADE,
-  "escuelaId" INTEGER NOT NULL REFERENCES escuelas(id) ON DELETE CASCADE,
-  "cursoId" INTEGER NOT NULL REFERENCES cursos(id) ON DELETE CASCADE,
   "materiaId" INTEGER NOT NULL REFERENCES materias(id) ON DELETE CASCADE,
   fecha DATE NOT NULL,
   estado TEXT NOT NULL DEFAULT 'P',
   "createdAt" TIMESTAMPTZ DEFAULT NOW(),
   "updatedAt" TIMESTAMPTZ DEFAULT NOW(),
-  UNIQUE("alumnoId", fecha)
+  UNIQUE("alumnoId", "materiaId", fecha)
 );
 
 -- RLS: permitir todo con la key anónima (seguro para uso escolar)
