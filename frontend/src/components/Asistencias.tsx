@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import type { Alumno, Asistencia } from "../types";
 import { getAsistenciasDelMes, getAsistenciasDelAnio, saveAsistenciasBatch } from "../api";
 import { supabase } from "../supabase";
@@ -58,9 +58,8 @@ export default function Asistencias({ alumnos, materiaId }: Props) {
   const [classDates, setClassDates] = useState<Record<number, string>>({});
   const [asistencias, setAsistencias] = useState<Record<string, string>>({});
   const [feriados, setFeriados] = useState<Feriado[]>([]);
-  const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState("");
-  const toastTimer = useRef<ReturnType<typeof setTimeout>>();
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   function showToast(msg: string) {
     setToast(msg);
@@ -84,7 +83,6 @@ export default function Asistencias({ alumnos, materiaId }: Props) {
   useEffect(() => {
     let cancelled = false;
     async function load() {
-      setLoading(true);
       let records: Asistencia[] = [];
       try {
         if (vista === "anio") records = await getAsistenciasDelAnio(materiaId, anio);
@@ -120,7 +118,6 @@ export default function Asistencias({ alumnos, materiaId }: Props) {
         }
       }
       setAsistencias(map);
-      setLoading(false);
     }
     load();
     return () => { cancelled = true; };
