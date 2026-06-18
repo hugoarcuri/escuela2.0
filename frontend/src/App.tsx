@@ -37,9 +37,6 @@ export default function App() {
   const [tab, setTab] = useState<"alumnos" | "asistencias">("alumnos");
   const [theme, setTheme] = useState<"light" | "dark">(() => (localStorage.getItem("theme") as "light" | "dark") || "light");
 
-  function loadSaved(key: string): Record<number, number> { try { return JSON.parse(localStorage.getItem(key) || "{}"); } catch { return {}; } }
-  const lastCurso = useRef<Record<number, number>>(loadSaved("lastCurso"));
-  const lastMateria = useRef<Record<number, number>>(loadSaved("lastMateria"));
   const [restored, setRestored] = useState(false);
 
   const { confirm, modal: confirmModal } = useConfirm();
@@ -51,58 +48,49 @@ export default function App() {
     localStorage.setItem("theme", theme);
   }, [theme]);
 
+  // Persist full selector state to localStorage
+  function saveSessionState() {
+    if (escuelaId && cursoId && materiaId) {
+      localStorage.setItem("lastSession", JSON.stringify({
+        escuelaId: Number(escuelaId),
+        cursoId: Number(cursoId),
+        materiaId: Number(materiaId),
+      }));
+    }
+  }
+  useEffect(() => { saveSessionState(); }, [escuelaId, cursoId, materiaId]);
+
+  // Restore full state on initial load
   useEffect(() => {
     getEscuelas().then(list => {
       setEscuelas(list);
       if (!restored) {
-        const savedId = localStorage.getItem("lastEscuelaId");
-        if (savedId && list.some(e => e.id === Number(savedId))) {
-          setEscuelaId(Number(savedId));
+        const raw = localStorage.getItem("lastSession");
+        if (raw) {
+          try {
+            const saved = JSON.parse(raw);
+            if (list.some(e => e.id === saved.escuelaId)) {
+              setEscuelaId(saved.escuelaId);
+              // carga curso y materia después de obtenerlos
+              getCursos(saved.escuelaId).then(cursosList => {
+                setCursos(cursosList);
+                if (cursosList.some(c => c.id === saved.cursoId)) {
+                  setCursoId(saved.cursoId);
+                  getMaterias(saved.cursoId).then(matsList => {
+                    setMaterias(matsList);
+                    if (matsList.some(m => m.id === saved.materiaId)) {
+                      setMateriaId(saved.materiaId);
+                    }
+                  });
+                }
+              });
+            }
+          } catch {}
         }
         setRestored(true);
       }
     });
   }, [restored]);
-
-  useEffect(() => {
-    if (escuelaId) {
-      const id = Number(escuelaId);
-      localStorage.setItem("lastEscuelaId", String(id));
-      getCursos(id).then(list => {
-        setCursos(list);
-        const saved = lastCurso.current[id];
-        if (saved && list.some(c => c.id === saved)) setCursoId(saved);
-        else setCursoId("");
-      });
-    } else { setCursos([]); setCursoId(""); setMaterias([]); setMateriaId(""); setAlumnos([]); }
-  }, [escuelaId]);
-
-  useEffect(() => {
-    if (cursoId) {
-      const id = Number(cursoId);
-      getMaterias(id).then(list => {
-        setMaterias(list);
-        const saved = lastMateria.current[id];
-        if (saved && list.some(m => m.id === saved)) setMateriaId(saved);
-        else if (list.length === 1) setMateriaId(list[0].id);
-        else setMateriaId("");
-      });
-    } else { setMaterias([]); setMateriaId(""); setAlumnos([]); }
-  }, [cursoId]);
-
-  useEffect(() => {
-    if (escuelaId && cursoId) {
-      lastCurso.current[Number(escuelaId)] = Number(cursoId);
-      localStorage.setItem("lastCurso", JSON.stringify(lastCurso.current));
-    }
-  }, [escuelaId, cursoId]);
-
-  useEffect(() => {
-    if (cursoId && materiaId) {
-      lastMateria.current[Number(cursoId)] = Number(materiaId);
-      localStorage.setItem("lastMateria", JSON.stringify(lastMateria.current));
-    }
-  }, [cursoId, materiaId]);
 
   const loadAlumnos = useCallback(() => {
     if (escuelaId && cursoId && materiaId) {
