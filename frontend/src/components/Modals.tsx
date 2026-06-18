@@ -1,11 +1,5 @@
 import { useState } from "react";
 
-interface ConfirmProps {
-  message: string;
-  onConfirm: () => void | Promise<void>;
-  onCancel: () => void;
-}
-
 export function useConfirm() {
   const [state, setState] = useState<{ message: string; onConfirm: () => void; onCancel: () => void } | null>(null);
 

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useCallback } from "react";
 import type { Alumno } from "../types";
 import { batchUpdateAlumno, deleteAlumnosBulk } from "../api";
 
