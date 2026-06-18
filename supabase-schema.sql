@@ -74,6 +74,7 @@ CREATE TABLE IF NOT EXISTS "formLinks" (
   "createdAt" TIMESTAMPTZ DEFAULT NOW()
 );
 
+DROP TABLE IF EXISTS asistencias;
 CREATE TABLE IF NOT EXISTS asistencias (
   id SERIAL PRIMARY KEY,
   "alumnoId" INTEGER NOT NULL REFERENCES alumnos(id) ON DELETE CASCADE,
@@ -94,6 +95,15 @@ ALTER TABLE "historialCambio" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE settings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "formLinks" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE asistencias ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "allow_all" ON escuelas;
+DROP POLICY IF EXISTS "allow_all" ON cursos;
+DROP POLICY IF EXISTS "allow_all" ON materias;
+DROP POLICY IF EXISTS "allow_all" ON alumnos;
+DROP POLICY IF EXISTS "allow_all" ON "historialCambio";
+DROP POLICY IF EXISTS "allow_all" ON settings;
+DROP POLICY IF EXISTS "allow_all" ON "formLinks";
+DROP POLICY IF EXISTS "allow_all" ON asistencias;
 
 CREATE POLICY "allow_all" ON escuelas FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "allow_all" ON cursos FOR ALL USING (true) WITH CHECK (true);

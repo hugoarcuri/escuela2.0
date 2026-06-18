@@ -26,7 +26,7 @@ const ESTADOS = [
   { key: "P", label: "P", title: "Presente", color: "var(--success)" },
   { key: "A", label: "A", title: "Ausente", color: "var(--danger)" },
   { key: "T", label: "T", title: "Tarde", color: "#f59e0b" },
-  { key: "J", label: "J", title: "Justificado", color: "var(--accent)" },
+  { key: "Lic", label: "Lic", title: "Licencia (docente ausente)", color: "var(--accent)" },
 ];
 
 const MESES = ["Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
@@ -132,6 +132,21 @@ export default function Asistencias({ alumnos, materiaId }: Props) {
       const current = prev[key] || "P";
       const idx = ESTADOS.findIndex(e => e.key === current);
       const next = ESTADOS[(idx + 1) % ESTADOS.length].key;
+      // Lic es global: si se activa o desactiva, aplica a todos los alumnos de esa fecha
+      if (next === "Lic") {
+        const updated: Record<string, string> = {};
+        for (const a of alumnos) updated[`${a.id}:${keySuffix}`] = "Lic";
+        saveAsistenciasBatch(alumnos.map(a => ({ alumnoId: a.id, materiaId, fecha, estado: "Lic" })));
+        showToast("✓ Licencia - todos los alumnos");
+        return { ...prev, ...updated };
+      }
+      if (current === "Lic" && next !== "Lic") {
+        const updated: Record<string, string> = {};
+        for (const a of alumnos) updated[`${a.id}:${keySuffix}`] = next;
+        saveAsistenciasBatch(alumnos.map(a => ({ alumnoId: a.id, materiaId, fecha, estado: next })));
+        showToast(`✓ Todos ${next}`);
+        return { ...prev, ...updated };
+      }
       autoSave(fecha, alumnoId, next);
       return { ...prev, [key]: next };
     });
@@ -246,6 +261,9 @@ export default function Asistencias({ alumnos, materiaId }: Props) {
                     <button onClick={() => marcarTodos(String(s.semana), "A", classDates[s.semana])}
                       className="text-[10px] px-1 py-0.5 mt-1 rounded hover:opacity-80 ml-0.5"
                       style={{ color: "var(--danger)" }}>A</button>
+                    <button onClick={() => marcarTodos(String(s.semana), "Lic", classDates[s.semana])}
+                      className="text-[10px] px-1 py-0.5 mt-1 rounded hover:opacity-80 ml-0.5"
+                      style={{ color: "var(--accent)" }}>Lic</button>
                   </>}
                 </th>
                 );
@@ -291,7 +309,7 @@ export default function Asistencias({ alumnos, materiaId }: Props) {
                     const esFeriado = feriadosMap.has(fecha);
                     const estado = asistencias[`${a.id}:${s.semana}`] || "P";
                     const est = ESTADOS.find(e => e.key === estado)!;
-                    if (!esFeriado) { total++; if (estado === "P") presente++; }
+                    if (!esFeriado) { total++; if (estado === "P" || estado === "Lic") presente++; }
                     return (
                       <td key={s.semana} className="px-1 py-1.5 text-center border-b" style={{
                         borderColor: "var(--border-color)",
@@ -333,7 +351,7 @@ export default function Asistencias({ alumnos, materiaId }: Props) {
       <div className="px-3 py-1.5 text-xs" style={{ color: "var(--text-secondary)", backgroundColor: "var(--bg-card)", borderLeft: "1px solid var(--border-color)", borderRight: "1px solid var(--border-color)", borderBottom: "1px solid var(--border-color)" }}>
         {alumnos.length} alumno{alumnos.length !== 1 ? "s" : ""}
         {vista === "mes" && ` · ${totalClasesMes} clase${totalClasesMes !== 1 ? "s" : ""} en el mes`}
-        {vista === "dia" ? " · Clic en círculo: P → A → T → J" : " · Clic para cambiar estado"}
+        {vista === "dia" ? " · Clic en círculo: P → A → T → Lic" : " · Clic para cambiar: P → A → T → Lic"}
       </div>
     </div>
   );
