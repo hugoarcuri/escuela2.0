@@ -13,6 +13,8 @@ import AdminCurso from "./components/AdminCurso";
 import AdminMateria from "./components/AdminMateria";
 import { useConfirm, usePrompt, useAlert } from "./components/Modals";
 
+function loadSaved(key: string): Record<number, number> { try { return JSON.parse(localStorage.getItem(key) || "{}"); } catch { return {}; } }
+
 export default function App() {
   const [escuelas, setEscuelas] = useState<Escuela[]>([]);
   const [cursos, setCursos] = useState<Curso[]>([]);
@@ -36,6 +38,8 @@ export default function App() {
   const [notaFinalMode, setNotaFinalMode] = useState("auto");
   const [tab, setTab] = useState<"alumnos" | "asistencias">("alumnos");
   const [theme, setTheme] = useState<"light" | "dark">(() => (localStorage.getItem("theme") as "light" | "dark") || "light");
+  const lastCurso = useRef<Record<number, number>>(loadSaved("lastCurso"));
+  const lastMateria = useRef<Record<number, number>>(loadSaved("lastMateria"));
 
   const [restored, setRestored] = useState(false);
 
@@ -48,8 +52,8 @@ export default function App() {
     localStorage.setItem("theme", theme);
   }, [theme]);
 
-  // Persist full selector state to localStorage
-  function saveSessionState() {
+  // Save full session when all 3 selected
+  useEffect(() => {
     if (escuelaId && cursoId && materiaId) {
       localStorage.setItem("lastSession", JSON.stringify({
         escuelaId: Number(escuelaId),
@@ -57,21 +61,34 @@ export default function App() {
         materiaId: Number(materiaId),
       }));
     }
-  }
-  useEffect(() => { saveSessionState(); }, [escuelaId, cursoId, materiaId]);
+  }, [escuelaId, cursoId, materiaId]);
+
+  // Save escuela, curso, materia individual maps (for manual selection restore)
+  useEffect(() => {
+    if (escuelaId && cursoId) {
+      lastCurso.current[Number(escuelaId)] = Number(cursoId);
+      localStorage.setItem("lastCurso", JSON.stringify(lastCurso.current));
+    }
+  }, [escuelaId, cursoId]);
+  useEffect(() => {
+    if (cursoId && materiaId) {
+      lastMateria.current[Number(cursoId)] = Number(materiaId);
+      localStorage.setItem("lastMateria", JSON.stringify(lastMateria.current));
+    }
+  }, [cursoId, materiaId]);
 
   // Restore full state on initial load
   useEffect(() => {
     getEscuelas().then(list => {
       setEscuelas(list);
       if (!restored) {
+        // Try full session first
         const raw = localStorage.getItem("lastSession");
         if (raw) {
           try {
             const saved = JSON.parse(raw);
             if (list.some(e => e.id === saved.escuelaId)) {
               setEscuelaId(saved.escuelaId);
-              // carga curso y materia después de obtenerlos
               getCursos(saved.escuelaId).then(cursosList => {
                 setCursos(cursosList);
                 if (cursosList.some(c => c.id === saved.cursoId)) {
@@ -88,9 +105,40 @@ export default function App() {
           } catch {}
         }
         setRestored(true);
+      } else {
+        // Already restored: save current selections
+        localStorage.setItem("lastStateEscuela", JSON.stringify({
+          curso: lastCurso.current,
+          materia: lastMateria.current,
+        }));
       }
     });
   }, [restored]);
+
+  // When escuela changes manually (not from restore), restore last curso
+  useEffect(() => {
+    if (escuelaId) {
+      getCursos(Number(escuelaId)).then(list => {
+        setCursos(list);
+        const saved = lastCurso.current[Number(escuelaId)];
+        if (saved && list.some(c => c.id === saved)) setCursoId(saved);
+        else setCursoId("");
+      });
+    } else { setCursos([]); setCursoId(""); setMaterias([]); setMateriaId(""); setAlumnos([]); }
+  }, [escuelaId]);
+
+  // When curso changes manually, restore last materia
+  useEffect(() => {
+    if (cursoId) {
+      getMaterias(Number(cursoId)).then(list => {
+        setMaterias(list);
+        const saved = lastMateria.current[Number(cursoId)];
+        if (saved && list.some(m => m.id === saved)) setMateriaId(saved);
+        else if (list.length === 1) setMateriaId(list[0].id);
+        else setMateriaId("");
+      });
+    } else { setMaterias([]); setMateriaId(""); setAlumnos([]); }
+  }, [cursoId]);
 
   const loadAlumnos = useCallback(() => {
     if (escuelaId && cursoId && materiaId) {
