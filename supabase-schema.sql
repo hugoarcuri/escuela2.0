@@ -74,6 +74,19 @@ CREATE TABLE IF NOT EXISTS "formLinks" (
   "createdAt" TIMESTAMPTZ DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS asistencias (
+  id SERIAL PRIMARY KEY,
+  "alumnoId" INTEGER NOT NULL REFERENCES alumnos(id) ON DELETE CASCADE,
+  "escuelaId" INTEGER NOT NULL REFERENCES escuelas(id) ON DELETE CASCADE,
+  "cursoId" INTEGER NOT NULL REFERENCES cursos(id) ON DELETE CASCADE,
+  "materiaId" INTEGER NOT NULL REFERENCES materias(id) ON DELETE CASCADE,
+  fecha DATE NOT NULL,
+  estado TEXT NOT NULL DEFAULT 'P',
+  "createdAt" TIMESTAMPTZ DEFAULT NOW(),
+  "updatedAt" TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE("alumnoId", fecha)
+);
+
 -- RLS: permitir todo con la key anónima (seguro para uso escolar)
 ALTER TABLE escuelas ENABLE ROW LEVEL SECURITY;
 ALTER TABLE cursos ENABLE ROW LEVEL SECURITY;
@@ -82,6 +95,7 @@ ALTER TABLE alumnos ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "historialCambio" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE settings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "formLinks" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE asistencias ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "allow_all" ON escuelas FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "allow_all" ON cursos FOR ALL USING (true) WITH CHECK (true);
@@ -90,3 +104,4 @@ CREATE POLICY "allow_all" ON alumnos FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "allow_all" ON "historialCambio" FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "allow_all" ON settings FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "allow_all" ON "formLinks" FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "allow_all" ON asistencias FOR ALL USING (true) WITH CHECK (true);

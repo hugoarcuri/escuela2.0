@@ -35,6 +35,10 @@ export interface HistorialCambio {
 export interface FormLink {
   id: number; token: string; escuelaId: number; cursoId: number; materiaId: number; anioLectivo: number;
 }
+export interface Asistencia {
+  id: number; alumnoId: number; escuelaId: number; cursoId: number; materiaId: number;
+  fecha: string; estado: "P" | "A" | "T" | "J";
+}
 
 export function calcNota1C(a: { nota1: number | null; nota2: number | null; nota3: number | null }): number | null {
   const nums = [a.nota1, a.nota2, a.nota3].filter((v): v is number => v !== null);

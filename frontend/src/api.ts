@@ -1,5 +1,5 @@
 import { supabase } from "./supabase";
-import type { Escuela, Curso, Materia, Alumno, AlumnoDB, EscuelaFormData, CursoFormData, MateriaFormData, FormLink } from "./types";
+import type { Escuela, Curso, Materia, Alumno, AlumnoDB, EscuelaFormData, CursoFormData, MateriaFormData, FormLink, Asistencia } from "./types";
 import { mapAlumno } from "./types";
 
 /* Escuelas */
@@ -236,6 +236,29 @@ export async function importList(list: string, escuelaId: number, cursoId: numbe
     } catch (e: any) { errors.push(`${line}: ${e.message}`); }
   }
   return { imported, errors };
+}
+
+/* Asistencias */
+export async function getAsistencias(alumnoId: number, fecha: string): Promise<Asistencia | null> {
+  const { data, error } = await supabase.from("asistencias").select("*").eq("alumnoId", alumnoId).eq("fecha", fecha).maybeSingle();
+  if (error) throw error;
+  return data;
+}
+export async function getAsistenciasPorFecha(escuelaId: number, cursoId: number, materiaId: number, fecha: string): Promise<Asistencia[]> {
+  const { data, error } = await supabase.from("asistencias").select("*").eq("escuelaId", escuelaId).eq("cursoId", cursoId).eq("materiaId", materiaId).eq("fecha", fecha);
+  if (error) throw error;
+  return data ?? [];
+}
+export async function saveAsistencia(alumnoId: number, escuelaId: number, cursoId: number, materiaId: number, fecha: string, estado: string): Promise<void> {
+  const { error } = await supabase.from("asistencias").upsert(
+    { alumnoId, escuelaId, cursoId, materiaId, fecha, estado },
+    { onConflict: "alumnoId,fecha" }
+  );
+  if (error) throw error;
+}
+export async function saveAsistenciasBatch(records: { alumnoId: number; escuelaId: number; cursoId: number; materiaId: number; fecha: string; estado: string }[]): Promise<void> {
+  const { error } = await supabase.from("asistencias").upsert(records, { onConflict: "alumnoId,fecha" });
+  if (error) throw error;
 }
 
 export function getExportExcelUrl(): string { return ""; }

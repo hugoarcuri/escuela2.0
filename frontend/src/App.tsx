@@ -7,6 +7,7 @@ import StudentTable from "./components/StudentTable";
 import StudentForm from "./components/StudentForm";
 import ImportExport from "./components/ImportExport";
 import GoogleFormSync from "./components/GoogleFormSync";
+import Asistencias from "./components/Asistencias";
 import AdminEscuela from "./components/AdminEscuela";
 import AdminCurso from "./components/AdminCurso";
 import AdminMateria from "./components/AdminMateria";
@@ -30,6 +31,7 @@ export default function App() {
   const [adminMateriaOpen, setAdminMateriaOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [notaFinalMode, setNotaFinalMode] = useState("auto");
+  const [tab, setTab] = useState<"alumnos" | "asistencias">("alumnos");
   const [theme, setTheme] = useState<"light" | "dark">(() => (localStorage.getItem("theme") as "light" | "dark") || "light");
 
   function loadSaved(key: string): Record<number, number> { try { return JSON.parse(localStorage.getItem(key) || "{}"); } catch { return {}; } }
@@ -157,33 +159,56 @@ export default function App() {
 
         {materiaId && (
           <>
-            <div className="flex flex-wrap gap-3 mb-4">
-              <button onClick={() => { setEditingAlumno(null); setFormOpen(true); }} className="btn-primary">+ Agregar</button>
-              <button onClick={async () => {
-                if (alumnos.length === 0) return;
-                const id = await prompt("Ingrese el ID del alumno a editar:");
-                if (id) {
-                  const a = alumnos.find(x => x.id === parseInt(id));
-                  if (a) { setEditingAlumno(a); setFormOpen(true); } else await alert("Alumno no encontrado");
-                }
-              }} className="btn-secondary" disabled={alumnos.length === 0}>Editar</button>
-              <button onClick={async () => {
-                const id = await prompt("Ingrese el ID del alumno a eliminar:");
-                if (id) { await deleteAlumno(parseInt(id)); loadAlumnos(); }
-              }} className="btn-danger" disabled={alumnos.length === 0}>Eliminar</button>
-              <button onClick={async () => {
-                const ok = await confirm("¿Eliminar TODOS los alumnos?");
-                if (!ok) return;
-                const r = await deleteAllAlumnos(Number(escuelaId), Number(cursoId), Number(materiaId));
-                await alert(`Se eliminaron ${r.deleted} alumno(s)`);
-                loadAlumnos();
-              }} className="btn-danger" disabled={alumnos.length === 0}>Eliminar Todos</button>
-              <ImportExport escuelaId={Number(escuelaId)} cursoId={Number(cursoId)} materiaId={Number(materiaId)} anioLectivo={anioLectivo} onImport={loadAlumnos} />
+            <div className="flex gap-1 mb-4 border-b" style={{ borderColor: "var(--border-color)" }}>
+              <button onClick={() => setTab("alumnos")}
+                className="px-4 py-2 text-sm font-medium rounded-t-lg border border-b-0 -mb-px transition-colors"
+                style={{
+                  backgroundColor: tab === "alumnos" ? "var(--bg-card)" : "transparent",
+                  color: tab === "alumnos" ? "var(--text-primary)" : "var(--text-secondary)",
+                  borderColor: "var(--border-color)",
+                }}>Alumnos</button>
+              <button onClick={() => setTab("asistencias")}
+                className="px-4 py-2 text-sm font-medium rounded-t-lg border border-b-0 -mb-px transition-colors"
+                style={{
+                  backgroundColor: tab === "asistencias" ? "var(--bg-card)" : "transparent",
+                  color: tab === "asistencias" ? "var(--text-primary)" : "var(--text-secondary)",
+                  borderColor: "var(--border-color)",
+                }}>Asistencias</button>
             </div>
-            <div className="mb-4">
-              <GoogleFormSync escuelaId={Number(escuelaId)} cursoId={Number(cursoId)} materiaId={Number(materiaId)} anioLectivo={anioLectivo} onSync={loadAlumnos} />
-            </div>
-            <StudentTable alumnos={alumnos} onRefresh={loadAlumnos} onEdit={a => { setEditingAlumno(a); setFormOpen(true); }} onDelete={async (id) => { const ok = await confirm("¿Eliminar este alumno?"); if (ok) { await deleteAlumno(id); loadAlumnos(); } }} />
+            {tab === "alumnos" && (
+              <>
+                <div className="flex flex-wrap gap-3 mb-4">
+                  <button onClick={() => { setEditingAlumno(null); setFormOpen(true); }} className="btn-primary">+ Agregar</button>
+                  <button onClick={async () => {
+                    if (alumnos.length === 0) return;
+                    const id = await prompt("Ingrese el ID del alumno a editar:");
+                    if (id) {
+                      const a = alumnos.find(x => x.id === parseInt(id));
+                      if (a) { setEditingAlumno(a); setFormOpen(true); } else await alert("Alumno no encontrado");
+                    }
+                  }} className="btn-secondary" disabled={alumnos.length === 0}>Editar</button>
+                  <button onClick={async () => {
+                    const id = await prompt("Ingrese el ID del alumno a eliminar:");
+                    if (id) { await deleteAlumno(parseInt(id)); loadAlumnos(); }
+                  }} className="btn-danger" disabled={alumnos.length === 0}>Eliminar</button>
+                  <button onClick={async () => {
+                    const ok = await confirm("¿Eliminar TODOS los alumnos?");
+                    if (!ok) return;
+                    const r = await deleteAllAlumnos(Number(escuelaId), Number(cursoId), Number(materiaId));
+                    await alert(`Se eliminaron ${r.deleted} alumno(s)`);
+                    loadAlumnos();
+                  }} className="btn-danger" disabled={alumnos.length === 0}>Eliminar Todos</button>
+                  <ImportExport escuelaId={Number(escuelaId)} cursoId={Number(cursoId)} materiaId={Number(materiaId)} anioLectivo={anioLectivo} onImport={loadAlumnos} />
+                </div>
+                <div className="mb-4">
+                  <GoogleFormSync escuelaId={Number(escuelaId)} cursoId={Number(cursoId)} materiaId={Number(materiaId)} anioLectivo={anioLectivo} onSync={loadAlumnos} />
+                </div>
+                <StudentTable alumnos={alumnos} onRefresh={loadAlumnos} onEdit={a => { setEditingAlumno(a); setFormOpen(true); }} onDelete={async (id) => { const ok = await confirm("¿Eliminar este alumno?"); if (ok) { await deleteAlumno(id); loadAlumnos(); } }} />
+              </>
+            )}
+            {tab === "asistencias" && (
+              <Asistencias alumnos={alumnos} escuelaId={Number(escuelaId)} cursoId={Number(cursoId)} materiaId={Number(materiaId)} />
+            )}
           </>
         )}
 
