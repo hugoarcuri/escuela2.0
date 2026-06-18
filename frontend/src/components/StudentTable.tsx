@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback } from "react";
 import type { Alumno } from "../types";
 import { batchUpdateAlumno, deleteAlumnosBulk } from "../api";
+import { Pencil, Trash } from "./Icons";
 
 interface Props {
   alumnos: Alumno[];
@@ -278,15 +279,13 @@ export default function StudentTable({ alumnos, onRefresh, onEdit, onDelete }: P
                   </td>
                   <td className={`${cellCls} text-center whitespace-nowrap`} style={cs}>
                     <button onClick={(e) => { e.stopPropagation(); onEdit(a); }}
-                      className="text-xs font-semibold px-2 py-1 rounded border"
+                      className="inline-flex items-center justify-center p-1.5 rounded border hover:opacity-80"
                       style={{ color: "var(--accent)", borderColor: "var(--accent)" }}
-                      onMouseOver={e => { e.currentTarget.style.backgroundColor = "var(--accent)"; e.currentTarget.style.color = "#fff"; }}
-                      onMouseOut={e => { e.currentTarget.style.backgroundColor = "transparent"; e.currentTarget.style.color = "var(--accent)"; }}>Editar</button>
+                      title="Editar"><Pencil /></button>
                     <button onClick={(e) => { e.stopPropagation(); onDelete(a.id); }}
-                      className="text-xs font-semibold px-2 py-1 rounded border ml-1"
+                      className="inline-flex items-center justify-center p-1.5 rounded border hover:opacity-80 ml-1"
                       style={{ color: "var(--danger)", borderColor: "var(--danger)" }}
-                      onMouseOver={e => { e.currentTarget.style.backgroundColor = "var(--danger)"; e.currentTarget.style.color = "#fff"; }}
-                      onMouseOut={e => { e.currentTarget.style.backgroundColor = "transparent"; e.currentTarget.style.color = "var(--danger)"; }}>Eliminar</button>
+                      title="Eliminar"><Trash /></button>
                   </td>
                 </tr>
               );
