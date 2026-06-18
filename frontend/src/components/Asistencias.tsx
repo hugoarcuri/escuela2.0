@@ -71,11 +71,7 @@ export default function Asistencias({ alumnos, materiaId }: Props) {
   useEffect(() => {
     const init: Record<number, string> = {};
     for (const s of semanas) init[s.semana] = s.fecha;
-    setClassDates(prev => {
-      const merged = { ...init };
-      for (const k of Object.keys(prev)) { const n = Number(k); if (init[n]) merged[n] = prev[n]; }
-      return merged;
-    });
+    setClassDates(init);
   }, [anio, mes]);
 
   // --- Load data ---
