@@ -111,19 +111,19 @@ ALTER TABLE agenda ENABLE ROW LEVEL SECURITY;
 ALTER TABLE asistencias ENABLE ROW LEVEL SECURITY;
 
 -- Funciones RPC para agenda (bypass RLS con SECURITY DEFINER)
-CREATE OR REPLACE FUNCTION public.insert_agenda(materia_id INTEGER, tit TEXT, descr TEXT, f DATE, t TEXT)
+CREATE OR REPLACE FUNCTION public.insert_agenda(materia_id INTEGER, tit TEXT, descr TEXT, f TEXT, t TEXT)
 RETURNS SETOF agenda AS $$
 BEGIN
   RETURN QUERY INSERT INTO public.agenda ("materiaId", titulo, descripcion, fecha, tipo)
-  VALUES (materia_id, tit, descr, f, t)
+  VALUES (materia_id, tit, descr, f::DATE, t)
   RETURNING *;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
-CREATE OR REPLACE FUNCTION public.update_agenda(item_id INTEGER, tit TEXT, descr TEXT, f DATE, t TEXT)
+CREATE OR REPLACE FUNCTION public.update_agenda(item_id INTEGER, tit TEXT, descr TEXT, f TEXT, t TEXT)
 RETURNS VOID AS $$
 BEGIN
-  UPDATE public.agenda SET titulo = tit, descripcion = descr, fecha = f, tipo = t, "updatedAt" = NOW()
+  UPDATE public.agenda SET titulo = tit, descripcion = descr, fecha = f::DATE, tipo = t, "updatedAt" = NOW()
   WHERE id = item_id;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
