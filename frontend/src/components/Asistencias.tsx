@@ -20,6 +20,7 @@ async function fetchFeriados(anio: number): Promise<Feriado[]> {
 interface Props {
   alumnos: Alumno[];
   materiaId: number;
+  dia: string;
 }
 
 const ESTADOS = [
@@ -33,30 +34,33 @@ const ESTADOS = [
 const MESES = ["Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
 const MES_NUM = (i: number) => i + 3;
 
-function obtenerSemanas(anio: number, mes: number): { semana: number; fecha: string }[] {
-  const semanas: { semana: number; fecha: string }[] = [];
-  const primerDia = new Date(anio, mes - 1, 1);
-  const ultimoDia = new Date(anio, mes, 0);
-  let semana = 1;
-  for (let d = new Date(primerDia); d <= ultimoDia; d.setDate(d.getDate() + 7)) {
-    semanas.push({ semana: semana++, fecha: d.toISOString().slice(0, 10) });
+const DIAS_MAP: Record<string, number> = {
+  "Lunes": 1, "Martes": 2, "Miércoles": 3, "Jueves": 4, "Viernes": 5, "Sábado": 6,
+};
+
+function obtenerFechasDeCursada(anio: number, mes: number, diaSemana: string): string[] {
+  const dayIndex = DIAS_MAP[diaSemana];
+  if (dayIndex === undefined) return [];
+  const fechas: string[] = [];
+  const lastDay = new Date(anio, mes, 0).getDate();
+  for (let d = 1; d <= lastDay; d++) {
+    if (new Date(anio, mes - 1, d).getDay() === dayIndex) {
+      fechas.push(`${anio}-${String(mes).padStart(2, "0")}-${String(d).padStart(2, "0")}`);
+    }
   }
-  return semanas;
+  return fechas;
 }
 
 const btnTab: React.CSSProperties = {
   padding: "6px 14px", fontSize: 13, fontWeight: 600, borderRadius: 8, border: "none", cursor: "pointer", transition: "background .15s",
 };
 
-export default function Asistencias({ alumnos, materiaId }: Props) {
+export default function Asistencias({ alumnos, materiaId, dia }: Props) {
   const hoy = new Date();
   const [vista, setVista] = useState<"dia" | "mes" | "anio">("mes");
   const [anio, setAnio] = useState(hoy.getFullYear());
   const [mes, setMes] = useState(hoy.getMonth() + 1);
-  const [dia, setDia] = useState(hoy.toISOString().slice(0, 10));
-
-  // monthly state
-  const [classDates, setClassDates] = useState<Record<number, string>>({});
+  const [diaActual, setDiaActual] = useState(hoy.toISOString().slice(0, 10));
   const [asistencias, setAsistencias] = useState<Record<string, string>>({});
   const [feriados, setFeriados] = useState<Feriado[]>([]);
   const [toast, setToast] = useState("");
@@ -68,17 +72,10 @@ export default function Asistencias({ alumnos, materiaId }: Props) {
     toastTimer.current = setTimeout(() => setToast(""), 2000);
   }
 
-  const semanas = obtenerSemanas(anio, mes);
+  const fechas = obtenerFechasDeCursada(anio, mes, dia);
   const feriadosMap = new Map(feriados.map(f => [f.fecha, f]));
 
   useEffect(() => { fetchFeriados(anio).then(setFeriados); }, [anio]);
-
-  // Init class dates when month changes
-  useEffect(() => {
-    const init: Record<number, string> = {};
-    for (const s of semanas) init[s.semana] = s.fecha;
-    setClassDates(init);
-  }, [anio, mes]);
 
   // --- Load data ---
   useEffect(() => {
@@ -90,24 +87,21 @@ export default function Asistencias({ alumnos, materiaId }: Props) {
         else if (vista === "mes") records = await getAsistenciasDelMes(materiaId, anio, mes);
         else {
           records = await getAsistenciasDelMes(materiaId, anio, mes);
-          records = records.filter(r => r.fecha === dia);
+          records = records.filter(r => r.fecha === diaActual);
         }
       } catch {}
       if (cancelled) return;
       const map: Record<string, string> = {};
       for (const r of records) {
         if (vista === "dia") map[`${r.alumnoId}`] = r.estado;
-        else if (vista === "mes") {
-          const sem = semanas.find(s => s.fecha === r.fecha)?.semana;
-          if (sem !== undefined) map[`${r.alumnoId}:${sem}`] = r.estado;
-        } else {
+        else if (vista === "mes") map[`${r.alumnoId}:${r.fecha}`] = r.estado;
+        else {
           const m = r.fecha.slice(5, 7);
           map[`${r.alumnoId}:${m}`] = r.estado === "P" || r.estado === "Lic" || r.estado === "F"
             ? (map[`${r.alumnoId}:${m}`] || "0") + 1
             : map[`${r.alumnoId}:${m}`] || "0";
         }
       }
-      // For annual: convert counts to percentage string
       if (vista === "anio") {
         for (const key of Object.keys(map)) {
           const parts = key.split(":");
@@ -122,26 +116,25 @@ export default function Asistencias({ alumnos, materiaId }: Props) {
     }
     load();
     return () => { cancelled = true; };
-  }, [vista, materiaId, anio, mes, dia]);
+  }, [vista, materiaId, anio, mes, diaActual]);
 
-  function toggleEstado(alumnoId: number, keySuffix: string, fecha: string) {
+  function toggleEstado(alumnoId: number, fecha: string) {
     setAsistencias(prev => {
-      const key = `${alumnoId}:${keySuffix}`;
+      const key = `${alumnoId}:${fecha}`;
       const current = prev[key] || "P";
       const idx = ESTADOS.findIndex(e => e.key === current);
       const next = ESTADOS[(idx + 1) % ESTADOS.length].key;
-      // Lic y F son globales: aplican a todos los alumnos de esa fecha
       const globalStates = ["Lic", "F"];
       if (globalStates.includes(next)) {
         const updated: Record<string, string> = {};
-        for (const a of alumnos) updated[`${a.id}:${keySuffix}`] = next;
+        for (const a of alumnos) updated[`${a.id}:${fecha}`] = next;
         saveAsistenciasBatch(alumnos.map(a => ({ alumnoId: a.id, materiaId, fecha, estado: next })));
         showToast(`✓ ${ESTADOS.find(e => e.key === next)?.title} - todos`);
         return { ...prev, ...updated };
       }
       if (globalStates.includes(current)) {
         const updated: Record<string, string> = {};
-        for (const a of alumnos) updated[`${a.id}:${keySuffix}`] = next;
+        for (const a of alumnos) updated[`${a.id}:${fecha}`] = next;
         saveAsistenciasBatch(alumnos.map(a => ({ alumnoId: a.id, materiaId, fecha, estado: next })));
         showToast(`✓ Todos ${next}`);
         return { ...prev, ...updated };
@@ -151,10 +144,10 @@ export default function Asistencias({ alumnos, materiaId }: Props) {
     });
   }
 
-  function marcarTodos(keySuffix: string, estado: string, fecha: string) {
+  function marcarTodos(fecha: string, estado: string) {
     setAsistencias(prev => {
       const next = { ...prev };
-      for (const a of alumnos) next[`${a.id}:${keySuffix}`] = estado;
+      for (const a of alumnos) next[`${a.id}:${fecha}`] = estado;
       saveAsistenciasBatch(alumnos.map(a => ({ alumnoId: a.id, materiaId, fecha, estado })));
       showToast(`✓ Todos ${estado}`);
       return next;
@@ -176,7 +169,7 @@ export default function Asistencias({ alumnos, materiaId }: Props) {
 
   if (!alumnos.length) return <div className="text-center py-12" style={{ color: "var(--text-secondary)" }}>No hay alumnos</div>;
 
-  const totalClasesMes = semanas.filter(s => classDates[s.semana]).length;
+  const totalClasesMes = fechas.length;
 
   return (
     <div>
@@ -186,7 +179,6 @@ export default function Asistencias({ alumnos, materiaId }: Props) {
           {toast}
         </div>
       )}
-      {/* Vista switcher + controls */}
       <div className="flex flex-wrap items-center gap-2 mb-4 p-3 rounded-lg" style={{ backgroundColor: "var(--bg-card)", border: "1px solid var(--border-color)" }}>
         <div className="flex gap-1">
           {(["dia", "mes", "anio"] as const).map(v => (
@@ -199,10 +191,10 @@ export default function Asistencias({ alumnos, materiaId }: Props) {
         </div>
         {vista === "dia" && (
           <>
-            <input type="date" value={dia} onChange={e => setDia(e.target.value)}
+            <input type="date" value={diaActual} onChange={e => setDiaActual(e.target.value)}
               className="rounded-lg border px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]"
-              style={{ backgroundColor: feriadosMap.has(dia) ? "#555" : "var(--bg-card)", color: "var(--text-primary)", borderColor: "var(--border-color)" }} />
-            {feriadosMap.has(dia) && <span className="text-xs" style={{ color: "#888" }}>🗓 {feriadosMap.get(dia)!.nombre}</span>}
+              style={{ backgroundColor: feriadosMap.has(diaActual) ? "#555" : "var(--bg-card)", color: "var(--text-primary)", borderColor: "var(--border-color)" }} />
+            {feriadosMap.has(diaActual) && <span className="text-xs" style={{ color: "#888" }}>🗓 {feriadosMap.get(diaActual)!.nombre}</span>}
           </>
         )}
         {vista !== "dia" && (
@@ -224,9 +216,11 @@ export default function Asistencias({ alumnos, materiaId }: Props) {
         {vista !== "anio" && (
           <span className="text-xs" style={{ color: "var(--text-secondary)" }}>{vista === "dia" ? 1 : totalClasesMes} clase{vista === "mes" && totalClasesMes !== 1 ? "s" : ""}</span>
         )}
+        {vista === "mes" && !dia && (
+          <span className="text-xs" style={{ color: "var(--danger)" }}>⚠ Configurá el día de cursada en Administrar Materias</span>
+        )}
       </div>
 
-      {/* Table */}
       <div className="overflow-x-auto overflow-y-auto rounded-xl border" style={{ borderColor: "var(--border-color)", maxHeight: "calc(100vh - 320px)" }}>
         <table className="w-full text-sm">
           <thead>
@@ -237,36 +231,31 @@ export default function Asistencias({ alumnos, materiaId }: Props) {
                 <th className="px-2 py-2 text-center font-medium text-xs uppercase tracking-wider border-b sticky top-0 z-10"
                   style={{ ...thStyle, minWidth: 90 }}>Asistencia</th>
               )}
-              {vista === "mes" && semanas.map(s => {
-                const feriado = classDates[s.semana] ? feriadosMap.get(classDates[s.semana]) : undefined;
+              {vista === "mes" && fechas.map(fecha => {
+                const feriado = feriadosMap.get(fecha);
+                const d = new Date(fecha + "T12:00:00");
+                const diaNum = d.getDate();
                 return (
-                <th key={s.semana} className="px-1 py-2 text-center font-medium text-xs uppercase tracking-wider border-b sticky top-0 z-10"
+                <th key={fecha} className="px-1 py-2 text-center font-medium text-xs uppercase tracking-wider border-b sticky top-0 z-10"
                   style={{ ...thStyle, minWidth: 90 }}>
-                  <div>Sem {s.semana}</div>
-                  <input type="date" value={classDates[s.semana] || ""}
-                    onChange={e => setClassDates(prev => ({ ...prev, [s.semana]: e.target.value }))}
-                    className="mt-1 rounded border px-1 py-0.5 text-[10px] w-full outline-none"
-                    style={{
-                      backgroundColor: feriado ? "#555" : "var(--bg-card)",
-                      color: feriado ? "#ccc" : "var(--text-primary)",
-                      borderColor: feriado ? "#666" : "var(--border-color)",
-                    }}
-                    title={feriado ? feriado.nombre : ""} />
+                  <div className="whitespace-nowrap">{diaNum} {MESES[mes - 3]?.slice(0, 3)}</div>
                   {feriado && <div className="text-[8px] mt-0.5 truncate" style={{ color: "#888" }}>{feriado.nombre}</div>}
-                  {!feriado && <>
-                    <button onClick={() => marcarTodos(String(s.semana), "P", classDates[s.semana])}
-                      className="text-[10px] px-1 py-0.5 mt-1 rounded hover:opacity-80"
-                      style={{ color: "var(--success)" }}>P</button>
-                    <button onClick={() => marcarTodos(String(s.semana), "A", classDates[s.semana])}
-                      className="text-[10px] px-1 py-0.5 mt-1 rounded hover:opacity-80 ml-0.5"
-                      style={{ color: "var(--danger)" }}>A</button>
-                    <button onClick={() => marcarTodos(String(s.semana), "Lic", classDates[s.semana])}
-                      className="text-[10px] px-1 py-0.5 mt-1 rounded hover:opacity-80 ml-0.5"
-                      style={{ color: "var(--accent)" }}>Lic</button>
-                    <button onClick={() => marcarTodos(String(s.semana), "F", classDates[s.semana])}
-                      className="text-[10px] px-1 py-0.5 mt-1 rounded hover:opacity-80 ml-0.5"
-                      style={{ color: "#888" }}>F</button>
-                  </>}
+                  {!feriado && (
+                    <div className="flex justify-center gap-0.5 mt-1">
+                      <button onClick={() => marcarTodos(fecha, "P")}
+                        className="text-[10px] px-1 py-0.5 rounded hover:opacity-80"
+                        style={{ color: "var(--success)" }}>P</button>
+                      <button onClick={() => marcarTodos(fecha, "A")}
+                        className="text-[10px] px-1 py-0.5 rounded hover:opacity-80"
+                        style={{ color: "var(--danger)" }}>A</button>
+                      <button onClick={() => marcarTodos(fecha, "Lic")}
+                        className="text-[10px] px-1 py-0.5 rounded hover:opacity-80"
+                        style={{ color: "var(--accent)" }}>Lic</button>
+                      <button onClick={() => marcarTodos(fecha, "F")}
+                        className="text-[10px] px-1 py-0.5 rounded hover:opacity-80"
+                        style={{ color: "#888" }}>F</button>
+                    </div>
+                  )}
                 </th>
                 );
               })}
@@ -293,7 +282,7 @@ export default function Asistencias({ alumnos, materiaId }: Props) {
                   </td>
                   {vista === "dia" && (
                     <td className="px-2 py-1.5 text-center border-b" style={{ borderColor: "var(--border-color)" }}>
-                      <button onClick={() => toggleEstado(a.id, "", dia)}
+                      <button onClick={() => toggleEstado(a.id, diaActual)}
                         className="w-9 h-9 rounded-full text-sm font-bold border-2 transition-all hover:scale-110"
                         style={{
                           backgroundColor: (asistencias[`${a.id}`] || "P") === "P" ? "transparent" : (ESTADOS.find(e => e.key === (asistencias[`${a.id}`] || "P"))?.color || "var(--success)") + "20",
@@ -305,22 +294,20 @@ export default function Asistencias({ alumnos, materiaId }: Props) {
                       </button>
                     </td>
                   )}
-                  {vista === "mes" && semanas.map(s => {
-                    const fecha = classDates[s.semana];
-                    if (!fecha) return <td key={s.semana} className="px-1 py-1.5 border-b" style={{ borderColor: "var(--border-color)" }} />;
+                  {vista === "mes" && fechas.map(fecha => {
                     const esFeriado = feriadosMap.has(fecha);
-                    const estado = asistencias[`${a.id}:${s.semana}`] || "P";
+                    const estado = asistencias[`${a.id}:${fecha}`] || "P";
                     const est = ESTADOS.find(e => e.key === estado)!;
                     if (!esFeriado) { total++; if (estado === "P" || estado === "Lic" || estado === "F") presente++; }
                     return (
-                      <td key={s.semana} className="px-1 py-1.5 text-center border-b" style={{
+                      <td key={fecha} className="px-1 py-1.5 text-center border-b" style={{
                         borderColor: "var(--border-color)",
                         backgroundColor: esFeriado ? "#444" : "transparent",
                       }}>
                         {esFeriado ? (
                           <span className="text-xs" style={{ color: "#888" }}>☕</span>
                         ) : (
-                        <button onClick={() => toggleEstado(a.id, String(s.semana), fecha)}
+                        <button onClick={() => toggleEstado(a.id, fecha)}
                           className="w-8 h-8 rounded-full text-xs font-bold border-2 transition-all hover:scale-110"
                           style={{ backgroundColor: estado === "P" ? "transparent" : est.color + "20", color: est.color, borderColor: est.color }}
                           title={est.title}>

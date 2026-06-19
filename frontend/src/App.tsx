@@ -276,7 +276,7 @@ export default function App() {
               </>
             )}
             {tab === "asistencias" && (
-              <Asistencias alumnos={alumnos} materiaId={Number(materiaId)} />
+              <Asistencias alumnos={alumnos} materiaId={Number(materiaId)} dia={materias.find(m => m.id === materiaId)?.dia || ""} />
             )}
             {tab === "agenda" && (
               <Agenda materiaId={Number(materiaId)} />
