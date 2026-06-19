@@ -305,7 +305,10 @@ export default function App() {
 
       {adminEscuelaOpen && <AdminEscuela editId={editEscuelaId} onClose={() => { setAdminEscuelaOpen(false); setEditEscuelaId(null); }} onChanged={refreshAll} />}
       {adminCursoOpen && <AdminCurso onClose={() => setAdminCursoOpen(false)} onChanged={refreshAll} />}
-      {adminMateriaOpen && <AdminMateria onClose={() => setAdminMateriaOpen(false)} onChanged={refreshAll} />}
+      {adminMateriaOpen && <AdminMateria onClose={() => setAdminMateriaOpen(false)} onChanged={refreshAll}
+        initialEscuelaId={escuelaId ? Number(escuelaId) : undefined}
+        initialCursoId={cursoId ? Number(cursoId) : undefined}
+        initialMateriaId={materiaId ? Number(materiaId) : undefined} />}
 
       {settingsOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
