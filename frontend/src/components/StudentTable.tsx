@@ -2,6 +2,7 @@ import { useState, useRef, useCallback } from "react";
 import type { Alumno } from "../types";
 import { batchUpdateAlumno, deleteAlumnosBulk } from "../api";
 import { Pencil, Trash } from "./Icons";
+import TableHeader from "./table/TableHeader";
 
 interface Props {
   alumnos: Alumno[];
@@ -20,6 +21,8 @@ function colorNota(val: number | null): string {
   return "transparent";
 }
 
+const CAMPOS: CampoNota[] = ["nota1", "nota2", "nota3", "nota4", "nota5", "nota6"];
+
 function parseVal(s: string): number | null {
   const n = parseFloat(s);
   return isNaN(n) ? null : Math.round(n * 100) / 100;
@@ -32,7 +35,6 @@ export default function StudentTable({ alumnos, onRefresh, onEdit, onDelete }: P
   const [savedMsg, setSavedMsg] = useState("");
   const [filtro, setFiltro] = useState<string>("todos");
   const inputRef = useRef<HTMLInputElement>(null);
-  const tableRef = useRef<HTMLDivElement>(null);
 
   const filtered = alumnos.filter(a => {
     if (filtro === "TEA") return a.informe1 === "TEA" || a.informe2 === "TEA";
@@ -47,11 +49,6 @@ export default function StudentTable({ alumnos, onRefresh, onEdit, onDelete }: P
     return vals.length ? Math.round((vals.reduce((s, v) => s + v, 0) / vals.length) * 100) / 100 : null;
   };
 
-  const totalAlumnos = filtered.length;
-  const cantTEA = filtered.filter(a => a.informe1 === "TEA" || a.informe2 === "TEA").length;
-  const cantTEP = filtered.filter(a => a.informe1 === "TEP" || a.informe2 === "TEP").length;
-  const aprobados = filtered.filter(a => a.situacionFinal === "Aprobado").length;
-  const desaprobados = filtered.filter(a => a.situacionFinal === "Desaprobado").length;
   const promediosFinales = filtered.map(a => a.notaFinal).filter((v): v is number => v !== null);
   const promedioGeneral = promediosFinales.length ? Math.round((promediosFinales.reduce((s, v) => s + v, 0) / promediosFinales.length) * 100) / 100 : null;
 
@@ -137,18 +134,9 @@ export default function StudentTable({ alumnos, onRefresh, onEdit, onDelete }: P
     onRefresh();
   }
 
-  function promedioParaExcel(campo: CampoNota): string {
-    const p = promedioCol(campo);
-    return p !== null ? String(p) : "";
-  }
+  if (filtered.length === 0) return <div className="empty-state">No hay alumnos</div>;
 
   const cs: React.CSSProperties = { borderColor: "var(--border-color)", color: "var(--text-primary)" };
-  const hs: React.CSSProperties = { backgroundColor: "var(--bg-card)", borderColor: "var(--border-color)", color: "var(--text-secondary)" };
-
-  if (filtered.length === 0) return <div className="text-center py-12" style={{ color: "var(--text-secondary)" }}>No hay alumnos</div>;
-
-  const CAMPOS: CampoNota[] = ["nota1", "nota2", "nota3", "nota4", "nota5", "nota6"];
-  const HEADERS = ["", "Apellido y Nombre", "N 1", "N 2", "N 3", "Inf 1", "1°C", "N 4", "N 5", "N 6", "Inf 2", "2°C", "N Final", "Sit.", "Obs.", "Acc."];
 
   return (
     <div>
@@ -159,44 +147,30 @@ export default function StudentTable({ alumnos, onRefresh, onEdit, onDelete }: P
         </div>
       )}
 
-      {/* Summary + Filters bar */}
-      <div className="flex flex-wrap items-center gap-4 mb-4 p-3 rounded-lg" style={{ backgroundColor: "var(--bg-card)", border: "1px solid var(--border-color)" }}>
-        <span className="text-sm font-medium">Alumnos: <strong>{totalAlumnos}</strong></span>
-        <span className="text-sm" style={{ color: "var(--success)" }}>TEA: <strong>{cantTEA}</strong></span>
-        <span className="text-sm" style={{ color: "var(--danger)" }}>TEP: <strong>{cantTEP}</strong></span>
-        <span className="text-sm" style={{ color: "var(--success)" }}>Aprobados: <strong>{aprobados}</strong></span>
-        <span className="text-sm" style={{ color: "var(--danger)" }}>Desaprobados: <strong>{desaprobados}</strong></span>
-        <span className="text-sm">Prom. Gral: <strong>{promedioGeneral ?? "—"}</strong></span>
-        <div className="flex-1" />
+      {/* Filter + Bulk actions bar */}
+      <div className="flex flex-wrap items-center gap-2 px-3 py-2 border-b" style={{ borderColor: "var(--border-color)" }}>
         <select value={filtro} onChange={e => setFiltro(e.target.value)}
-          className="rounded-lg border px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]"
-          style={{ backgroundColor: "var(--bg-card)", color: "var(--text-primary)", borderColor: "var(--border-color)" }}>
+          className="input !w-auto !py-1 !text-xs">
           <option value="todos">Todos</option>
           <option value="TEA">Solo TEA</option>
           <option value="TEP">Solo TEP</option>
           <option value="aprobados">Aprobados</option>
           <option value="desaprobados">Desaprobados</option>
         </select>
+        <span className="text-xs" style={{ color: "var(--text-secondary)" }}>{filtered.length} de {alumnos.length}</span>
+        <div className="flex-1" />
         {selected.size > 0 && (
-          <button onClick={deleteSelected} className="btn-danger text-xs px-3 py-1.5">Eliminar {selected.size}</button>
+          <button onClick={deleteSelected} className="btn btn-danger btn-xs">Eliminar {selected.size}</button>
         )}
       </div>
 
       {/* Table */}
-      <div className="overflow-x-hidden overflow-y-auto rounded-xl border" style={{ borderColor: "var(--border-color)", maxHeight: "calc(100vh - 320px)" }} ref={tableRef}>
+      <div className="overflow-x-auto overflow-y-auto" style={{ maxHeight: "calc(100vh - 540px)" }}>
         <table className="w-full text-sm">
-          <thead><tr>
-            {HEADERS.map(h => (
-              <th key={h} className="px-1.5 py-2 text-center font-medium text-xs uppercase tracking-wider border-b sticky top-0 z-10"
-                style={{ ...hs, backgroundColor: "var(--bg-card)", position: "sticky", top: 0, left: h === "Apellido y Nombre" ? 0 : undefined, zIndex: h === "Apellido y Nombre" ? 20 : 10 }}>
-                {h === "" ? <input type="checkbox" onChange={toggleAll} checked={selected.size === filtered.length && filtered.length > 0} /> : h}
-              </th>
-            ))}
-          </tr></thead>
+          <TableHeader allSelected={selected.size === filtered.length} onToggleAll={toggleAll} hasRows={filtered.length > 0} />
           <tbody>
             {filtered.map((a, idx) => {
               const isEditing = (campo: CampoNota | "observaciones") => editing?.alumnoId === a.id && editing?.campo === campo;
-              const cellCls = "px-1.5 py-1.5 border-b transition-colors";
               const stickyStyle: React.CSSProperties = {
                 position: "sticky", left: 0, zIndex: 2,
                 backgroundColor: "var(--bg-card)",
@@ -208,7 +182,7 @@ export default function StudentTable({ alumnos, onRefresh, onEdit, onDelete }: P
                 const val = a[campo];
                 if (isEditing(campo)) {
                   return (
-                    <td className={`${cellCls} p-0`} style={cs}>
+                    <td className="p-0" style={cs}>
                       <input ref={inputRef} type="number" step="0.01" min="0" max="10"
                         value={editValue} onChange={e => setEditValue(e.target.value)}
                         onBlur={saveEdit}
@@ -220,7 +194,7 @@ export default function StudentTable({ alumnos, onRefresh, onEdit, onDelete }: P
                   );
                 }
                 return (
-                  <td className={`${cellCls} text-center cursor-pointer`}
+                  <td className="text-center cursor-pointer"
                     style={{ ...cs, backgroundColor: colorNota(val) }}
                     onClick={() => startEdit(a.id, campo, String(val ?? ""))}
                     title="Clic para editar">
@@ -230,43 +204,42 @@ export default function StudentTable({ alumnos, onRefresh, onEdit, onDelete }: P
               }
 
               return (
-                <tr key={a.id} className="transition-colors"
-                  style={{ borderColor: "var(--border-color)" }}
-                  onMouseOver={e => { if (!isEditing("nota1")) e.currentTarget.style.backgroundColor = "var(--hover-bg)"; }}
-                  onMouseOut={e => { if (!isEditing("nota1")) e.currentTarget.style.backgroundColor = "transparent"; }}>
-                  <td className={`${cellCls} text-center`} style={cs}>
+                <tr key={a.id}>
+                  <td className="text-center" style={cs}>
                     <input type="checkbox" checked={selected.has(a.id)} onChange={() => toggleSelect(a.id)} />
                   </td>
-                  <td className={`${cellCls} font-medium cursor-pointer`}
-                    style={stickyStyle}
+                  <td className="font-medium cursor-pointer" style={stickyStyle}
                     onClick={() => onEdit(a)}>
                     {a.apellidoNombre}
                   </td>
                   {renderNotaCell("nota1")}
                   {renderNotaCell("nota2")}
                   {renderNotaCell("nota3")}
-                  <td className={`${cellCls} text-center`} style={cs}>
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${a.informe1 === "TEA" ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300" : a.informe1 === "TEP" ? "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300" : ""}`}>
+                  <td className="text-center" style={cs}>
+                    <span className={`badge ${a.informe1 === "TEA" ? "badge-tea" : a.informe1 === "TEP" ? "badge-tep" : ""}`}>
                       {a.informe1 ?? ""}
                     </span>
                   </td>
-                  <td className={`${cellCls} text-center font-semibold`} style={cs}>{a.nota1C ?? ""}</td>
+                  <td className="text-center font-semibold" style={cs}>{a.nota1C ?? ""}</td>
                   {renderNotaCell("nota4")}
                   {renderNotaCell("nota5")}
                   {renderNotaCell("nota6")}
-                  <td className={`${cellCls} text-center`} style={cs}>
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${a.informe2 === "TEA" ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300" : a.informe2 === "TEP" ? "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300" : ""}`}>
+                  <td className="text-center" style={cs}>
+                    <span className={`badge ${a.informe2 === "TEA" ? "badge-tea" : a.informe2 === "TEP" ? "badge-tep" : ""}`}>
                       {a.informe2 ?? ""}
                     </span>
                   </td>
-                  <td className={`${cellCls} text-center font-semibold`} style={cs}>{a.nota2C ?? ""}</td>
-                  <td className={`${cellCls} text-center font-bold`} style={cs}>{a.notaFinal ?? ""}</td>
-                  <td className={`${cellCls} text-center`} style={cs}>
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${a.situacionFinal === "Aprobado" ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300" : a.situacionFinal === "Desaprobado" ? "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300" : ""}`}>
+                  <td className="text-center font-semibold" style={cs}>{a.nota2C ?? ""}</td>
+                  <td className="text-center font-bold" style={{
+                    ...cs,
+                    color: a.notaFinal !== null ? (a.notaFinal >= 7 ? "var(--success)" : a.notaFinal >= 4 ? "var(--warning)" : "var(--danger)") : undefined,
+                  }}>{a.notaFinal ?? ""}</td>
+                  <td className="text-center" style={cs}>
+                    <span className={`badge ${a.situacionFinal === "Aprobado" ? "badge-ok" : a.situacionFinal === "Desaprobado" ? "badge-ko" : ""}`}>
                       {a.situacionFinal}
                     </span>
                   </td>
-                  <td className={`${cellCls} max-w-[120px] cursor-pointer`} style={cs}
+                  <td className="max-w-[120px] cursor-pointer" style={cs}
                     onClick={() => startEdit(a.id, "observaciones", a.observaciones || "")}>
                     {isEditing("observaciones") ? (
                       <input ref={inputRef} type="text" value={editValue} onChange={e => setEditValue(e.target.value)}
@@ -277,14 +250,12 @@ export default function StudentTable({ alumnos, onRefresh, onEdit, onDelete }: P
                       <span className="text-xs truncate block">{a.observaciones || ""}</span>
                     )}
                   </td>
-                  <td className={`${cellCls} text-center whitespace-nowrap`} style={cs}>
+                  <td className="text-center whitespace-nowrap" style={cs}>
                     <button onClick={(e) => { e.stopPropagation(); onEdit(a); }}
-                      className="inline-flex items-center justify-center p-1.5 rounded border hover:opacity-80"
-                      style={{ color: "var(--accent)", borderColor: "var(--accent)" }}
+                      className="btn btn-xs btn-secondary !p-1"
                       title="Editar"><Pencil /></button>
                     <button onClick={(e) => { e.stopPropagation(); onDelete(a.id); }}
-                      className="inline-flex items-center justify-center p-1.5 rounded border hover:opacity-80 ml-1"
-                      style={{ color: "var(--danger)", borderColor: "var(--danger)" }}
+                      className="btn btn-xs btn-danger !p-1 ml-1"
                       title="Eliminar"><Trash /></button>
                   </td>
                 </tr>
@@ -301,11 +272,14 @@ export default function StudentTable({ alumnos, onRefresh, onEdit, onDelete }: P
                 return <td key={c} className="px-1.5 py-1.5 border-t text-center font-semibold text-xs" style={{ ...cs, backgroundColor: p !== null ? colorNota(p) : "transparent" }}>{p ?? ""}</td>;
               })}
               <td className="px-1.5 py-1.5 border-t" style={cs}></td>
-              <td className="px-1.5 py-1.5 border-t text-center font-semibold text-xs" style={cs}>{promedioParaExcel("nota1") ? "" : ""}</td>
+              <td className="px-1.5 py-1.5 border-t text-center font-semibold text-xs" style={cs}></td>
               <td colSpan={3} className="px-1.5 py-1.5 border-t" style={cs}></td>
               <td className="px-1.5 py-1.5 border-t" style={cs}></td>
               <td className="px-1.5 py-1.5 border-t" style={cs}></td>
-              <td className="px-1.5 py-1.5 border-t text-center font-bold text-xs" style={cs}>{promedioGeneral ?? ""}</td>
+              <td className="px-1.5 py-1.5 border-t text-center font-bold text-xs" style={{
+                ...cs,
+                color: promedioGeneral !== null ? (promedioGeneral >= 7 ? "var(--success)" : promedioGeneral >= 4 ? "var(--warning)" : "var(--danger)") : undefined,
+              }}>{promedioGeneral ?? ""}</td>
               <td className="px-1.5 py-1.5 border-t" style={cs}></td>
               <td className="px-1.5 py-1.5 border-t" style={cs}></td>
               <td className="px-1.5 py-1.5 border-t" style={cs}></td>
@@ -313,7 +287,9 @@ export default function StudentTable({ alumnos, onRefresh, onEdit, onDelete }: P
           </tfoot>
         </table>
       </div>
-      <div className="px-1.5 py-1.5 text-xs" style={{ color: "var(--text-secondary)", backgroundColor: "var(--bg-card)", borderLeft: "1px solid var(--border-color)", borderRight: "1px solid var(--border-color)", borderBottom: "1px solid var(--border-color)" }}>
+
+      {/* Footer */}
+      <div className="px-3 py-1.5 text-xs border-t" style={{ color: "var(--text-secondary)", borderColor: "var(--border-color)" }}>
         {filtered.length} alumno{filtered.length !== 1 ? "s" : ""} · Clic en celda para editar · Enter/Tab siguiente · Esc cancelar
       </div>
     </div>

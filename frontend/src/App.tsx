@@ -1,36 +1,34 @@
-import { useState, useEffect, useCallback, useRef } from "react";
-import { getEscuelas, getCursos, getMaterias, getAlumnos, deleteAlumno, deleteAllAlumnos, getSettings, saveSettings, exportBackup, importBackup, setNotaFinalMode as setApiNotaMode } from "./api";
-import type { Escuela, Curso, Materia, Alumno } from "./types";
+import { useState, useEffect } from "react";
+import { getSettings, saveSettings, deleteAlumno, deleteAllAlumnos, exportBackup, importBackup, importExcel, importList, setNotaFinalMode as setApiNotaMode } from "./api";
+import { useTheme } from "./hooks/useTheme";
+import { useSelection } from "./hooks/useSelection";
 import Header from "./components/Header";
 import Selectors from "./components/Selectors";
 import StudentTable from "./components/StudentTable";
 import StudentForm from "./components/StudentForm";
-import ImportExport from "./components/ImportExport";
 import GoogleFormSync from "./components/GoogleFormSync";
 import Asistencias from "./components/Asistencias";
 import Agenda from "./components/Agenda";
 import AdminEscuela from "./components/AdminEscuela";
 import AdminCurso from "./components/AdminCurso";
 import AdminMateria from "./components/AdminMateria";
+import Card from "./components/ui/Card";
+import EmptyState from "./components/ui/EmptyState";
+import DropdownActions from "./components/ui/DropdownActions";
+import StatsBar from "./components/table/StatsBar";
 import { useConfirm, usePrompt, useAlert } from "./components/Modals";
 
-function loadSaved(key: string): Record<number, number> { try { return JSON.parse(localStorage.getItem(key) || "{}"); } catch { return {}; } }
-
 export default function App() {
-  const [escuelas, setEscuelas] = useState<Escuela[]>([]);
-  const [cursos, setCursos] = useState<Curso[]>([]);
-  const [materias, setMaterias] = useState<Materia[]>([]);
-  const [alumnos, setAlumnos] = useState<Alumno[]>([]);
-  const [escuelaId, setEscuelaId] = useState<number | "">("");
-  const [cursoId, setCursoId] = useState<number | "">("");
-  const [materiaId, setMateriaId] = useState<number | "">("");
-  const [search, setSearch] = useState("");
-  const [anioLectivo, setAnioLectivo] = useState(() => {
-    const saved = localStorage.getItem("anioLectivo");
-    return saved ? Number(saved) : new Date().getFullYear();
-  });
+  const { theme, toggleTheme } = useTheme();
+  const sel = useSelection();
+  const {
+    escuelas, cursos, materias, alumnos, loadAlumnos, refreshSelections,
+    escuelaId, setEscuelaId, cursoId, setCursoId, materiaId, setMateriaId,
+    search, setSearch, anioLectivo, setAnioLectivo,
+  } = sel;
+
   const [formOpen, setFormOpen] = useState(false);
-  const [editingAlumno, setEditingAlumno] = useState<Alumno | null>(null);
+  const [editingAlumno, setEditingAlumno] = useState<typeof alumnos[0] | null>(null);
   const [adminEscuelaOpen, setAdminEscuelaOpen] = useState(false);
   const [editEscuelaId, setEditEscuelaId] = useState<number | null>(null);
   const [adminCursoOpen, setAdminCursoOpen] = useState(false);
@@ -38,117 +36,14 @@ export default function App() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [notaFinalMode, setNotaFinalMode] = useState("auto");
   const [tab, setTab] = useState<"alumnos" | "asistencias" | "agenda">("alumnos");
-  const [theme, setTheme] = useState<"light" | "dark">(() => (localStorage.getItem("theme") as "light" | "dark") || "light");
-  const lastCurso = useRef<Record<number, number>>(loadSaved("lastCurso"));
-  const lastMateria = useRef<Record<number, number>>(loadSaved("lastMateria"));
-
-  const [restored, setRestored] = useState(false);
+  const [importModal, setImportModal] = useState<"excel" | "paste" | null>(null);
+  const [importFile, setImportFile] = useState<File | null>(null);
+  const [importListText, setImportListText] = useState("");
+  const [importing, setImporting] = useState(false);
 
   const { confirm, modal: confirmModal } = useConfirm();
   const { prompt, modal: promptModal } = usePrompt();
   const { alert, modal: alertModal } = useAlert();
-
-  useEffect(() => {
-    document.documentElement.classList.toggle("dark", theme === "dark");
-    localStorage.setItem("theme", theme);
-  }, [theme]);
-
-  // Save full session when all 3 selected
-  useEffect(() => {
-    if (escuelaId && cursoId && materiaId) {
-      localStorage.setItem("lastSession", JSON.stringify({
-        escuelaId: Number(escuelaId),
-        cursoId: Number(cursoId),
-        materiaId: Number(materiaId),
-      }));
-    }
-  }, [escuelaId, cursoId, materiaId]);
-
-  // Save escuela, curso, materia individual maps (for manual selection restore)
-  useEffect(() => {
-    if (escuelaId && cursoId) {
-      lastCurso.current[Number(escuelaId)] = Number(cursoId);
-      localStorage.setItem("lastCurso", JSON.stringify(lastCurso.current));
-    }
-  }, [escuelaId, cursoId]);
-  useEffect(() => {
-    if (cursoId && materiaId) {
-      lastMateria.current[Number(cursoId)] = Number(materiaId);
-      localStorage.setItem("lastMateria", JSON.stringify(lastMateria.current));
-    }
-  }, [cursoId, materiaId]);
-
-  // Restore full state on initial load
-  useEffect(() => {
-    getEscuelas().then(list => {
-      setEscuelas(list);
-      if (!restored) {
-        // Try full session first
-        const raw = localStorage.getItem("lastSession");
-        if (raw) {
-          try {
-            const saved = JSON.parse(raw);
-            if (list.some(e => e.id === saved.escuelaId)) {
-              setEscuelaId(saved.escuelaId);
-              getCursos(saved.escuelaId).then(cursosList => {
-                setCursos(cursosList);
-                if (cursosList.some(c => c.id === saved.cursoId)) {
-                  setCursoId(saved.cursoId);
-                  getMaterias(saved.cursoId).then(matsList => {
-                    setMaterias(matsList);
-                    if (matsList.some(m => m.id === saved.materiaId)) {
-                      setMateriaId(saved.materiaId);
-                    }
-                  });
-                }
-              });
-            }
-          } catch {}
-        }
-        setRestored(true);
-      } else {
-        // Already restored: save current selections
-        localStorage.setItem("lastStateEscuela", JSON.stringify({
-          curso: lastCurso.current,
-          materia: lastMateria.current,
-        }));
-      }
-    });
-  }, [restored]);
-
-  // When escuela changes manually (not from restore), restore last curso
-  useEffect(() => {
-    if (escuelaId) {
-      getCursos(Number(escuelaId)).then(list => {
-        setCursos(list);
-        const saved = lastCurso.current[Number(escuelaId)];
-        if (saved && list.some(c => c.id === saved)) setCursoId(saved);
-        else setCursoId("");
-      });
-    } else { setCursos([]); setCursoId(""); setMaterias([]); setMateriaId(""); setAlumnos([]); }
-  }, [escuelaId]);
-
-  // When curso changes manually, restore last materia
-  useEffect(() => {
-    if (cursoId) {
-      getMaterias(Number(cursoId)).then(list => {
-        setMaterias(list);
-        const saved = lastMateria.current[Number(cursoId)];
-        if (saved && list.some(m => m.id === saved)) setMateriaId(saved);
-        else if (list.length === 1) setMateriaId(list[0].id);
-        else setMateriaId("");
-      });
-    } else { setMaterias([]); setMateriaId(""); setAlumnos([]); }
-  }, [cursoId]);
-
-  const loadAlumnos = useCallback(() => {
-    if (escuelaId && cursoId && materiaId) {
-      getAlumnos({ escuelaId: Number(escuelaId), cursoId: Number(cursoId), materiaId: Number(materiaId), anioLectivo, search: search || undefined }).then(setAlumnos);
-    } else setAlumnos([]);
-  }, [escuelaId, cursoId, materiaId, anioLectivo, search]);
-
-  useEffect(() => { loadAlumnos(); }, [loadAlumnos]);
-  useEffect(() => { localStorage.setItem("anioLectivo", String(anioLectivo)); }, [anioLectivo]);
 
   useEffect(() => {
     getSettings().then(s => {
@@ -156,45 +51,56 @@ export default function App() {
     });
   }, []);
 
-  function refreshAll() {
-    getEscuelas().then(setEscuelas);
-    if (escuelaId) getCursos(Number(escuelaId)).then(setCursos);
-    if (cursoId) getMaterias(Number(cursoId)).then(setMaterias);
+  async function handleImportExcel() {
+    if (!importFile) return;
+    setImporting(true);
+    try {
+      const r = await importExcel(importFile, Number(escuelaId), Number(cursoId), Number(materiaId), anioLectivo);
+      setImportModal(null); setImportFile(null);
+      await alert(`Importados: ${r.imported}${r.errors.length ? `\nErrores: ${r.errors.join("\n")}` : ""}`);
+      loadAlumnos();
+    } catch (e: any) { await alert("Error: " + e.message); }
+    setImporting(false);
   }
 
-  const ANIOS = [2025, 2026, 2027];
+  async function handleImportList() {
+    if (!importListText.trim()) return;
+    setImporting(true);
+    try {
+      const r = await importList(importListText, Number(escuelaId), Number(cursoId), Number(materiaId), anioLectivo);
+      setImportModal(null); setImportListText("");
+      await alert(`Importados: ${r.imported}${r.errors.length ? `\nErrores: ${r.errors.join("\n")}` : ""}`);
+      loadAlumnos();
+    } catch (e: any) { await alert("Error: " + e.message); }
+    setImporting(false);
+  }
+
+  const sm = typeof materiaId === "number" ? materias.find(m => m.id === materiaId) : undefined;
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: "var(--bg-secondary)" }}>
-      <Header theme={theme} onToggleTheme={() => setTheme(t => t === "light" ? "dark" : "light")} />
-      <main className="max-w-7xl mx-auto px-4 py-6">
-        {/* Top bar: year + settings + backup */}
-        <div className="flex flex-wrap items-center justify-center gap-2 mb-4">
-          <div className="flex items-center gap-1">
+      <Header theme={theme} onToggleTheme={toggleTheme} />
+      <main className="max-w-7xl mx-auto px-4 py-6 space-y-4">
+
+        {/* Top bar: year + settings + tools */}
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          <div className="flex items-center gap-1.5">
             <label className="text-xs font-medium" style={{ color: "var(--text-secondary)" }}>Año:</label>
             <select value={anioLectivo} onChange={e => setAnioLectivo(Number(e.target.value))}
-              className="rounded-lg border px-2 py-1 text-xs outline-none focus:ring-2 focus:ring-[var(--accent)]"
-              style={{ backgroundColor: "var(--bg-card)", color: "var(--text-primary)", borderColor: "var(--border-color)" }}>
-              {ANIOS.map(a => <option key={a} value={a}>{a}</option>)}
+              className="input !w-auto !py-1 !text-xs">
+              {[2025, 2026, 2027].map(a => <option key={a} value={a}>{a}</option>)}
             </select>
           </div>
-          <button onClick={() => setSettingsOpen(true)} className="btn-ghost text-xs" style={{ padding: "0.25rem 0.6rem" }}>Ajustes</button>
-          <button onClick={exportBackup} className="btn-ghost text-xs" style={{ padding: "0.25rem 0.6rem" }}>Exportar DB</button>
-          <button onClick={async () => {
-            const input = document.createElement("input");
-            input.type = "file"; input.accept = ".json";
-            input.onchange = async (e: any) => {
-              const file = e.target.files?.[0];
-              if (file) {
-                await importBackup(file);
-                await alert("Datos restaurados correctamente.");
-              }
-            };
-            input.click();
-          }} className="btn-ghost text-xs" style={{ padding: "0.25rem 0.6rem" }}>Importar DB</button>
+          <button onClick={() => setSettingsOpen(true)} className="btn btn-ghost btn-sm">Ajustes</button>
+          <DropdownActions label="Base de Datos" actions={[
+            { label: "Exportar Backup", onClick: exportBackup },
+            { label: "Importar Backup", onClick: () => { const i = document.createElement("input"); i.type = "file"; i.accept = ".json"; i.onchange = async (e: any) => { const f = e.target.files?.[0]; if (f) { try { await importBackup(f); await alert("Datos restaurados"); loadAlumnos(); } catch { await alert("Error"); } } }; i.click(); } },
+          ]} />
         </div>
 
-        <div className="mb-6 space-y-4">
+        {/* Card: Filtros */}
+        <Card>
+          <div className="section-header">Filtros</div>
           <Selectors
             escuelas={escuelas} cursos={cursos} materias={materias}
             escuelaId={escuelaId} cursoId={cursoId} materiaId={materiaId}
@@ -208,89 +114,100 @@ export default function App() {
             onAdminCurso={() => setAdminCursoOpen(true)}
             onAdminMateria={() => setAdminMateriaOpen(true)}
           />
-        </div>
+        </Card>
 
-        {materiaId && (() => {
-          const sm = materias.find(m => m.id === materiaId);
+        {/* Main content when materia is selected */}
+        {typeof materiaId === "number" && materiaId > 0 && (() => {
           return (<>
             {sm && (sm.dia || sm.turno) && (
-              <div className="mb-2 text-xs" style={{ color: "var(--text-secondary)" }}>
+              <div className="flex justify-center text-xs" style={{ color: "var(--text-secondary)" }}>
                 {sm.dia && <span className="mr-2">{sm.dia}</span>}{sm.turno && <span>{sm.turno}</span>}
               </div>
             )}
-            <div className="flex gap-1 mb-4 border-b" style={{ borderColor: "var(--border-color)" }}>
-              <button onClick={() => setTab("alumnos")}
-                className="px-4 py-2 text-sm font-medium rounded-t-lg border border-b-0 -mb-px transition-colors"
-                style={{
-                  backgroundColor: tab === "alumnos" ? "var(--bg-card)" : "transparent",
-                  color: tab === "alumnos" ? "var(--text-primary)" : "var(--text-secondary)",
-                  borderColor: "var(--border-color)",
-                  borderTop: tab === "alumnos" ? "3px solid var(--accent)" : "3px solid transparent",
-                }}>Alumnos</button>
-              <button onClick={() => setTab("asistencias")}
-                className="px-4 py-2 text-sm font-medium rounded-t-lg border border-b-0 -mb-px transition-colors"
-                style={{
-                  backgroundColor: tab === "asistencias" ? "var(--bg-card)" : "transparent",
-                  color: tab === "asistencias" ? "var(--text-primary)" : "var(--text-secondary)",
-                  borderColor: "var(--border-color)",
-                  borderTop: tab === "asistencias" ? "3px solid #f59e0b" : "3px solid transparent",
-                }}>Asistencias</button>
-              <button onClick={() => setTab("agenda")}
-                className="px-4 py-2 text-sm font-medium rounded-t-lg border border-b-0 -mb-px transition-colors"
-                style={{
-                  backgroundColor: tab === "agenda" ? "var(--bg-card)" : "transparent",
-                  color: tab === "agenda" ? "var(--text-primary)" : "var(--text-secondary)",
-                  borderColor: "var(--border-color)",
-                  borderTop: tab === "agenda" ? "3px solid #8b5cf6" : "3px solid transparent",
-                }}>Agenda</button>
+
+            {/* Tabs */}
+            <div className="flex gap-1 border-b" style={{ borderColor: "var(--border-color)" }}>
+              {(["alumnos", "asistencias", "agenda"] as const).map(t => (
+                <button key={t} onClick={() => setTab(t)}
+                  className="px-4 py-2 text-sm font-medium rounded-t-lg border border-b-0 -mb-px transition-colors"
+                  style={{
+                    backgroundColor: tab === t ? "var(--bg-card)" : "transparent",
+                    color: tab === t ? "var(--text-primary)" : "var(--text-secondary)",
+                    borderColor: "var(--border-color)",
+                    borderTop: tab === t
+                      ? `3px solid ${t === "alumnos" ? "var(--accent)" : t === "asistencias" ? "#f59e0b" : "#8b5cf6"}`
+                      : "3px solid transparent",
+                  }}>{t === "alumnos" ? "Alumnos" : t === "asistencias" ? "Asistencias" : "Agenda"}</button>
+              ))}
             </div>
+
+            {/* Alumnos tab */}
             {tab === "alumnos" && (
               <>
-                <div className="flex flex-wrap gap-2 mb-4 justify-center">
-                  <button onClick={() => { setEditingAlumno(null); setFormOpen(true); }} className="btn-primary" style={{ padding: "0.3rem 0.7rem", fontSize: "0.75rem" }}>+ Agregar</button>
-                  <button onClick={async () => {
-                    if (alumnos.length === 0) return;
-                    const id = await prompt("Ingrese el ID del alumno a editar:");
-                    if (id) {
-                      const a = alumnos.find(x => x.id === parseInt(id));
-                      if (a) { setEditingAlumno(a); setFormOpen(true); } else await alert("Alumno no encontrado");
-                    }
-                  }} className="btn-secondary" disabled={alumnos.length === 0} style={{ padding: "0.3rem 0.7rem", fontSize: "0.75rem" }}>Editar</button>
-                  <button onClick={async () => {
-                    const id = await prompt("Ingrese el ID del alumno a eliminar:");
-                    if (id) { await deleteAlumno(parseInt(id)); loadAlumnos(); }
-                  }} className="btn-danger" disabled={alumnos.length === 0} style={{ padding: "0.3rem 0.7rem", fontSize: "0.75rem" }}>Eliminar</button>
-                  <button onClick={async () => {
-                    const ok = await confirm("¿Eliminar TODOS los alumnos?");
-                    if (!ok) return;
-                    const r = await deleteAllAlumnos(Number(escuelaId), Number(cursoId), Number(materiaId));
-                    await alert(`Se eliminaron ${r.deleted} alumno(s)`);
-                    loadAlumnos();
-                  }} className="btn-danger" disabled={alumnos.length === 0} style={{ padding: "0.3rem 0.7rem", fontSize: "0.75rem" }}>Eliminar Todos</button>
-                  <ImportExport escuelaId={Number(escuelaId)} cursoId={Number(cursoId)} materiaId={Number(materiaId)} anioLectivo={anioLectivo} onImport={loadAlumnos} />
-                </div>
-                <div className="mb-4">
-                  <GoogleFormSync escuelaId={Number(escuelaId)} cursoId={Number(cursoId)} materiaId={Number(materiaId)} anioLectivo={anioLectivo} onSync={loadAlumnos} />
-                </div>
-                <StudentTable alumnos={alumnos} onRefresh={loadAlumnos} onEdit={a => { setEditingAlumno(a); setFormOpen(true); }} onDelete={async (id) => { const ok = await confirm("¿Eliminar este alumno?"); if (ok) { await deleteAlumno(id); loadAlumnos(); } }} />
+                {/* Card: Acciones */}
+                <Card>
+                  <div className="section-header">Acciones</div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button onClick={() => { setEditingAlumno(null); setFormOpen(true); }} className="btn btn-primary btn-sm">+ Agregar</button>
+                    <button onClick={async () => {
+                      if (alumnos.length === 0) return;
+                      const id = await prompt("Ingrese el ID del alumno a editar:");
+                      if (id) { const a = alumnos.find(x => x.id === parseInt(id)); if (a) { setEditingAlumno(a); setFormOpen(true); } else await alert("Alumno no encontrado"); }
+                    }} className="btn btn-secondary btn-sm" disabled={alumnos.length === 0}>Editar</button>
+                    <button onClick={async () => {
+                      const id = await prompt("Ingrese el ID del alumno a eliminar:");
+                      if (id) { await deleteAlumno(parseInt(id)); loadAlumnos(); }
+                    }} className="btn btn-danger btn-sm" disabled={alumnos.length === 0}>Eliminar</button>
+                    <div className="flex-1" />
+                    <DropdownActions label="Herramientas" actions={[
+                      { label: "Eliminar Todos", onClick: async () => { const ok = await confirm("¿Eliminar TODOS los alumnos?"); if (!ok) return; const r = await deleteAllAlumnos(Number(escuelaId), Number(cursoId), Number(materiaId)); await alert(`Se eliminaron ${r.deleted} alumno(s)`); loadAlumnos(); }, variant: "danger" },
+                      { label: "Importar Excel", onClick: () => setImportModal("excel") },
+                      { label: "Pegar Lista", onClick: () => setImportModal("paste") },
+                      { label: "Exportar Backup", onClick: exportBackup },
+                      { label: "Importar Backup", onClick: () => { const i = document.createElement("input"); i.type = "file"; i.accept = ".json"; i.onchange = async (e: any) => { const f = e.target.files?.[0]; if (f) { try { await importBackup(f); await alert("Datos restaurados"); loadAlumnos(); } catch { await alert("Error"); } } }; i.click(); } },
+                    ]} />
+                  </div>
+                </Card>
+
+                {/* GoogleFormSync */}
+                <GoogleFormSync escuelaId={Number(escuelaId)} cursoId={Number(cursoId)} materiaId={Number(materiaId)} anioLectivo={anioLectivo} onSync={loadAlumnos} />
+
+                {/* Card: Estadísticas */}
+                <Card>
+                  <div className="section-header">Estadísticas</div>
+                  <StatsBar alumnos={alumnos} />
+                </Card>
+
+                {/* Card: Tabla */}
+                <Card padding={false}>
+                  <StudentTable alumnos={alumnos} onRefresh={loadAlumnos} onEdit={a => { setEditingAlumno(a); setFormOpen(true); }} onDelete={async (id) => { const ok = await confirm("¿Eliminar este alumno?"); if (ok) { await deleteAlumno(id); loadAlumnos(); } }} />
+                </Card>
               </>
             )}
+
+            {/* Asistencias tab */}
             {tab === "asistencias" && (
-              <Asistencias alumnos={alumnos} materiaId={Number(materiaId)} dia={materias.find(m => m.id === materiaId)?.dia || ""} />
+              <Card>
+                <Asistencias alumnos={alumnos} materiaId={Number(materiaId)} dia={sm?.dia || ""} />
+              </Card>
             )}
+
+            {/* Agenda tab */}
             {tab === "agenda" && (
-              <Agenda materiaId={Number(materiaId)} />
+              <Card>
+                <Agenda materiaId={Number(materiaId)} />
+              </Card>
             )}
           </>);
         })()}
 
-        {!materiaId && (
-          <div className="text-center py-20" style={{ color: "var(--text-secondary)" }}>
-            <p className="text-xl">Seleccioná una escuela, curso y materia para comenzar</p>
-          </div>
+        {/* No materia selected */}
+        {(!materiaId || materiaId === 0) && (
+          <EmptyState message="Seleccioná una escuela, curso y materia para comenzar" icon="📚" />
         )}
       </main>
 
+      {/* StudentForm modal */}
       {formOpen && (
         <StudentForm
           alumno={editingAlumno}
@@ -303,13 +220,15 @@ export default function App() {
         />
       )}
 
-      {adminEscuelaOpen && <AdminEscuela editId={editEscuelaId} onClose={() => { setAdminEscuelaOpen(false); setEditEscuelaId(null); }} onChanged={refreshAll} />}
-      {adminCursoOpen && <AdminCurso onClose={() => setAdminCursoOpen(false)} onChanged={refreshAll} />}
-      {adminMateriaOpen && <AdminMateria onClose={() => setAdminMateriaOpen(false)} onChanged={refreshAll}
+      {/* Admin modals */}
+      {adminEscuelaOpen && <AdminEscuela editId={editEscuelaId} onClose={() => { setAdminEscuelaOpen(false); setEditEscuelaId(null); }} onChanged={refreshSelections} />}
+      {adminCursoOpen && <AdminCurso onClose={() => setAdminCursoOpen(false)} onChanged={refreshSelections} />}
+      {adminMateriaOpen && <AdminMateria onClose={() => setAdminMateriaOpen(false)} onChanged={refreshSelections}
         initialEscuelaId={escuelaId ? Number(escuelaId) : undefined}
         initialCursoId={cursoId ? Number(cursoId) : undefined}
         initialMateriaId={materiaId ? Number(materiaId) : undefined} />}
 
+      {/* Settings modal */}
       {settingsOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="rounded-xl shadow-xl w-full max-w-md p-6" style={{ backgroundColor: "var(--bg-card)" }}>
@@ -321,8 +240,7 @@ export default function App() {
               <div>
                 <label className="block text-sm font-medium mb-1">Cálculo de Nota Final</label>
                 <select value={notaFinalMode} onChange={e => setNotaFinalMode(e.target.value)}
-                  className="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]"
-                  style={{ backgroundColor: "var(--bg-card)", color: "var(--text-primary)", borderColor: "var(--border-color)" }}>
+                  className="input">
                   <option value="auto">Automático (promedio de cuatrimestres)</option>
                   <option value="manual">Manual (carga docente)</option>
                 </select>
@@ -332,7 +250,49 @@ export default function App() {
                 setApiNotaMode(notaFinalMode);
                 await alert("Configuración guardada.");
                 setSettingsOpen(false);
-              }} className="btn-primary">Guardar</button>
+              }} className="btn btn-primary">Guardar</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Import Excel modal */}
+      {importModal === "excel" && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="rounded-xl shadow-xl w-full max-w-md p-6" style={{ backgroundColor: "var(--bg-card)" }}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold">Importar Excel</h2>
+              <button onClick={() => { setImportModal(null); setImportFile(null); }} className="p-1 rounded hover:bg-[var(--hover-bg)]" style={{ color: "var(--text-secondary)" }}>✕</button>
+            </div>
+            <div className="space-y-3">
+              <p className="text-sm" style={{ color: "var(--text-secondary)" }}>Seleccioná un archivo de Excel (.xlsx) con los nombres de los alumnos.</p>
+              <input type="file" accept=".xlsx,.xls" onChange={e => setImportFile(e.target.files?.[0] || null)}
+                className="block w-full text-sm" />
+              <div className="flex gap-2 justify-end">
+                <button onClick={() => { setImportModal(null); setImportFile(null); }} className="btn btn-secondary btn-sm">Cancelar</button>
+                <button onClick={handleImportExcel} disabled={!importFile || importing} className="btn btn-primary btn-sm">{importing ? "Importando..." : "Importar"}</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Paste list modal */}
+      {importModal === "paste" && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="rounded-xl shadow-xl w-full max-w-md p-6" style={{ backgroundColor: "var(--bg-card)" }}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold">Pegar Lista</h2>
+              <button onClick={() => { setImportModal(null); setImportListText(""); }} className="p-1 rounded hover:bg-[var(--hover-bg)]" style={{ color: "var(--text-secondary)" }}>✕</button>
+            </div>
+            <div className="space-y-3">
+              <p className="text-sm" style={{ color: "var(--text-secondary)" }}>Pegá los nombres, uno por línea.</p>
+              <textarea value={importListText} onChange={e => setImportListText(e.target.value)} rows={8}
+                className="input resize-none" placeholder="Apellido, Nombre&#10;Apellido, Nombre" />
+              <div className="flex gap-2 justify-end">
+                <button onClick={() => { setImportModal(null); setImportListText(""); }} className="btn btn-secondary btn-sm">Cancelar</button>
+                <button onClick={handleImportList} disabled={!importListText.trim() || importing} className="btn btn-primary btn-sm">{importing ? "Importando..." : "Importar"}</button>
+              </div>
             </div>
           </div>
         </div>
