@@ -66,45 +66,39 @@ export default function GoogleFormSync({ escuelaId, cursoId, materiaId, anioLect
   }
 
   return (
-    <div className="rounded-xl border p-4" style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-color)" }}>
-      <div className="flex items-center gap-3 mb-3 flex-wrap">
-        <span className="text-sm font-medium">Formulario de Inscripción</span>
-        {!token && (
-          <button onClick={handleGenerate} disabled={generating || !escuelaId || !cursoId || !materiaId}
-            className="btn-primary text-xs px-3 py-1.5">
-            {generating ? "Generando..." : "Generar Formulario de Inscripción"}
-          </button>
+    <div className="flex items-start gap-3 p-3 rounded-xl border" style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-color)" }}>
+      <div className="flex-1 min-w-0">
+        {!token ? (
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs font-medium">Formulario de Inscripción</span>
+            <button onClick={handleGenerate} disabled={generating || !escuelaId || !cursoId || !materiaId}
+              className="btn btn-primary btn-xs">
+              {generating ? "Generando..." : "Generar enlace"}
+            </button>
+            <span className="text-xs" style={{ color: "var(--text-secondary)" }}>Alumnos se inscriben solos</span>
+          </div>
+        ) : (
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2">
+              <input readOnly value={formUrl!}
+                className="flex-1 rounded-lg border px-2 py-1 text-xs outline-none"
+                style={{ backgroundColor: "var(--bg)", color: "var(--text-primary)", borderColor: "var(--border-color)" }}
+                onClick={e => (e.target as HTMLInputElement).select()} />
+              <button onClick={handleCopy} className="btn btn-secondary btn-xs whitespace-nowrap">{copied ? "¡Copiado!" : "Copiar"}</button>
+              <button onClick={() => { setToken(null); setFormUrl(null); setNewStudentMsg(false); }}
+                className="btn btn-ghost btn-xs">✕</button>
+            </div>
+            <div className="flex items-center gap-3 text-xs" style={{ color: "var(--text-secondary)" }}>
+              <span>Registrados: <strong>{studentCount}</strong></span>
+              <span>·</span>
+              <span>Auto 30s</span>
+            </div>
+            {newStudentMsg && (
+              <div className="text-xs font-medium" style={{ color: "var(--success)" }}>+1 alumno agregado</div>
+            )}
+          </div>
         )}
       </div>
-      {formUrl && (
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-2">
-            <input readOnly value={formUrl}
-              className="flex-1 rounded-lg border px-3 py-1.5 text-xs outline-none"
-              style={{ backgroundColor: "var(--bg)", color: "var(--text-primary)", borderColor: "var(--border-color)" }}
-              onClick={e => (e.target as HTMLInputElement).select()} />
-            <button onClick={handleCopy} className="btn-secondary text-xs px-3 py-1.5 whitespace-nowrap">{copied ? "¡Copiado!" : "Copiar enlace"}</button>
-            <button onClick={() => { setToken(null); setFormUrl(null); setNewStudentMsg(false); }}
-              className="text-xs px-2 py-1.5 rounded-lg border hover:bg-[var(--hover-bg)] transition-colors"
-              style={{ color: "var(--text-secondary)", borderColor: "var(--border-color)" }}>✕</button>
-          </div>
-          <div className="flex items-center gap-3 text-xs" style={{ color: "var(--text-secondary)" }}>
-            <span>Alumnos registrados: <strong>{studentCount}</strong></span>
-            <span>•</span>
-            <span>Sincronización automática cada 30s</span>
-          </div>
-          {newStudentMsg && (
-            <div className="text-xs font-medium text-green-600 bg-green-50 dark:bg-green-900/20 rounded-lg px-3 py-1.5 border border-green-200 dark:border-green-800">
-              Alumno agregado correctamente
-            </div>
-          )}
-        </div>
-      )}
-      {!token && (
-        <p className="text-xs" style={{ color: "var(--text-secondary)" }}>
-          Generá un enlace para que los alumnos se inscriban solos con solo Apellido y Nombre.
-        </p>
-      )}
     </div>
   );
 }

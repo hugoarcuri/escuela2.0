@@ -1,4 +1,5 @@
 import type { Alumno } from "../../types";
+import StatCard from "../ui/StatCard";
 
 interface Props {
   alumnos: Alumno[];
@@ -14,13 +15,13 @@ export default function StatsBar({ alumnos }: Props) {
   const prom = notas.length ? Math.round((notas.reduce((s, v) => s + v, 0) / notas.length) * 100) / 100 : null;
 
   return (
-    <div className="flex flex-wrap items-center gap-x-5 gap-y-1">
-      <span className="text-sm font-medium">Alumnos: <strong>{total}</strong></span>
-      <span className="text-sm" style={{ color: "var(--success)" }}>TEA: <strong>{tea}</strong></span>
-      <span className="text-sm" style={{ color: "var(--danger)" }}>TEP: <strong>{tep}</strong></span>
-      <span className="text-sm" style={{ color: "var(--success)" }}>Aprobados: <strong>{aprobados}</strong></span>
-      <span className="text-sm" style={{ color: "var(--danger)" }}>Desaprobados: <strong>{desaprobados}</strong></span>
-      <span className="text-sm">Prom. Gral: <strong>{prom ?? "—"}</strong></span>
+    <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-2">
+      <StatCard value={total} label="Alumnos" />
+      <StatCard value={tea} label="TEA" color="var(--success)" />
+      <StatCard value={tep} label="TEP" color="var(--danger)" />
+      <StatCard value={aprobados} label="Aprobados" color="var(--success)" />
+      <StatCard value={desaprobados} label="Desaprobados" color="var(--danger)" />
+      <StatCard value={prom ?? "—"} label="Promedio General" />
     </div>
   );
 }

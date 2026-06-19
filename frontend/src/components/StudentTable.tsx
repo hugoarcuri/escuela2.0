@@ -1,8 +1,8 @@
 import { useState, useRef, useCallback } from "react";
 import type { Alumno } from "../types";
 import { batchUpdateAlumno, deleteAlumnosBulk } from "../api";
-import { Pencil, Trash } from "./Icons";
 import TableHeader from "./table/TableHeader";
+import RowActions from "./table/RowActions";
 
 interface Props {
   alumnos: Alumno[];
@@ -250,13 +250,8 @@ export default function StudentTable({ alumnos, onRefresh, onEdit, onDelete }: P
                       <span className="text-xs truncate block">{a.observaciones || ""}</span>
                     )}
                   </td>
-                  <td className="text-center whitespace-nowrap" style={cs}>
-                    <button onClick={(e) => { e.stopPropagation(); onEdit(a); }}
-                      className="btn btn-xs btn-secondary !p-1"
-                      title="Editar"><Pencil /></button>
-                    <button onClick={(e) => { e.stopPropagation(); onDelete(a.id); }}
-                      className="btn btn-xs btn-danger !p-1 ml-1"
-                      title="Eliminar"><Trash /></button>
+                  <td className="text-center" style={cs}>
+                    <RowActions onEdit={() => onEdit(a)} onDelete={() => onDelete(a.id)} />
                   </td>
                 </tr>
               );

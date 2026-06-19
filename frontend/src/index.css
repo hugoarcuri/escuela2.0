@@ -170,6 +170,25 @@ select.input { cursor: pointer; }
 .badge-ok { background-color: color-mix(in srgb, var(--success) 15%, transparent); color: var(--success); }
 .badge-ko { background-color: color-mix(in srgb, var(--danger) 15%, transparent); color: var(--danger); }
 
+/* === Stat Cards === */
+.stat-card {
+  background-color: var(--bg-secondary);
+  border-radius: var(--radius-sm);
+  padding: 0.625rem 0.75rem;
+  text-align: center;
+}
+.stat-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--text-primary);
+}
+.stat-label {
+  font-size: 0.6875rem;
+  color: var(--text-secondary);
+  margin-top: 1px;
+}
+
 /* === Misc === */
 .empty-state {
   text-align: center;
