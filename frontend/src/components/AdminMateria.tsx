@@ -36,7 +36,7 @@ export default function AdminMateria({ onClose, onChanged }: Props) {
       if (editing) await updateMateria(editing.id, form);
       else await createMateria(form);
       resetForm(); loadMaterias(); onChanged();
-    } catch (err: any) { await alert(err?.response?.data?.error || "Error al guardar"); }
+    } catch (err: any) { await alert(err?.message || err?.error?.message || "Error al guardar"); }
   }
 
   async function handleDelete(id: number) {

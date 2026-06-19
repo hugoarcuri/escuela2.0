@@ -56,7 +56,7 @@ export async function createMateria(d: MateriaFormData): Promise<Materia> {
   return data;
 }
 export async function updateMateria(id: number, d: MateriaFormData): Promise<Materia> {
-  const { data, error } = await supabase.from("materias").update({ nombre: d.nombre, dia: d.dia || null, turno: d.turno || null }).eq("id", id).select().single();
+  const { data, error } = await supabase.from("materias").update({ nombre: d.nombre, dia: d.dia || null, turno: d.turno || null, cursoId: d.cursoId }).eq("id", id).select().single();
   if (error) throw error;
   return data;
 }
