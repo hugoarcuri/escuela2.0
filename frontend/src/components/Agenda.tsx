@@ -81,6 +81,19 @@ export default function Agenda({ materiaId }: Props) {
     } catch {}
   }
 
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const dayAfter = new Date(today);
+  dayAfter.setDate(dayAfter.getDate() + 2);
+
+  const upcoming = items.filter(item => {
+    const d = new Date(item.fecha + "T12:00:00");
+    d.setHours(0, 0, 0, 0);
+    return d >= today && d <= dayAfter;
+  });
+
   const grouped: Record<string, AgendaItem[]> = {};
   for (const item of items) {
     const m = item.fecha.slice(0, 7);
@@ -90,6 +103,16 @@ export default function Agenda({ materiaId }: Props) {
 
   const months = Object.keys(grouped).sort();
 
+  function daysUntil(f: string): string {
+    const d = new Date(f + "T12:00:00");
+    d.setHours(0, 0, 0, 0);
+    const diff = Math.round((d.getTime() - today.getTime()) / 86400000);
+    if (diff === 0) return "Hoy";
+    if (diff === 1) return "Mañana";
+    if (diff === 2) return "Pasado mañana";
+    return "";
+  }
+
   return (
     <div>
       {toast && (
@@ -98,6 +121,23 @@ export default function Agenda({ materiaId }: Props) {
           {toast}
         </div>
       )}
+
+      {upcoming.length > 0 && (
+        <div className="mb-4 p-3 rounded-lg text-sm font-medium" style={{ backgroundColor: "#1e40af", color: "#fff" }}>
+          {upcoming.map(item => {
+            const tipoInfo = TIPOS.find(t => t.key === item.tipo);
+            return (
+              <div key={item.id} className="flex items-center gap-2 py-0.5">
+                <span className="text-xs font-bold bg-white/20 px-1.5 py-0.5 rounded">{daysUntil(item.fecha)}</span>
+                <span style={{ color: tipoInfo?.color }}>●</span>
+                <span>{item.titulo}</span>
+                <span className="text-xs opacity-80">{tipoInfo?.label}</span>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
       <div className="flex items-center gap-3 mb-4">
         <button onClick={() => openForm()} className="btn-primary text-sm">+ Agregar</button>
         <span className="text-xs" style={{ color: "var(--text-secondary)" }}>{items.length} evento{items.length !== 1 ? "s" : ""}</span>
@@ -179,7 +219,7 @@ export default function Agenda({ materiaId }: Props) {
                         <span className="text-xs font-semibold px-1.5 py-0.5 rounded" style={{ backgroundColor: (tipoInfo?.color || "#888") + "20", color: tipoInfo?.color }}>
                           {tipoInfo?.label || item.tipo}
                         </span>
-                        {item.hora && <span className="text-xs" style={{ color: "var(--text-secondary)" }}>{item.hora}</span>}
+
                       </div>
                       <div className="text-sm font-medium mt-0.5" style={{ color: "var(--text-primary)" }}>{item.titulo}</div>
                       {item.descripcion && <div className="text-xs mt-0.5" style={{ color: "var(--text-secondary)" }}>{item.descripcion}</div>}
