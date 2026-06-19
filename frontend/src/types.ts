@@ -5,7 +5,7 @@ export interface Curso {
   id: number; nombre: string; anio: number; division: string; turno?: string | null; escuelaId: number;
 }
 export interface Materia {
-  id: number; nombre: string; cursoId: number;
+  id: number; nombre: string; dia?: string; turno?: string; cursoId: number;
 }
 export interface AlumnoDB {
   id: number; apellidoNombre: string;
@@ -28,7 +28,7 @@ export interface AlumnoFormData {
 }
 export interface EscuelaFormData { nombre: string; distrito: string; telefono: string; }
 export interface CursoFormData { anio: string; division: string; turno: string; escuelaId: number; }
-export interface MateriaFormData { nombre: string; cursoId: number; }
+export interface MateriaFormData { nombre: string; dia: string; turno: string; cursoId: number; }
 export interface HistorialCambio {
   id: number; alumnoId: number; campo: string; valorAnterior: string | null; valorNuevo: string | null; createdAt: string;
 }

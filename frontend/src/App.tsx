@@ -169,17 +169,17 @@ export default function App() {
       <Header theme={theme} onToggleTheme={() => setTheme(t => t === "light" ? "dark" : "light")} />
       <main className="max-w-7xl mx-auto px-4 py-6">
         {/* Top bar: year + settings + backup */}
-        <div className="flex flex-wrap items-center gap-3 mb-4">
+        <div className="flex flex-wrap items-center justify-center gap-2 mb-4">
           <div className="flex items-center gap-1">
             <label className="text-xs font-medium" style={{ color: "var(--text-secondary)" }}>Año:</label>
             <select value={anioLectivo} onChange={e => setAnioLectivo(Number(e.target.value))}
-              className="rounded-lg border px-2 py-1.5 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]"
+              className="rounded-lg border px-2 py-1 text-xs outline-none focus:ring-2 focus:ring-[var(--accent)]"
               style={{ backgroundColor: "var(--bg-card)", color: "var(--text-primary)", borderColor: "var(--border-color)" }}>
               {ANIOS.map(a => <option key={a} value={a}>{a}</option>)}
             </select>
           </div>
-          <button onClick={() => setSettingsOpen(true)} className="btn-ghost text-xs px-3 py-1.5">Ajustes</button>
-          <button onClick={exportBackup} className="btn-ghost text-xs px-3 py-1.5">Exportar DB</button>
+          <button onClick={() => setSettingsOpen(true)} className="btn-ghost text-xs" style={{ padding: "0.25rem 0.6rem" }}>Ajustes</button>
+          <button onClick={exportBackup} className="btn-ghost text-xs" style={{ padding: "0.25rem 0.6rem" }}>Exportar DB</button>
           <button onClick={async () => {
             const input = document.createElement("input");
             input.type = "file"; input.accept = ".json";
@@ -191,8 +191,7 @@ export default function App() {
               }
             };
             input.click();
-          }} className="btn-ghost text-xs px-3 py-1.5">Importar DB</button>
-          <div className="flex-1" />
+          }} className="btn-ghost text-xs" style={{ padding: "0.25rem 0.6rem" }}>Importar DB</button>
         </div>
 
         <div className="mb-6 space-y-4">
@@ -211,8 +210,14 @@ export default function App() {
           />
         </div>
 
-        {materiaId && (
-          <>
+        {materiaId && (() => {
+          const sm = materias.find(m => m.id === materiaId);
+          return (<>
+            {sm && (sm.dia || sm.turno) && (
+              <div className="mb-2 text-xs" style={{ color: "var(--text-secondary)" }}>
+                {sm.dia && <span className="mr-2">{sm.dia}</span>}{sm.turno && <span>{sm.turno}</span>}
+              </div>
+            )}
             <div className="flex gap-1 mb-4 border-b" style={{ borderColor: "var(--border-color)" }}>
               <button onClick={() => setTab("alumnos")}
                 className="px-4 py-2 text-sm font-medium rounded-t-lg border border-b-0 -mb-px transition-colors"
@@ -220,6 +225,7 @@ export default function App() {
                   backgroundColor: tab === "alumnos" ? "var(--bg-card)" : "transparent",
                   color: tab === "alumnos" ? "var(--text-primary)" : "var(--text-secondary)",
                   borderColor: "var(--border-color)",
+                  borderTop: tab === "alumnos" ? "3px solid var(--accent)" : "3px solid transparent",
                 }}>Alumnos</button>
               <button onClick={() => setTab("asistencias")}
                 className="px-4 py-2 text-sm font-medium rounded-t-lg border border-b-0 -mb-px transition-colors"
@@ -227,6 +233,7 @@ export default function App() {
                   backgroundColor: tab === "asistencias" ? "var(--bg-card)" : "transparent",
                   color: tab === "asistencias" ? "var(--text-primary)" : "var(--text-secondary)",
                   borderColor: "var(--border-color)",
+                  borderTop: tab === "asistencias" ? "3px solid #f59e0b" : "3px solid transparent",
                 }}>Asistencias</button>
               <button onClick={() => setTab("agenda")}
                 className="px-4 py-2 text-sm font-medium rounded-t-lg border border-b-0 -mb-px transition-colors"
@@ -234,12 +241,13 @@ export default function App() {
                   backgroundColor: tab === "agenda" ? "var(--bg-card)" : "transparent",
                   color: tab === "agenda" ? "var(--text-primary)" : "var(--text-secondary)",
                   borderColor: "var(--border-color)",
+                  borderTop: tab === "agenda" ? "3px solid #8b5cf6" : "3px solid transparent",
                 }}>Agenda</button>
             </div>
             {tab === "alumnos" && (
               <>
-                <div className="flex flex-wrap gap-3 mb-4">
-                  <button onClick={() => { setEditingAlumno(null); setFormOpen(true); }} className="btn-primary">+ Agregar</button>
+                <div className="flex flex-wrap gap-2 mb-4 justify-center">
+                  <button onClick={() => { setEditingAlumno(null); setFormOpen(true); }} className="btn-primary" style={{ padding: "0.3rem 0.7rem", fontSize: "0.75rem" }}>+ Agregar</button>
                   <button onClick={async () => {
                     if (alumnos.length === 0) return;
                     const id = await prompt("Ingrese el ID del alumno a editar:");
@@ -247,18 +255,18 @@ export default function App() {
                       const a = alumnos.find(x => x.id === parseInt(id));
                       if (a) { setEditingAlumno(a); setFormOpen(true); } else await alert("Alumno no encontrado");
                     }
-                  }} className="btn-secondary" disabled={alumnos.length === 0}>Editar</button>
+                  }} className="btn-secondary" disabled={alumnos.length === 0} style={{ padding: "0.3rem 0.7rem", fontSize: "0.75rem" }}>Editar</button>
                   <button onClick={async () => {
                     const id = await prompt("Ingrese el ID del alumno a eliminar:");
                     if (id) { await deleteAlumno(parseInt(id)); loadAlumnos(); }
-                  }} className="btn-danger" disabled={alumnos.length === 0}>Eliminar</button>
+                  }} className="btn-danger" disabled={alumnos.length === 0} style={{ padding: "0.3rem 0.7rem", fontSize: "0.75rem" }}>Eliminar</button>
                   <button onClick={async () => {
                     const ok = await confirm("¿Eliminar TODOS los alumnos?");
                     if (!ok) return;
                     const r = await deleteAllAlumnos(Number(escuelaId), Number(cursoId), Number(materiaId));
                     await alert(`Se eliminaron ${r.deleted} alumno(s)`);
                     loadAlumnos();
-                  }} className="btn-danger" disabled={alumnos.length === 0}>Eliminar Todos</button>
+                  }} className="btn-danger" disabled={alumnos.length === 0} style={{ padding: "0.3rem 0.7rem", fontSize: "0.75rem" }}>Eliminar Todos</button>
                   <ImportExport escuelaId={Number(escuelaId)} cursoId={Number(cursoId)} materiaId={Number(materiaId)} anioLectivo={anioLectivo} onImport={loadAlumnos} />
                 </div>
                 <div className="mb-4">
@@ -273,8 +281,8 @@ export default function App() {
             {tab === "agenda" && (
               <Agenda materiaId={Number(materiaId)} />
             )}
-          </>
-        )}
+          </>);
+        })()}
 
         {!materiaId && (
           <div className="text-center py-20" style={{ color: "var(--text-secondary)" }}>

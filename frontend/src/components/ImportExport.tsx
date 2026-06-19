@@ -47,14 +47,14 @@ export default function ImportExport({ escuelaId, cursoId, materiaId, anioLectiv
     setList("");
   }
 
-  const btnStyle: React.CSSProperties = { backgroundColor: "var(--bg-card)", color: "var(--text-primary)", borderColor: "var(--border-color)" };
+  const btnStyle: React.CSSProperties = { backgroundColor: "var(--bg-card)", color: "var(--text-primary)", borderColor: "var(--border-color)", padding: "0.3rem 0.7rem", fontSize: "0.75rem" };
 
   return (
     <>
-      <button onClick={() => setShowModal("excel")} className="btn-ghost inline-flex items-center gap-1.5" style={btnStyle}><Upload /> Importar Excel</button>
-      <button onClick={() => setShowModal("paste")} className="btn-ghost inline-flex items-center gap-1.5" style={btnStyle}><Upload /> Pegar Lista</button>
-      <button onClick={exportBackup} className="btn-ghost inline-flex items-center gap-1.5" style={btnStyle}><Download /> Exportar Backup</button>
-      <button onClick={() => { const i = document.createElement("input"); i.type = "file"; i.accept = ".json"; i.onchange = async (e: any) => { const f = e.target.files?.[0]; if (f) { try { await importBackup(f); await alert("Datos restaurados"); onImport(); } catch { await alert("Error"); } } }; i.click(); }} className="btn-ghost inline-flex items-center gap-1.5" style={btnStyle}><Upload /> Importar Backup</button>
+      <button onClick={() => setShowModal("excel")} className="btn-ghost inline-flex items-center gap-1" style={btnStyle}><Upload /> Importar Excel</button>
+      <button onClick={() => setShowModal("paste")} className="btn-ghost inline-flex items-center gap-1" style={btnStyle}><Upload /> Pegar Lista</button>
+      <button onClick={exportBackup} className="btn-ghost inline-flex items-center gap-1" style={btnStyle}><Download /> Exportar Backup</button>
+      <button onClick={() => { const i = document.createElement("input"); i.type = "file"; i.accept = ".json"; i.onchange = async (e: any) => { const f = e.target.files?.[0]; if (f) { try { await importBackup(f); await alert("Datos restaurados"); onImport(); } catch { await alert("Error"); } } }; i.click(); }} className="btn-ghost inline-flex items-center gap-1" style={btnStyle}><Upload /> Importar Backup</button>
 
       {showModal === "excel" && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">

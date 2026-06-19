@@ -116,7 +116,9 @@ export default function Selectors({
             className="flex-1 rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)] disabled:opacity-50"
             style={s}>
             <option value="">Seleccionar materia</option>
-            {materias.map(m => <option key={m.id} value={m.id}>{m.nombre}</option>)}
+            {materias.map(m => <option key={m.id} value={m.id}>
+              {m.nombre}{m.dia ? ` — ${m.dia}` : ""}{m.turno ? ` (${m.turno})` : ""}
+            </option>)}
           </select>
           <button onClick={onAdminMateria} className="p-2 rounded-lg border hover:bg-[var(--hover-bg)] transition-colors" title="Administrar materias" style={s}>
             <Gear />

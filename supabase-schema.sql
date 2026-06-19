@@ -21,9 +21,15 @@ CREATE TABLE IF NOT EXISTS cursos (
   UNIQUE(nombre, "escuelaId")
 );
 
+-- Si ya tenés la tabla creada sin dia/turno, ejecutá:
+-- ALTER TABLE materias ADD COLUMN IF NOT EXISTS dia TEXT DEFAULT '';
+-- ALTER TABLE materias ADD COLUMN IF NOT EXISTS turno TEXT DEFAULT '';
+
 CREATE TABLE IF NOT EXISTS materias (
   id SERIAL PRIMARY KEY,
   nombre TEXT NOT NULL,
+  dia TEXT DEFAULT '',
+  turno TEXT DEFAULT '',
   "cursoId" INTEGER NOT NULL REFERENCES cursos(id) ON DELETE CASCADE,
   "createdAt" TIMESTAMPTZ DEFAULT NOW(),
   "updatedAt" TIMESTAMPTZ DEFAULT NOW(),

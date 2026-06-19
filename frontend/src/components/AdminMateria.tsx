@@ -7,12 +7,15 @@ interface Props { onClose: () => void; onChanged: () => void; }
 
 const s: React.CSSProperties = { backgroundColor: "var(--bg-card)", color: "var(--text-primary)", borderColor: "var(--border-color)" };
 
+const DIAS = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+const TURNOS = ["Mañana", "Tarde", "Vespertino", "Noche"];
+
 export default function AdminMateria({ onClose, onChanged }: Props) {
   const [list, setList] = useState<Materia[]>([]);
   const [escuelas, setEscuelas] = useState<Escuela[]>([]);
   const [cursos, setCursos] = useState<Curso[]>([]);
   const [escuelaId, setEscuelaId] = useState<number>(0);
-  const [form, setForm] = useState<MateriaFormData>({ nombre: "", cursoId: 0 });
+  const [form, setForm] = useState<MateriaFormData>({ nombre: "", dia: "", turno: "", cursoId: 0 });
   const [editing, setEditing] = useState<Materia | null>(null);
   const { confirm, modal: confirmModal } = useConfirm();
   const { alert, modal: alertModal } = useAlert();
@@ -24,8 +27,8 @@ export default function AdminMateria({ onClose, onChanged }: Props) {
   const loadMaterias = useCallback(async () => { if (form.cursoId) setList(await getMaterias(form.cursoId)); }, [form.cursoId]);
   useEffect(() => { loadMaterias(); }, [loadMaterias]);
 
-  function resetForm() { setForm({ nombre: "", cursoId: 0 }); setEditing(null); }
-  function editItem(m: Materia) { setEditing(m); setForm({ nombre: m.nombre, cursoId: m.cursoId }); }
+  function resetForm() { setForm({ nombre: "", dia: "", turno: "", cursoId: 0 }); setEditing(null); }
+  function editItem(m: Materia) { setEditing(m); setForm({ nombre: m.nombre, dia: m.dia || "", turno: m.turno || "", cursoId: m.cursoId }); }
 
   async function handleSave() {
     if (!form.nombre.trim() || !form.cursoId) { await alert("Completá nombre y curso"); return; }
@@ -61,12 +64,22 @@ export default function AdminMateria({ onClose, onChanged }: Props) {
               {cursos.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
             </select>
             <select value={form.nombre} onChange={e => setForm(f => ({ ...f, nombre: e.target.value }))}
-              className="flex-1 rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]" style={s}>
+              className="rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]" style={s}>
               <option value="">Materia</option>
               <option value="SISTEMAS">SISTEMAS</option>
               <option value="PROGRAMACIÓN">PROGRAMACIÓN</option>
               <option value="HARDWARE">HARDWARE</option>
               <option value="APLICACIONES">APLICACIONES</option>
+            </select>
+            <select value={form.dia} onChange={e => setForm(f => ({ ...f, dia: e.target.value }))}
+              className="rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]" style={s}>
+              <option value="">Día</option>
+              {DIAS.map(d => <option key={d} value={d}>{d}</option>)}
+            </select>
+            <select value={form.turno} onChange={e => setForm(f => ({ ...f, turno: e.target.value }))}
+              className="rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]" style={s}>
+              <option value="">Turno</option>
+              {TURNOS.map(t => <option key={t} value={t}>{t}</option>)}
             </select>
             <button onClick={handleSave} className="btn-primary text-sm px-3 py-2">{editing ? "Actualizar" : "Agregar"}</button>
             {editing && <button onClick={resetForm} className="btn-secondary text-sm px-3 py-2">Cancelar</button>}
@@ -74,7 +87,11 @@ export default function AdminMateria({ onClose, onChanged }: Props) {
           <div className="space-y-1 max-h-60 overflow-y-auto">
             {list.map(m => (
               <div key={m.id} className="flex items-center justify-between p-2 rounded-lg hover:bg-[var(--hover-bg)]">
-                <div className="text-sm font-medium">{m.nombre}</div>
+                <div className="flex items-center gap-2 text-sm">
+                  <span className="font-medium">{m.nombre}</span>
+                  {m.dia && <span className="text-xs px-1.5 py-0.5 rounded" style={{ backgroundColor: "var(--bg-secondary)", color: "var(--text-secondary)" }}>{m.dia}</span>}
+                  {m.turno && <span className="text-xs px-1.5 py-0.5 rounded" style={{ backgroundColor: "var(--bg-secondary)", color: "var(--text-secondary)" }}>{m.turno}</span>}
+                </div>
                 <div className="flex gap-1">
                   <button onClick={() => editItem(m)} className="text-xs px-2 py-1 rounded hover:bg-[var(--hover-bg)]" style={{ color: "var(--accent)" }}>Editar</button>
                   <button onClick={() => handleDelete(m.id)} className="text-xs px-2 py-1 rounded hover:bg-[var(--hover-bg)]" style={{ color: "var(--danger)" }}>Eliminar</button>
