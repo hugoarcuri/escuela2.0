@@ -127,4 +127,5 @@ CREATE POLICY "allow_all" ON alumnos FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "allow_all" ON "historialCambio" FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "allow_all" ON settings FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "allow_all" ON "formLinks" FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "allow_all" ON agenda FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "allow_all" ON asistencias FOR ALL USING (true) WITH CHECK (true);
