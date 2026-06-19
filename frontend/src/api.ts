@@ -269,19 +269,31 @@ export async function getAgenda(materiaId: number): Promise<AgendaItem[]> {
   return data ?? [];
 }
 
-export async function saveAgendaItem(item: { materiaId: number; titulo: string; descripcion?: string; fecha: string; hora?: string; tipo: "evaluacion" | "entrega" }): Promise<AgendaItem> {
-  const { data, error } = await supabase.from("agenda").insert(item).select().single();
+export async function saveAgendaItem(item: { materiaId: number; titulo: string; descripcion?: string; fecha: string; tipo: "evaluacion" | "entrega" }): Promise<AgendaItem> {
+  const { data, error } = await supabase.rpc("insert_agenda", {
+    materia_id: item.materiaId,
+    tit: item.titulo,
+    descr: item.descripcion || "",
+    f: item.fecha,
+    t: item.tipo,
+  });
   if (error) throw error;
-  return data;
+  return data as unknown as AgendaItem;
 }
 
-export async function updateAgendaItem(id: number, item: { titulo?: string; descripcion?: string; fecha?: string; hora?: string; tipo?: "evaluacion" | "entrega" }): Promise<void> {
-  const { error } = await supabase.from("agenda").update(item).eq("id", id);
+export async function updateAgendaItem(id: number, item: { titulo?: string; descripcion?: string; fecha?: string; tipo?: "evaluacion" | "entrega" }): Promise<void> {
+  const { error } = await supabase.rpc("update_agenda", {
+    item_id: id,
+    tit: item.titulo || "",
+    descr: item.descripcion || "",
+    f: item.fecha || "",
+    t: item.tipo || "evaluacion",
+  });
   if (error) throw error;
 }
 
 export async function deleteAgendaItem(id: number): Promise<void> {
-  const { error } = await supabase.from("agenda").delete().eq("id", id);
+  const { error } = await supabase.rpc("delete_agenda", { item_id: id });
   if (error) throw error;
 }
 

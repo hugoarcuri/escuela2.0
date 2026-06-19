@@ -110,6 +110,31 @@ ALTER TABLE "formLinks" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE agenda ENABLE ROW LEVEL SECURITY;
 ALTER TABLE asistencias ENABLE ROW LEVEL SECURITY;
 
+-- Funciones RPC para agenda (bypass RLS con SECURITY DEFINER)
+CREATE OR REPLACE FUNCTION public.insert_agenda(materia_id INTEGER, tit TEXT, descr TEXT, f DATE, t TEXT)
+RETURNS SETOF agenda AS $$
+BEGIN
+  RETURN QUERY INSERT INTO public.agenda ("materiaId", titulo, descripcion, fecha, tipo)
+  VALUES (materia_id, tit, descr, f, t)
+  RETURNING *;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE OR REPLACE FUNCTION public.update_agenda(item_id INTEGER, tit TEXT, descr TEXT, f DATE, t TEXT)
+RETURNS VOID AS $$
+BEGIN
+  UPDATE public.agenda SET titulo = tit, descripcion = descr, fecha = f, tipo = t, "updatedAt" = NOW()
+  WHERE id = item_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE OR REPLACE FUNCTION public.delete_agenda(item_id INTEGER)
+RETURNS VOID AS $$
+BEGIN
+  DELETE FROM public.agenda WHERE id = item_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
 DROP POLICY IF EXISTS "allow_all" ON escuelas;
 DROP POLICY IF EXISTS "allow_all" ON cursos;
 DROP POLICY IF EXISTS "allow_all" ON materias;
