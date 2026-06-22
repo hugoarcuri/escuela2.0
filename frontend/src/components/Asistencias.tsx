@@ -24,6 +24,7 @@ interface Props {
 }
 
 const ESTADOS = [
+  { key: "-", label: "-", title: "Sin registro", color: "var(--text-secondary)" },
   { key: "P", label: "P", title: "Presente", color: "var(--success)" },
   { key: "A", label: "A", title: "Ausente", color: "var(--danger)" },
   { key: "T", label: "T", title: "Tarde", color: "#f59e0b" },
@@ -121,7 +122,7 @@ export default function Asistencias({ alumnos, materiaId, dia }: Props) {
   function toggleEstado(alumnoId: number, fecha: string) {
     setAsistencias(prev => {
       const key = `${alumnoId}:${fecha}`;
-      const current = prev[key] || "P";
+      const current = prev[key] || "-";
       const ciclo = ["P", "A", "T"];
       const idx = ciclo.indexOf(current);
       const next = idx === -1 ? "P" : ciclo[(idx + 1) % ciclo.length];
@@ -270,19 +271,24 @@ export default function Asistencias({ alumnos, materiaId, dia }: Props) {
                     <td className="px-2 py-1.5 text-center border-b" style={{ borderColor: "var(--border-color)" }}>
                       <button onClick={() => toggleEstado(a.id, diaActual)}
                         className="w-9 h-9 rounded-full text-sm font-bold border-2 transition-all hover:scale-110"
-                        style={{
-                          backgroundColor: (asistencias[`${a.id}`] || "P") === "P" ? "transparent" : (ESTADOS.find(e => e.key === (asistencias[`${a.id}`] || "P"))?.color || "var(--success)") + "20",
-                          color: ESTADOS.find(e => e.key === (asistencias[`${a.id}`] || "P"))?.color || "var(--success)",
-                          borderColor: ESTADOS.find(e => e.key === (asistencias[`${a.id}`] || "P"))?.color || "var(--success)",
-                        }}
-                        title={ESTADOS.find(e => e.key === (asistencias[`${a.id}`] || "P"))?.title}>
-                        {asistencias[`${a.id}`] || "P"}
+                        style={(() => {
+                          const estado = asistencias[`${a.id}`] || "-";
+                          const est = ESTADOS.find(e => e.key === estado)!;
+                          return {
+                            backgroundColor: estado === "-" || estado === "P" ? "transparent" : est.color + "20",
+                            color: estado === "-" ? "var(--text-secondary)" : est.color,
+                            borderColor: estado === "-" ? "var(--border-color)" : est.color,
+                            opacity: estado === "-" ? 0.35 : 1,
+                          };
+                        })()}
+                        title={ESTADOS.find(e => e.key === (asistencias[`${a.id}`] || "-"))?.title}>
+                        {asistencias[`${a.id}`] || "-"}
                       </button>
                     </td>
                   )}
                   {vista === "mes" && fechas.map(fecha => {
                     const esFeriado = feriadosMap.has(fecha);
-                    const estado = asistencias[`${a.id}:${fecha}`] || "P";
+                    const estado = asistencias[`${a.id}:${fecha}`] || "-";
                     const est = ESTADOS.find(e => e.key === estado)!;
                     if (!esFeriado) { total++; if (estado === "P" || estado === "Lic" || estado === "F") presente++; }
                     return (
@@ -295,7 +301,12 @@ export default function Asistencias({ alumnos, materiaId, dia }: Props) {
                         ) : (
                         <button onClick={() => toggleEstado(a.id, fecha)}
                           className="w-8 h-8 rounded-full text-xs font-bold border-2 transition-all hover:scale-110"
-                          style={{ backgroundColor: estado === "P" ? "transparent" : est.color + "20", color: est.color, borderColor: est.color }}
+                          style={{
+                            backgroundColor: estado === "-" || estado === "P" ? "transparent" : est.color + "20",
+                            color: estado === "-" ? "var(--text-secondary)" : est.color,
+                            borderColor: estado === "-" ? "var(--border-color)" : est.color,
+                            opacity: estado === "-" ? 0.35 : 1,
+                          }}
                           title={est.title}>
                           {est.label}
                         </button>
@@ -333,8 +344,8 @@ export default function Asistencias({ alumnos, materiaId, dia }: Props) {
                   }
                   const c = { P: 0, A: 0, T: 0, Lic: 0, F: 0 };
                   for (const a of alumnos) {
-                    const estado = asistencias[`${a.id}:${fecha}`] || "P";
-                    c[estado as keyof typeof c]++;
+                    const estado = asistencias[`${a.id}:${fecha}`] || "-";
+                    if (estado !== "-") c[estado as keyof typeof c]++;
                   }
                   return (
                     <td key={fecha} className="px-1 py-1.5 border-t text-center" style={{ borderColor: "var(--border-color)" }}>
@@ -353,7 +364,7 @@ export default function Asistencias({ alumnos, materiaId, dia }: Props) {
       <div className="px-3 py-1.5 text-xs" style={{ color: "var(--text-secondary)", backgroundColor: "var(--bg-card)", borderLeft: "1px solid var(--border-color)", borderRight: "1px solid var(--border-color)", borderBottom: "1px solid var(--border-color)" }}>
         {alumnos.length} alumno{alumnos.length !== 1 ? "s" : ""}
         {vista === "mes" && ` · ${totalClasesMes} clase${totalClasesMes !== 1 ? "s" : ""} en el mes`}
-        {vista === "dia" ? " · Clic en círculo: P → A → T → Lic → F" : " · Clic para cambiar: P → A → T → Lic → F"}
+        {vista === "dia" ? " · Clic en círculo: - → P → A → T" : " · Clic para cambiar: - → P → A → T"}
       </div>
     </div>
   );
