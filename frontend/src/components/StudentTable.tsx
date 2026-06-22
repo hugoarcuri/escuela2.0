@@ -222,18 +222,19 @@ export default function StudentTable({ alumnos, onRefresh, onEdit, onDelete }: P
                   <td className="text-center" style={cs}>
                     <input type="checkbox" checked={selected.has(a.id)} onChange={() => toggleSelect(a.id)} />
                   </td>
-                  <td className="font-medium cursor-pointer" style={stickyStyle}
+                  <td className="font-medium" style={stickyStyle}
                     onClick={() => onEdit(a)}>
-                    <span onClick={e => { e.stopPropagation(); toggleRecursante(a.id, !a.recursante); }}
-                      className="inline-flex items-center justify-center w-5 h-5 mr-1.5 rounded text-[10px] font-bold cursor-pointer select-none transition-all duration-150 hover:scale-110"
+                    <button onClick={e => { e.stopPropagation(); toggleRecursante(a.id, !a.recursante); }}
+                      className="inline-flex items-center justify-center w-6 h-6 mr-2 rounded-md text-xs font-bold transition-all duration-150 hover:scale-110 active:scale-95"
                       style={{
-                        backgroundColor: a.recursante ? "var(--danger)" : "transparent",
+                        backgroundColor: a.recursante ? "var(--danger)" : "var(--bg-secondary)",
                         color: a.recursante ? "#fff" : "var(--text-secondary)",
                         border: a.recursante ? "none" : "1px solid var(--border-color)",
-                        opacity: a.recursante ? 1 : 0.4,
+                        opacity: a.recursante ? 1 : 0.55,
+                        cursor: "pointer",
                       }}
-                      title={a.recursante ? "Quitar recursante" : "Marcar recursante"}>R</span>
-                    {a.apellidoNombre}
+                      title={a.recursante ? "Quitar recursante" : "Marcar recursante"}>R</button>
+                    <span className="cursor-pointer">{a.apellidoNombre}</span>
                   </td>
                   {renderNotaCell("nota1")}
                   {renderNotaCell("nota2")}
