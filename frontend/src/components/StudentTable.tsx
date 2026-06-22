@@ -222,14 +222,17 @@ export default function StudentTable({ alumnos, onRefresh, onEdit, onDelete }: P
                   <td className="text-center" style={cs}>
                     <input type="checkbox" checked={selected.has(a.id)} onChange={() => toggleSelect(a.id)} />
                   </td>
-                  <td className="text-center" style={cs}>
-                    <input type="checkbox" checked={!!a.recursante}
-                      onChange={() => toggleRecursante(a.id, !a.recursante)}
-                      title="Recursante" />
-                  </td>
                   <td className="font-medium cursor-pointer" style={stickyStyle}
                     onClick={() => onEdit(a)}>
-                    {a.recursante && <span className="badge badge-ko mr-1">R</span>}
+                    <span onClick={e => { e.stopPropagation(); toggleRecursante(a.id, !a.recursante); }}
+                      className="inline-flex items-center justify-center w-5 h-5 mr-1.5 rounded text-[10px] font-bold cursor-pointer select-none transition-all duration-150 hover:scale-110"
+                      style={{
+                        backgroundColor: a.recursante ? "var(--danger)" : "transparent",
+                        color: a.recursante ? "#fff" : "var(--text-secondary)",
+                        border: a.recursante ? "none" : "1px solid var(--border-color)",
+                        opacity: a.recursante ? 1 : 0.4,
+                      }}
+                      title={a.recursante ? "Quitar recursante" : "Marcar recursante"}>R</span>
                     {a.apellidoNombre}
                   </td>
                   {renderNotaCell("nota1")}
