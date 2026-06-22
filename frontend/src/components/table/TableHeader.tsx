@@ -19,7 +19,8 @@ export default function TableHeader({ allSelected, onToggleAll, hasRows }: Props
               position: "sticky", top: 0,
               left: h === "Apellido y Nombre" ? 0 : undefined,
               zIndex: h === "Apellido y Nombre" ? 20 : 10,
-              minWidth: h === "Apellido y Nombre" ? 180 : h === "Obs." ? 120 : h === "Acc." ? 75 : 50,
+              whiteSpace: h === "Apellido y Nombre" ? "nowrap" : undefined,
+              minWidth: h === "Apellido y Nombre" ? 220 : h === "Obs." ? 120 : h === "Acc." ? 75 : 50,
             }}>
             {h === "" ? <input type="checkbox" onChange={onToggleAll} checked={allSelected && hasRows} /> : h}
           </th>

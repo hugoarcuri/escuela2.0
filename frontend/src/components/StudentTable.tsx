@@ -190,6 +190,7 @@ export default function StudentTable({ alumnos, onRefresh, onEdit, onDelete }: P
                 backgroundColor: "var(--bg-card)",
                 borderColor: "var(--border-color)",
                 color: "var(--text-primary)",
+                whiteSpace: "nowrap",
               };
 
               function renderNotaCell(campo: CampoNota) {
