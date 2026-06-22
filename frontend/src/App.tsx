@@ -175,7 +175,7 @@ export default function App() {
                 </div>
 
                 <div className="border-t" style={{ borderColor: "var(--border-color)" }}>
-                  <StudentTable alumnos={alumnos} onRefresh={loadAlumnos} onEdit={a => { setEditingAlumno(a); setFormOpen(true); }} onDelete={async (id) => { const ok = await confirm("¿Eliminar este alumno?"); if (ok) { await deleteAlumno(id); loadAlumnos(); } }} />
+                  <StudentTable alumnos={alumnos} onRefresh={loadAlumnos} onEdit={a => { setEditingAlumno(a); setFormOpen(true); }} />
                 </div>
               </Card>
             )}

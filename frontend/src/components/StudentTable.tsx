@@ -2,13 +2,11 @@ import { useState, useRef, useCallback, useMemo } from "react";
 import type { Alumno } from "../types";
 import { batchUpdateAlumno, deleteAlumnosBulk } from "../api";
 import TableHeader from "./table/TableHeader";
-import RowActions from "./table/RowActions";
 
 interface Props {
   alumnos: Alumno[];
   onRefresh: () => void;
   onEdit: (a: Alumno) => void;
-  onDelete: (id: number) => void;
 }
 
 type CampoNota = "nota1" | "nota2" | "nota3" | "nota4" | "nota5" | "nota6";
@@ -28,7 +26,7 @@ function parseVal(s: string): number | null {
   return isNaN(n) ? null : Math.round(n * 100) / 100;
 }
 
-export default function StudentTable({ alumnos, onRefresh, onEdit, onDelete }: Props) {
+export default function StudentTable({ alumnos, onRefresh, onEdit }: Props) {
   const [editing, setEditing] = useState<{ alumnoId: number; campo: CampoNota | "observaciones" } | null>(null);
   const [editValue, setEditValue] = useState("");
   const [selected, setSelected] = useState<Set<number>>(new Set());
@@ -282,36 +280,31 @@ export default function StudentTable({ alumnos, onRefresh, onEdit, onDelete }: P
                       <span className="text-xs truncate block">{a.observaciones || ""}</span>
                     )}
                   </td>
-                  <td className="text-center" style={cs}>
-                    <RowActions onEdit={() => onEdit(a)} onDelete={() => onDelete(a.id)} />
-                  </td>
                 </tr>
               );
             })}
           </tbody>
           {/* Averages row */}
-          <tfoot>
-            <tr style={{ backgroundColor: "var(--bg-secondary)" }}>
-              <td className="px-1.5 py-1.5 border-t font-semibold text-xs" style={cs}></td>
-              <td className="px-1.5 py-1.5 border-t font-semibold text-xs" style={cs}>Prom</td>
-              {CAMPOS.map(c => {
-                const p = promedioCol(c);
-                return <td key={c} className="px-1.5 py-1.5 border-t text-center font-semibold text-xs" style={{ ...cs, backgroundColor: p !== null ? colorNota(p) : "transparent" }}>{p ?? ""}</td>;
-              })}
-              <td className="px-1.5 py-1.5 border-t" style={cs}></td>
-              <td className="px-1.5 py-1.5 border-t text-center font-semibold text-xs" style={cs}></td>
-              <td colSpan={3} className="px-1.5 py-1.5 border-t" style={cs}></td>
-              <td className="px-1.5 py-1.5 border-t" style={cs}></td>
-              <td className="px-1.5 py-1.5 border-t" style={cs}></td>
-              <td className="px-1.5 py-1.5 border-t text-center font-bold text-xs" style={{
-                ...cs,
-                color: promedioGeneral !== null ? (promedioGeneral >= 7 ? "var(--success)" : promedioGeneral >= 4 ? "var(--warning)" : "var(--danger)") : undefined,
-              }}>{promedioGeneral ?? ""}</td>
-              <td className="px-1.5 py-1.5 border-t" style={cs}></td>
-              <td className="px-1.5 py-1.5 border-t" style={cs}></td>
-              <td className="px-1.5 py-1.5 border-t" style={cs}></td>
-            </tr>
-          </tfoot>
+            <tfoot>
+              <tr style={{ backgroundColor: "var(--bg-secondary)" }}>
+                <td className="px-1.5 py-1.5 border-t font-semibold text-xs" style={cs}></td>
+                <td className="px-1.5 py-1.5 border-t font-semibold text-xs" style={cs}>Prom</td>
+                {CAMPOS.map(c => {
+                  const p = promedioCol(c);
+                  return <td key={c} className="px-1.5 py-1.5 border-t text-center font-semibold text-xs" style={{ ...cs, backgroundColor: p !== null ? colorNota(p) : "transparent" }}>{p ?? ""}</td>;
+                })}
+                <td className="px-1.5 py-1.5 border-t" style={cs}></td>
+                <td className="px-1.5 py-1.5 border-t text-center font-semibold text-xs" style={cs}></td>
+                <td colSpan={3} className="px-1.5 py-1.5 border-t" style={cs}></td>
+                <td className="px-1.5 py-1.5 border-t" style={cs}></td>
+                <td className="px-1.5 py-1.5 border-t" style={cs}></td>
+                <td className="px-1.5 py-1.5 border-t text-center font-bold text-xs" style={{
+                  ...cs,
+                  color: promedioGeneral !== null ? (promedioGeneral >= 7 ? "var(--success)" : promedioGeneral >= 4 ? "var(--warning)" : "var(--danger)") : undefined,
+                }}>{promedioGeneral ?? ""}</td>
+                <td className="px-1.5 py-1.5 border-t" style={cs}></td>
+              </tr>
+            </tfoot>
         </table>
       </div>
 

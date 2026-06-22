@@ -18,6 +18,12 @@ export default function AdminEscuela({ editId, onClose, onChanged }: Props) {
   const [form, setForm] = useState<EscuelaFormData>({ nombre: "", distrito: "", telefono: "" });
   const [editing, setEditing] = useState<Escuela | null>(null);
   const { confirm, modal: confirmModal } = useConfirm();
+  function escuelaColor(nombre: string): string | undefined {
+    const n = nombre.toLowerCase();
+    if (n.includes("matanza")) return "#2563eb";
+    if (n.includes("morón") || n.includes("moron")) return "#dc2626";
+    return undefined;
+  }
   const { alert, modal: alertModal } = useAlert();
 
   const load = useCallback(async () => {
@@ -84,9 +90,11 @@ export default function AdminEscuela({ editId, onClose, onChanged }: Props) {
             {editing && <button onClick={resetForm} className="btn-secondary text-sm px-3 py-2">Cancelar</button>}
           </div>
           <div className="space-y-1 max-h-60 overflow-y-auto">
-            {list.map(e => (
+            {list.map(e => {
+              const ec = escuelaColor(e.nombre);
+              return (
               <div key={e.id} className="flex items-center justify-between p-2 rounded-lg hover:bg-[var(--hover-bg)]">
-                <div>
+                <div style={ec ? { borderLeft: `3px solid ${ec}`, paddingLeft: 10 } : {}}>
                   <div className="text-sm font-medium">{e.nombre}</div>
                   <div className="text-xs" style={{ color: "var(--text-secondary)" }}>
                     {e.distrito || ""}{e.distrito && e.telefono ? " | " : ""}{e.telefono || ""}
@@ -97,7 +105,8 @@ export default function AdminEscuela({ editId, onClose, onChanged }: Props) {
                   <button onClick={() => handleDelete(e.id)} className="text-xs px-2 py-1 rounded hover:bg-[var(--hover-bg)]" style={{ color: "var(--danger)" }}>Eliminar</button>
                 </div>
               </div>
-            ))}
+              );
+            })}
             {list.length === 0 && <p className="text-sm" style={{ color: "var(--text-secondary)" }}>Sin escuelas</p>}
           </div>
         </div>
