@@ -122,23 +122,9 @@ export default function Asistencias({ alumnos, materiaId, dia }: Props) {
     setAsistencias(prev => {
       const key = `${alumnoId}:${fecha}`;
       const current = prev[key] || "P";
-      const idx = ESTADOS.findIndex(e => e.key === current);
-      const next = ESTADOS[(idx + 1) % ESTADOS.length].key;
-      const globalStates = ["Lic", "F"];
-      if (globalStates.includes(next)) {
-        const updated: Record<string, string> = {};
-        for (const a of alumnos) updated[`${a.id}:${fecha}`] = next;
-        saveAsistenciasBatch(alumnos.map(a => ({ alumnoId: a.id, materiaId, fecha, estado: next })));
-        showToast(`✓ ${ESTADOS.find(e => e.key === next)?.title} - todos`);
-        return { ...prev, ...updated };
-      }
-      if (globalStates.includes(current)) {
-        const updated: Record<string, string> = {};
-        for (const a of alumnos) updated[`${a.id}:${fecha}`] = next;
-        saveAsistenciasBatch(alumnos.map(a => ({ alumnoId: a.id, materiaId, fecha, estado: next })));
-        showToast(`✓ Todos ${next}`);
-        return { ...prev, ...updated };
-      }
+      const ciclo = ["P", "A", "T"];
+      const idx = ciclo.indexOf(current);
+      const next = idx === -1 ? "P" : ciclo[(idx + 1) % ciclo.length];
       autoSave(fecha, alumnoId, next);
       return { ...prev, [key]: next };
     });
