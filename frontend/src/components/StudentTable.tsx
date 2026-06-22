@@ -135,9 +135,13 @@ export default function StudentTable({ alumnos, onRefresh, onEdit, onDelete }: P
   }
 
   async function toggleRecursante(id: number, val: boolean) {
-    await batchUpdateAlumno(id, { recursante: val });
-    mostrarMsg(val ? "✓ Marcado recursante" : "✓ Recursante quitado");
-    onRefresh();
+    try {
+      await batchUpdateAlumno(id, { recursante: val });
+      mostrarMsg(val ? "✓ Marcado recursante" : "✓ Recursante quitado");
+      onRefresh();
+    } catch {
+      mostrarMsg("✗ Ejecutá en Supabase: ALTER TABLE alumnos ADD COLUMN recursante BOOLEAN DEFAULT FALSE;");
+    }
   }
 
   const sorted = useMemo(() => {
