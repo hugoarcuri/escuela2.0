@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useMemo } from "react";
 import type { Alumno } from "../types";
 import { batchUpdateAlumno, deleteAlumnosBulk } from "../api";
 import TableHeader from "./table/TableHeader";
@@ -134,7 +134,21 @@ export default function StudentTable({ alumnos, onRefresh, onEdit, onDelete }: P
     onRefresh();
   }
 
-  if (filtered.length === 0) return <div className="empty-state">No hay alumnos</div>;
+  async function toggleRecursante(id: number, val: boolean) {
+    await batchUpdateAlumno(id, { recursante: val });
+    mostrarMsg(val ? "✓ Marcado recursante" : "✓ Recursante quitado");
+    onRefresh();
+  }
+
+  const sorted = useMemo(() => {
+    return [...filtered].sort((a, b) => {
+      if (a.recursante && !b.recursante) return 1;
+      if (!a.recursante && b.recursante) return -1;
+      return 0;
+    });
+  }, [filtered]);
+
+  if (sorted.length === 0) return <div className="empty-state">No hay alumnos</div>;
 
   const cs: React.CSSProperties = { borderColor: "var(--border-color)", color: "var(--text-primary)" };
 
@@ -167,9 +181,9 @@ export default function StudentTable({ alumnos, onRefresh, onEdit, onDelete }: P
       {/* Table */}
       <div className="overflow-x-auto overflow-y-auto" style={{ maxHeight: "calc(100vh - 540px)" }}>
         <table className="w-full text-sm">
-          <TableHeader allSelected={selected.size === filtered.length} onToggleAll={toggleAll} hasRows={filtered.length > 0} />
-          <tbody>
-            {filtered.map((a, idx) => {
+          <TableHeader allSelected={selected.size === sorted.length} onToggleAll={toggleAll} hasRows={sorted.length > 0} />
+            <tbody>
+              {sorted.map((a, idx) => {
               const isEditing = (campo: CampoNota | "observaciones") => editing?.alumnoId === a.id && editing?.campo === campo;
               const stickyStyle: React.CSSProperties = {
                 position: "sticky", left: 0, zIndex: 2,
@@ -208,8 +222,14 @@ export default function StudentTable({ alumnos, onRefresh, onEdit, onDelete }: P
                   <td className="text-center" style={cs}>
                     <input type="checkbox" checked={selected.has(a.id)} onChange={() => toggleSelect(a.id)} />
                   </td>
+                  <td className="text-center" style={cs}>
+                    <input type="checkbox" checked={!!a.recursante}
+                      onChange={() => toggleRecursante(a.id, !a.recursante)}
+                      title="Recursante" />
+                  </td>
                   <td className="font-medium cursor-pointer" style={stickyStyle}
                     onClick={() => onEdit(a)}>
+                    {a.recursante && <span className="badge badge-ko mr-1">R</span>}
                     {a.apellidoNombre}
                   </td>
                   {renderNotaCell("nota1")}

@@ -13,6 +13,7 @@ export interface AlumnoDB {
   nota4: number | null; nota5: number | null; nota6: number | null;
   notaFinalManual: number | null;
   observaciones: string;
+  recursante: boolean;
   anioLectivo: number; escuelaId: number; cursoId: number; materiaId: number;
 }
 export interface Alumno extends AlumnoDB {

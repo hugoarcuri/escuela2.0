@@ -335,6 +335,33 @@ export default function Asistencias({ alumnos, materiaId, dia }: Props) {
               );
             })}
           </tbody>
+          {vista === "mes" && (
+            <tfoot>
+              <tr style={{ backgroundColor: "var(--bg-secondary)" }}>
+                <td className="px-2 py-1.5 border-t font-semibold text-xs" style={{ borderColor: "var(--border-color)", color: "var(--text-secondary)" }}>
+                  Total
+                </td>
+                {fechas.map(fecha => {
+                  if (feriadosMap.has(fecha)) {
+                    return <td key={fecha} className="px-1 py-1.5 border-t text-center" style={{ borderColor: "var(--border-color)", backgroundColor: "#444" }}></td>;
+                  }
+                  const c = { P: 0, A: 0, T: 0, Lic: 0, F: 0 };
+                  for (const a of alumnos) {
+                    const estado = asistencias[`${a.id}:${fecha}`] || "P";
+                    c[estado as keyof typeof c]++;
+                  }
+                  return (
+                    <td key={fecha} className="px-1 py-1.5 border-t text-center" style={{ borderColor: "var(--border-color)" }}>
+                      <span className="text-xs font-semibold" style={{ color: "var(--success)" }}>{c.P}</span>
+                      {c.A > 0 && <span className="text-xs ml-0.5" style={{ color: "var(--danger)" }}>/{c.A}</span>}
+                      {c.T > 0 && <span className="text-[10px] ml-0.5" style={{ color: "#f59e0b" }}>T{c.T}</span>}
+                    </td>
+                  );
+                })}
+                <td className="px-2 py-1.5 border-t text-center border-b-0" style={{ borderColor: "var(--border-color)" }}></td>
+              </tr>
+            </tfoot>
+          )}
         </table>
       </div>
       <div className="px-3 py-1.5 text-xs" style={{ color: "var(--text-secondary)", backgroundColor: "var(--bg-card)", borderLeft: "1px solid var(--border-color)", borderRight: "1px solid var(--border-color)", borderBottom: "1px solid var(--border-color)" }}>
