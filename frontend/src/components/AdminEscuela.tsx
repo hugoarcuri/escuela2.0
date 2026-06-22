@@ -18,13 +18,17 @@ export default function AdminEscuela({ editId, onClose, onChanged }: Props) {
   const [form, setForm] = useState<EscuelaFormData>({ nombre: "", distrito: "", telefono: "" });
   const [editing, setEditing] = useState<Escuela | null>(null);
   const { confirm, modal: confirmModal } = useConfirm();
-  function escuelaColor(nombre: string): string | undefined {
+  const { alert, modal: alertModal } = useAlert();
+
+  const BLUE = { bg: "rgba(59,130,246,.12)", border: "1px solid rgba(59,130,246,.30)", text: "#93c5fd" };
+  const RED = { bg: "rgba(239,68,68,.12)", border: "1px solid rgba(239,68,68,.30)", text: "#fca5a5" };
+
+  function escuelaBadge(nombre: string): typeof BLUE | undefined {
     const n = nombre.toLowerCase();
-    if (n.includes("matanza")) return "#2563eb";
-    if (n.includes("morón") || n.includes("moron")) return "#dc2626";
+    if (n.includes("matanza")) return BLUE;
+    if (n.includes("morón") || n.includes("moron")) return RED;
     return undefined;
   }
-  const { alert, modal: alertModal } = useAlert();
 
   const load = useCallback(async () => {
     const schools = await getEscuelas();
@@ -91,19 +95,20 @@ export default function AdminEscuela({ editId, onClose, onChanged }: Props) {
           </div>
           <div className="space-y-1 max-h-60 overflow-y-auto">
             {list.map(e => {
-              const ec = escuelaColor(e.nombre);
+              const b = escuelaBadge(e.nombre);
               return (
-              <div key={e.id} className="flex items-center justify-between p-2 rounded-lg hover:bg-[var(--hover-bg)]">
-                      <div className="flex items-center gap-1.5">
-                        {ec ? <span className="inline-block w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: ec }} /> : null}
-                        <div>
-                          <div className="text-sm font-medium">{e.nombre}</div>
-                          <div className="text-xs" style={{ color: "var(--text-secondary)" }}>
-                            {e.distrito || ""}{e.distrito && e.telefono ? " | " : ""}{e.telefono || ""}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex gap-1">
+              <div key={e.id} className="flex items-center justify-between p-2 rounded-lg"
+                style={{ backgroundColor: b?.bg ?? "transparent", border: b?.border ?? "none" }}>
+                <div className="flex items-center gap-2 min-w-0">
+                  {b ? <span className="inline-block w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: b.text }} /> : null}
+                  <div className="min-w-0">
+                    <div className="text-sm font-medium truncate" style={{ color: "var(--text-primary)" }}>{e.nombre}</div>
+                    <div className="text-xs truncate" style={{ color: b?.text ?? "var(--text-secondary)" }}>
+                      {e.distrito || ""}{e.distrito && e.telefono ? " | " : ""}{e.telefono || ""}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex gap-1 shrink-0">
                   <button onClick={() => editItem(e)} className="text-xs px-2 py-1 rounded hover:bg-[var(--hover-bg)]" style={{ color: "var(--accent)" }}>Editar</button>
                   <button onClick={() => handleDelete(e.id)} className="text-xs px-2 py-1 rounded hover:bg-[var(--hover-bg)]" style={{ color: "var(--danger)" }}>Eliminar</button>
                 </div>
