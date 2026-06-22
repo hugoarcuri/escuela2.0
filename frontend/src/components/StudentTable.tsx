@@ -230,13 +230,16 @@ export default function StudentTable({ alumnos, onRefresh, onEdit, onDelete }: P
                   <td className="font-medium" style={stickyStyle}
                     onClick={() => onEdit(a)}>
                     <button onClick={e => { e.stopPropagation(); toggleRecursante(a.id, !a.recursante); }}
-                      className="inline-flex items-center justify-center w-6 h-6 mr-2 rounded-md text-xs font-bold transition-all duration-150 hover:scale-110 active:scale-95"
+                      className="inline-flex items-center justify-center w-5 h-5 mr-1.5 rounded text-[10px] font-bold transition-all duration-150 hover:scale-110 active:scale-95"
                       style={{
-                        backgroundColor: a.recursante ? "var(--danger)" : "var(--bg-secondary)",
+                        backgroundColor: a.recursante ? "var(--danger)" : "transparent",
                         color: a.recursante ? "#fff" : "var(--text-secondary)",
-                        border: a.recursante ? "none" : "1px solid var(--border-color)",
-                        opacity: a.recursante ? 1 : 0.55,
+                        border: "1px solid",
+                        borderColor: a.recursante ? "var(--danger)" : "var(--border-color)",
+                        opacity: a.recursante ? 1 : 0.5,
                         cursor: "pointer",
+                        flexShrink: 0,
+                        lineHeight: 1,
                       }}
                       title={a.recursante ? "Quitar recursante" : "Marcar recursante"}>R</button>
                     <span className="cursor-pointer">{a.apellidoNombre}</span>
