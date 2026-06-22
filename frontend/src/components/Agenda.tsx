@@ -141,7 +141,7 @@ export default function Agenda({ materiaId }: Props) {
       )}
 
       <div className="flex items-center gap-3 mb-4">
-        <button onClick={() => openForm()} className="btn-primary text-sm">+ Agregar</button>
+        <button onClick={() => openForm()} className="btn btn-primary btn-sm">+ Agregar</button>
         <span className="text-xs" style={{ color: "var(--text-secondary)" }}>{items.length} evento{items.length !== 1 ? "s" : ""}</span>
       </div>
 
@@ -180,7 +180,7 @@ export default function Agenda({ materiaId }: Props) {
                   style={{ backgroundColor: "var(--bg-card)", color: "var(--text-primary)", borderColor: "var(--border-color)" }} />
               </div>
               <div className="flex gap-2 pt-2">
-                <button onClick={handleSave} className="btn-primary flex-1">Guardar</button>
+                <button onClick={handleSave} className="btn btn-primary flex-1">Guardar</button>
                 <button onClick={() => setFormOpen(false)} className="btn-secondary">Cancelar</button>
               </div>
             </div>
