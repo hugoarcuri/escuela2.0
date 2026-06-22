@@ -60,12 +60,15 @@ export default function Selectors({
               className="rounded-lg border px-3 py-2 text-sm outline-none cursor-pointer flex items-center justify-between gap-2"
               style={{ backgroundColor: "var(--bg-card)", color: "var(--text-primary)", borderColor: "var(--border-color)" }}>
               {selectedEscuela ? (
-                <div className="flex flex-col leading-tight" style={(() => {
-                  const c = escuelaColor(selectedEscuela.nombre);
-                  return c ? { borderLeft: `3px solid ${c}`, paddingLeft: 8 } : {};
-                })()}>
-                  <span>{selectedEscuela.nombre}</span>
-                  {selectedEscuela.distrito && <span className="text-[10px] opacity-60">{selectedEscuela.distrito}</span>}
+                <div className="flex items-center gap-1.5">
+                  {(() => {
+                    const c = escuelaColor(selectedEscuela.nombre);
+                    return c ? <span className="inline-block w-2.5 h-2.5 rounded-full" style={{ backgroundColor: c }} /> : null;
+                  })()}
+                  <div className="flex flex-col leading-tight">
+                    <span>{selectedEscuela.nombre}</span>
+                    {selectedEscuela.distrito && <span className="text-[10px] opacity-60">{selectedEscuela.distrito}</span>}
+                  </div>
                 </div>
               ) : <span className="opacity-60">Seleccionar escuela</span>}
               <svg width="12" height="12" viewBox="0 0 12 12" fill="none" className={`transition-transform ${escuelaOpen ? "rotate-180" : ""}`}><path d="M3 5l3 3 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
@@ -83,9 +86,12 @@ export default function Selectors({
                       style={{ backgroundColor: e.id === escuelaId ? "var(--hover-bg)" : "transparent" }}>
                       <button onClick={() => { onEscuelaChange(e.id); setEscuelaOpen(false); }}
                         className="flex-1 text-left px-3 py-2 hover:bg-[var(--hover-bg)] transition-colors">
-                        <div className="flex flex-col leading-tight" style={ec ? { borderLeft: `3px solid ${ec}`, paddingLeft: 8 } : {}}>
-                          <span className="text-sm">{e.nombre}</span>
-                          {e.distrito && <span className="text-[10px] opacity-60">{e.distrito}</span>}
+                        <div className="flex items-center gap-1.5">
+                          {ec ? <span className="inline-block w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: ec }} /> : null}
+                          <div className="flex flex-col leading-tight">
+                            <span className="text-sm">{e.nombre}</span>
+                            {e.distrito && <span className="text-[10px] opacity-60">{e.distrito}</span>}
+                          </div>
                         </div>
                       </button>
                       <button onClick={(ev) => { ev.stopPropagation(); onEditEscuela(e.id); setEscuelaOpen(false); }}
