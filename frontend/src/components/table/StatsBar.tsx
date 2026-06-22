@@ -1,8 +1,16 @@
 import type { Alumno } from "../../types";
-import StatCard from "../ui/StatCard";
 
 interface Props {
   alumnos: Alumno[];
+}
+
+function Stat({ value, label, color }: { value: string | number; label: string; color?: string }) {
+  return (
+    <span className="flex items-baseline gap-1">
+      <span className="text-sm font-semibold leading-none" style={color ? { color } : undefined}>{value}</span>
+      <span className="text-xs" style={{ color: "var(--text-secondary)" }}>{label}</span>
+    </span>
+  );
 }
 
 export default function StatsBar({ alumnos }: Props) {
@@ -14,14 +22,21 @@ export default function StatsBar({ alumnos }: Props) {
   const notas = alumnos.map(a => a.notaFinal).filter((v): v is number => v !== null);
   const prom = notas.length ? Math.round((notas.reduce((s, v) => s + v, 0) / notas.length) * 100) / 100 : null;
 
+  if (total === 0) return null;
+
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-2">
-      <StatCard value={total} label="Alumnos" />
-      <StatCard value={tea} label="TEA" color="var(--success)" />
-      <StatCard value={tep} label="TEP" color="var(--danger)" />
-      <StatCard value={aprobados} label="Aprobados" color="var(--success)" />
-      <StatCard value={desaprobados} label="Desaprobados" color="var(--danger)" />
-      <StatCard value={prom ?? "—"} label="Promedio General" />
+    <div className="flex flex-wrap items-center gap-x-5 gap-y-0.5">
+      <Stat value={total} label="Alumnos" />
+      <span className="text-xs" style={{ color: "var(--border-color)" }}>|</span>
+      <Stat value={tea} label="TEA" color="var(--success)" />
+      <span className="text-xs" style={{ color: "var(--border-color)" }}>|</span>
+      <Stat value={tep} label="TEP" color="var(--danger)" />
+      <span className="text-xs" style={{ color: "var(--border-color)" }}>|</span>
+      <Stat value={aprobados} label="Aprob" color="var(--success)" />
+      <span className="text-xs" style={{ color: "var(--border-color)" }}>|</span>
+      <Stat value={desaprobados} label="Desaprob" color="var(--danger)" />
+      <span className="text-xs" style={{ color: "var(--border-color)" }}>|</span>
+      <Stat value={prom ?? "—"} label="Promedio" />
     </div>
   );
 }

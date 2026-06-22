@@ -145,10 +145,10 @@ export default function App() {
             {/* Alumnos tab */}
             {tab === "alumnos" && (
               <Card padding={false} className="overflow-hidden">
-                <div className="p-5 space-y-4">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="p-4 space-y-1.5">
+                  <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
                     <SectionTitle>Alumnos</SectionTitle>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5">
                       <button onClick={() => { setEditingAlumno(null); setFormOpen(true); }} className="btn btn-primary btn-sm">+ Agregar</button>
                       <button onClick={async () => {
                         if (alumnos.length === 0) return;
