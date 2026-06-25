@@ -264,7 +264,7 @@ export default function Asistencias({ alumnos, materiaId, dia }: Props) {
                 <tr key={a.id} className="transition-colors" style={{ borderColor: "var(--border-color)" }}
                   onMouseOver={e => { e.currentTarget.style.backgroundColor = "var(--hover-bg)"; }}
                   onMouseOut={e => { e.currentTarget.style.backgroundColor = "transparent"; }}>
-                  <td className="px-2 py-1.5 font-medium border-b text-[11px]" style={{ borderColor: "var(--border-color)", color: "var(--text-primary)" }}>
+                  <td className="px-2 py-1.5 font-medium border-b text-sm" style={{ borderColor: "var(--border-color)", color: "var(--text-primary)" }}>
                     {a.apellidoNombre}
                   </td>
                   {vista === "dia" && (
