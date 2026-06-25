@@ -15,7 +15,8 @@ function colorNota(val: number | null): string {
   if (val === null) return "transparent";
   if (val >= 1 && val <= 3) return "var(--nota-baja)";
   if (val >= 4 && val <= 6) return "var(--nota-media)";
-  if (val >= 7 && val <= 10) return "var(--nota-alta)";
+  if (val >= 7 && val <= 8) return "var(--nota-alta)";
+  if (val >= 9 && val <= 10) return "var(--nota-superior)";
   return "transparent";
 }
 
@@ -181,7 +182,7 @@ export default function StudentTable({ alumnos, onRefresh, onEdit }: Props) {
       </div>
 
       {/* Table */}
-      <div style={{ overflowY: "auto", maxHeight: "calc(100vh - 280px)" }}>
+      <div style={{ overflowY: "auto", overflowX: "auto", maxHeight: "calc(100vh - 280px)" }}>
         <table className="w-full text-sm">
           <TableHeader allSelected={selected.size === sorted.length} onToggleAll={toggleAll} hasRows={sorted.length > 0} />
             <tbody>
