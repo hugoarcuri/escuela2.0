@@ -54,13 +54,13 @@ export default function Selectors({
   }
 
   return (
-    <div className="flex flex-wrap gap-3 items-end">
-      <div className="flex-1 min-w-[200px]">
-        <label className="block text-xs font-medium mb-1" style={{ color: "var(--text-secondary)" }}>Escuela</label>
+    <div className="flex flex-wrap gap-x-2 gap-y-1 items-end">
+      <div className="flex-1 min-w-[150px]">
+        <label className="block text-[10px] font-medium mb-0.5" style={{ color: "var(--text-secondary)" }}>Escuela</label>
         <div className="flex gap-1">
           <div ref={escuelaRef} className="relative flex-1">
             <div role="button" tabIndex={0} onClick={() => setEscuelaOpen(!escuelaOpen)}
-              className="rounded-lg border px-3 py-2 text-sm outline-none cursor-pointer flex items-center justify-between gap-2"
+              className="rounded-lg border px-2.5 py-1.5 text-xs outline-none cursor-pointer flex items-center justify-between gap-2"
               style={{ backgroundColor: "var(--bg-card)", color: "var(--text-primary)", borderColor: "var(--border-color)" }}>
               {selectedEscuela ? (
                 <div className="flex items-center gap-2" style={(() => {
@@ -117,53 +117,53 @@ export default function Selectors({
               </div>
             )}
           </div>
-          <button onClick={onAdminEscuela} className="p-2 rounded-lg border hover:bg-[var(--hover-bg)] transition-colors" title="Administrar escuelas" style={s}>
+          <button onClick={onAdminEscuela} className="p-1.5 rounded-lg border hover:bg-[var(--hover-bg)] transition-colors" title="Administrar escuelas" style={s}>
             <Gear />
           </button>
         </div>
       </div>
 
-      <div className="flex-1 min-w-[180px]">
-        <label className="block text-xs font-medium mb-1" style={{ color: "var(--text-secondary)" }}>Curso</label>
+      <div className="flex-1 min-w-[130px]">
+        <label className="block text-[10px] font-medium mb-0.5" style={{ color: "var(--text-secondary)" }}>Curso</label>
         <div className="flex gap-1">
           <select value={cursoId} onChange={e => onCursoChange(e.target.value ? Number(e.target.value) : "")}
             disabled={!escuelaId}
-            className="flex-1 rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)] disabled:opacity-50"
+            className="flex-1 rounded-lg border px-2.5 py-1.5 text-xs outline-none focus:ring-2 focus:ring-[var(--accent)] disabled:opacity-50"
             style={s}>
             <option value="">Seleccionar curso</option>
             {cursos.map(c => <option key={c.id} value={c.id}>{c.nombre} {c.turno ? `(${c.turno})` : ""}</option>)}
           </select>
-          <button onClick={onAdminCurso} className="p-2 rounded-lg border hover:bg-[var(--hover-bg)] transition-colors" title="Administrar cursos" style={s}>
+          <button onClick={onAdminCurso} className="p-1.5 rounded-lg border hover:bg-[var(--hover-bg)] transition-colors" title="Administrar cursos" style={s}>
             <Gear />
           </button>
         </div>
       </div>
 
-      <div className="flex-1 min-w-[180px]">
-        <label className="block text-xs font-medium mb-1" style={{ color: "var(--text-secondary)" }}>Materia</label>
+      <div className="flex-1 min-w-[130px]">
+        <label className="block text-[10px] font-medium mb-0.5" style={{ color: "var(--text-secondary)" }}>Materia</label>
         <div className="flex gap-1">
           <select value={materiaId} onChange={e => onMateriaChange(e.target.value ? Number(e.target.value) : "")}
             disabled={!cursoId}
-            className="flex-1 rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)] disabled:opacity-50"
+            className="flex-1 rounded-lg border px-2.5 py-1.5 text-xs outline-none focus:ring-2 focus:ring-[var(--accent)] disabled:opacity-50"
             style={s}>
             <option value="">Seleccionar materia</option>
             {materias.map(m => <option key={m.id} value={m.id}>
               {m.nombre}{m.dia ? ` — ${m.dia}` : ""}{m.turno ? ` (${m.turno})` : ""}
             </option>)}
           </select>
-          <button onClick={onAdminMateria} className="p-2 rounded-lg border hover:bg-[var(--hover-bg)] transition-colors" title="Administrar materias" style={s}>
+          <button onClick={onAdminMateria} className="p-1.5 rounded-lg border hover:bg-[var(--hover-bg)] transition-colors" title="Administrar materias" style={s}>
             <Gear />
           </button>
         </div>
       </div>
 
-      <div className="flex-1 min-w-[200px]">
-        <label className="block text-xs font-medium mb-1" style={{ color: "var(--text-secondary)" }}>Buscar alumno</label>
+      <div className="flex-1 min-w-[150px]">
+        <label className="block text-[10px] font-medium mb-0.5" style={{ color: "var(--text-secondary)" }}>Buscar</label>
         <div className="relative">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "var(--text-secondary)" }}><Search /></span>
+          <span className="absolute left-2.5 top-1/2 -translate-y-1/2" style={{ color: "var(--text-secondary)" }}><Search /></span>
           <input type="text" value={search} onChange={e => onSearchChange(e.target.value)}
-            placeholder="Buscar por apellido y nombre..."
-            className="w-full rounded-lg border pl-10 pr-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]"
+            placeholder="Apellido y nombre..."
+            className="w-full rounded-lg border pl-8 pr-2.5 py-1.5 text-xs outline-none focus:ring-2 focus:ring-[var(--accent)]"
             style={{ backgroundColor: "var(--bg-card)", color: "var(--text-primary)", borderColor: "var(--border-color)" }} />
         </div>
       </div>
