@@ -4,12 +4,18 @@ interface Props {
   alumnos: Alumno[];
 }
 
-function Stat({ value, label, color }: { value: string | number; label: string; color?: string }) {
+function StatCard({ label, value, accent }: { label: string; value: string | number; accent?: string }) {
   return (
-    <span className="flex items-baseline gap-1">
-      <span className="text-sm font-semibold leading-none" style={color ? { color } : undefined}>{value}</span>
-      <span className="text-xs" style={{ color: "var(--text-secondary)" }}>{label}</span>
-    </span>
+    <div className="rounded-xl border px-4 py-3" style={{
+      backgroundColor: "var(--bg-card)", borderColor: "var(--border-color)",
+    }}>
+      <div className="text-2xl font-bold leading-none" style={{ color: accent ?? "var(--text-primary)" }}>
+        {value}
+      </div>
+      <div className="text-xs mt-1.5" style={{ color: "var(--text-secondary)" }}>
+        {label}
+      </div>
+    </div>
   );
 }
 
@@ -25,18 +31,13 @@ export default function StatsBar({ alumnos }: Props) {
   if (total === 0) return null;
 
   return (
-    <div className="flex flex-wrap items-center gap-x-5 gap-y-0.5">
-      <Stat value={total} label="Alumnos" />
-      <span className="text-xs" style={{ color: "var(--border-color)" }}>|</span>
-      <Stat value={tea} label="TEA" color="var(--success)" />
-      <span className="text-xs" style={{ color: "var(--border-color)" }}>|</span>
-      <Stat value={tep} label="TEP" color="var(--danger)" />
-      <span className="text-xs" style={{ color: "var(--border-color)" }}>|</span>
-      <Stat value={aprobados} label="Aprob" color="var(--success)" />
-      <span className="text-xs" style={{ color: "var(--border-color)" }}>|</span>
-      <Stat value={desaprobados} label="Desaprob" color="var(--danger)" />
-      <span className="text-xs" style={{ color: "var(--border-color)" }}>|</span>
-      <Stat value={prom ?? "—"} label="Promedio" />
+    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+      <StatCard label="Alumnos" value={total} />
+      <StatCard label="Aprobados" value={aprobados} accent="var(--success)" />
+      <StatCard label="Desaprobados" value={desaprobados} accent="var(--danger)" />
+      <StatCard label="TEA" value={tea} accent="var(--success)" />
+      <StatCard label="TEP" value={tep} accent="var(--danger)" />
+      <StatCard label="Promedio" value={prom ?? "—"} />
     </div>
   );
 }
