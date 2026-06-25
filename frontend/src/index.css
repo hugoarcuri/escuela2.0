@@ -13,9 +13,8 @@
   --success: #1e7e34;
   --warning: #b9770e;
   --nota-baja: #f5c6cb;
-  --nota-media: #fdba74;
+  --nota-media: #f0e68c;
   --nota-alta: #a8e6a8;
-  --nota-superior: #4ade80;
   --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
   --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
   --radius: 16px;
@@ -37,9 +36,8 @@
   --success: #22c55e;
   --warning: #f59e0b;
   --nota-baja: #7f1d1d;
-  --nota-media: #9a3412;
+  --nota-media: #713f12;
   --nota-alta: #14532d;
-  --nota-superior: #22c55e;
   --shadow-sm: 0 1px 2px rgba(0,0,0,0.2);
   --shadow-md: 0 4px 12px rgba(0,0,0,0.3);
 }
@@ -169,8 +167,8 @@ select.input { cursor: pointer; }
 }
 .badge-tea { background-color: color-mix(in srgb, var(--success) 15%, transparent); color: var(--success); }
 .badge-tep { background-color: color-mix(in srgb, var(--danger) 15%, transparent); color: var(--danger); }
-.badge-ok { background-color: color-mix(in srgb, var(--success) 25%, transparent); color: var(--success); font-weight: 700; }
-.badge-ko { background-color: color-mix(in srgb, var(--danger) 25%, transparent); color: var(--danger); font-weight: 700; }
+.badge-ok { background-color: color-mix(in srgb, var(--success) 15%, transparent); color: var(--success); }
+.badge-ko { background-color: color-mix(in srgb, var(--danger) 15%, transparent); color: var(--danger); }
 
 /* === Stat Cards === */
 .stat-card {
