@@ -154,11 +154,11 @@ export default function App() {
                         if (alumnos.length === 0) return;
                         const id = await prompt("Ingrese el ID del alumno a editar:");
                         if (id) { const a = alumnos.find(x => x.id === parseInt(id)); if (a) { setEditingAlumno(a); setFormOpen(true); } else await alert("Alumno no encontrado"); }
-                      }} className="btn btn-secondary btn-sm" disabled={alumnos.length === 0}>Editar</button>
+                      }} className="btn btn-ghost btn-xs" disabled={alumnos.length === 0}>Editar</button>
                       <button onClick={async () => {
                         const id = await prompt("Ingrese el ID del alumno a eliminar:");
                         if (id) { await deleteAlumno(parseInt(id)); loadAlumnos(); }
-                      }} className="btn btn-danger btn-sm" disabled={alumnos.length === 0}>Eliminar</button>
+                      }} className="btn btn-ghost btn-xs" disabled={alumnos.length === 0} style={{ color: "var(--danger)" }}>Eliminar</button>
                       <DropdownActions label="Herramientas" actions={[
                         { label: "Eliminar Todos", onClick: async () => { const ok = await confirm("¿Eliminar TODOS los alumnos?"); if (!ok) return; const r = await deleteAllAlumnos(Number(escuelaId), Number(cursoId), Number(materiaId)); await alert(`Se eliminaron ${r.deleted} alumno(s)`); loadAlumnos(); }, variant: "danger" },
                         { label: "Importar Excel", onClick: () => setImportModal("excel") },
