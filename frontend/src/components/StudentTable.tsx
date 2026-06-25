@@ -152,7 +152,7 @@ export default function StudentTable({ alumnos, onRefresh, onEdit }: Props) {
 
   if (sorted.length === 0) return <div className="empty-state">No hay alumnos</div>;
 
-  const cs: React.CSSProperties = { borderBottom: "1px solid var(--border-color)", color: "var(--text-primary)" };
+  const cs: React.CSSProperties = { borderBottom: "1px solid var(--border-color)", color: "var(--text-primary)", paddingTop: 10, paddingBottom: 10 };
 
   return (
     <div>
@@ -193,6 +193,7 @@ export default function StudentTable({ alumnos, onRefresh, onEdit }: Props) {
     borderBottom: "1px solid var(--border-color)",
     color: "var(--text-primary)",
     whiteSpace: "nowrap",
+    paddingTop: 10, paddingBottom: 10,
   };
 
               function renderNotaCell(campo: CampoNota) {
