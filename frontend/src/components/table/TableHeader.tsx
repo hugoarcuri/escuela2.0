@@ -1,4 +1,4 @@
-const HEADERS = ["", "Apellido y Nombre", "N 1", "N 2", "N 3", "Inf 1", "N.A 1", "1°C", "N 4", "N 5", "N 6", "Inf 2", "N.A 2", "2°C", "N Final", "Sit.", "Obs."];
+const HEADERS = ["", "Apellido y Nombre", "N 1", "N 2", "N 3", "N.A 1", "Inf 1", "1°C", "N 4", "N 5", "N 6", "N.A 2", "Inf 2", "2°C", "N Final", "Sit.", "Obs."];
 
 interface Props {
   allSelected: boolean;
@@ -14,8 +14,9 @@ export default function TableHeader({ allSelected, onToggleAll, hasRows }: Props
           <th key={h}
             style={{
               backgroundColor: "var(--bg-card)",
-              borderColor: "var(--border-color)",
+              borderBottom: "1px solid var(--border-color)",
               color: "var(--text-secondary)",
+              fontSize: "0.875rem",
               position: "sticky", top: 0,
               left: h === "Apellido y Nombre" ? 0 : undefined,
               zIndex: h === "Apellido y Nombre" ? 20 : 10,

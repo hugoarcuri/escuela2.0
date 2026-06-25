@@ -212,10 +212,10 @@ export default function Asistencias({ alumnos, materiaId, dia }: Props) {
         <table className="w-full text-sm">
           <thead>
             <tr>
-              <th className="px-2 py-2 text-left font-medium text-xs uppercase tracking-wider border-b sticky top-0 z-10"
-                style={{ ...thStyle, minWidth: 180 }}>Alumno</th>
+               <th className="px-2 py-2 text-left font-medium uppercase tracking-wider border-b sticky top-0 z-10"
+                  style={{ ...thStyle, minWidth: 180 }}>Alumno</th>
               {vista === "dia" && (
-                <th className="px-2 py-2 text-center font-medium text-xs uppercase tracking-wider border-b sticky top-0 z-10"
+                <th className="px-2 py-2 text-center font-medium uppercase tracking-wider border-b sticky top-0 z-10"
                   style={{ ...thStyle, minWidth: 90 }}>Asistencia</th>
               )}
               {vista === "mes" && fechas.map(fecha => {
@@ -223,7 +223,7 @@ export default function Asistencias({ alumnos, materiaId, dia }: Props) {
                 const d = new Date(fecha + "T12:00:00");
                 const diaNum = d.getDate();
                 return (
-                <th key={fecha} className="px-1 py-2 text-center font-medium text-xs uppercase tracking-wider border-b sticky top-0 z-10"
+                <th key={fecha} className="px-1 py-2 text-center font-medium uppercase tracking-wider border-b sticky top-0 z-10"
                   style={{ ...thStyle, minWidth: 90 }}>
                   <div className="whitespace-nowrap">{diaNum} {MESES[mes - 3]?.slice(0, 3)}</div>
                   {feriado && <div className="text-[8px] mt-0.5 truncate" style={{ color: "#888" }}>{feriado.nombre}</div>}
@@ -247,11 +247,11 @@ export default function Asistencias({ alumnos, materiaId, dia }: Props) {
                 );
               })}
               {vista === "anio" && MESES.map((m, i) => (
-                <th key={i} className="px-1 py-2 text-center font-medium text-xs uppercase tracking-wider border-b sticky top-0 z-10"
+                <th key={i} className="px-1 py-2 text-center font-medium uppercase tracking-wider border-b sticky top-0 z-10"
                   style={{ ...thStyle, minWidth: 60 }}>{m.slice(0, 3)}</th>
               ))}
               {vista !== "dia" && (
-                <th className="px-2 py-2 text-center font-medium text-xs uppercase tracking-wider border-b sticky top-0 z-10"
+                <th className="px-2 py-2 text-center font-medium uppercase tracking-wider border-b sticky top-0 z-10"
                   style={{ ...thStyle, minWidth: 72 }}>Total</th>
               )}
             </tr>
@@ -264,7 +264,7 @@ export default function Asistencias({ alumnos, materiaId, dia }: Props) {
                 <tr key={a.id} className="transition-colors" style={{ borderColor: "var(--border-color)" }}
                   onMouseOver={e => { e.currentTarget.style.backgroundColor = "var(--hover-bg)"; }}
                   onMouseOut={e => { e.currentTarget.style.backgroundColor = "transparent"; }}>
-                  <td className="px-2 py-1.5 font-medium border-b text-xs" style={{ borderColor: "var(--border-color)", color: "var(--text-primary)" }}>
+                  <td className="px-2 py-1.5 font-medium border-b text-[11px]" style={{ borderColor: "var(--border-color)", color: "var(--text-primary)" }}>
                     {a.apellidoNombre}
                   </td>
                   {vista === "dia" && (
