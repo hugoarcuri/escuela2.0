@@ -212,7 +212,7 @@ export default function StudentTable({ alumnos, onRefresh, onEdit }: Props) {
                 }
                 return (
                   <td className="text-center cursor-pointer"
-                    style={{ ...cs, backgroundColor: colorNota(val) }}
+                    style={{ ...cs, color: val !== null ? colorNota(val) : undefined }}
                     onClick={() => startEdit(a.id, campo, String(val ?? ""))}
                     title="Clic para editar">
                     {val ?? ""}
@@ -246,7 +246,7 @@ export default function StudentTable({ alumnos, onRefresh, onEdit }: Props) {
                   {renderNotaCell("nota2")}
                   {renderNotaCell("nota3")}
                   <td className="text-center cursor-pointer"
-                    style={{ ...cs, backgroundColor: colorNota(a.notaAsistencia1) }}
+                    style={{ ...cs, color: a.notaAsistencia1 !== null ? colorNota(a.notaAsistencia1) : undefined }}
                     title="Nota de Asistencia 1°C">{a.notaAsistencia1 ?? ""}</td>
                   <td className="text-center" style={cs}>
                     <span className={`badge ${a.informe1 === "TEA" ? "badge-tea" : a.informe1 === "TEP" ? "badge-tep" : ""}`}>
@@ -258,7 +258,7 @@ export default function StudentTable({ alumnos, onRefresh, onEdit }: Props) {
                   {renderNotaCell("nota5")}
                   {renderNotaCell("nota6")}
                   <td className="text-center cursor-pointer"
-                    style={{ ...cs, backgroundColor: colorNota(a.notaAsistencia2) }}
+                    style={{ ...cs, color: a.notaAsistencia2 !== null ? colorNota(a.notaAsistencia2) : undefined }}
                     title="Nota de Asistencia 2°C">{a.notaAsistencia2 ?? ""}</td>
                   <td className="text-center" style={cs}>
                     <span className={`badge ${a.informe2 === "TEA" ? "badge-tea" : a.informe2 === "TEP" ? "badge-tep" : ""}`}>
@@ -297,32 +297,32 @@ export default function StudentTable({ alumnos, onRefresh, onEdit }: Props) {
                 <td className="px-1.5 py-1.5 border-t font-semibold text-xs" style={cs}>Prom</td>
                 {CAMPOS.map(c => {
                   const p = promedioCol(c);
-                  return <td key={c} className="px-1.5 py-1.5 border-t text-center font-semibold text-xs" style={{ ...cs, backgroundColor: p !== null ? colorNota(p) : "transparent" }}>{p ?? ""}</td>;
+                  return <td key={c} className="px-1.5 py-1.5 border-t text-center font-semibold text-xs" style={{ ...cs, color: p !== null ? colorNota(p) : "var(--text-secondary)" }}>{p ?? ""}</td>;
                 })}
                 {(() => {
                   const na1 = filtered.map(a => a.notaAsistencia1).filter((v): v is number => v !== null);
                   const p = na1.length ? Math.round((na1.reduce((s, v) => s + v, 0) / na1.length) * 100) / 100 : null;
-                  return <td className="px-1.5 py-1.5 border-t text-center font-semibold text-xs" style={{ ...cs, backgroundColor: p !== null ? colorNota(p) : "transparent" }}>{p ?? ""}</td>;
+                  return <td className="px-1.5 py-1.5 border-t text-center font-semibold text-xs" style={{ ...cs, color: p !== null ? colorNota(p) : "var(--text-secondary)" }}>{p ?? ""}</td>;
                 })()}
                 <td className="px-1.5 py-1.5 border-t" style={cs}></td>
                 <td className="px-1.5 py-1.5 border-t text-center font-semibold text-xs" style={cs}></td>
                 {(() => {
                   const p = promedioCol("nota4");
-                  return <td className="px-1.5 py-1.5 border-t text-center font-semibold text-xs" style={{ ...cs, backgroundColor: p !== null ? colorNota(p) : "transparent" }}>{p ?? ""}</td>;
+                  return <td className="px-1.5 py-1.5 border-t text-center font-semibold text-xs" style={{ ...cs, color: p !== null ? colorNota(p) : "var(--text-secondary)" }}>{p ?? ""}</td>;
                 })()}
                 {(() => {
                   const p = promedioCol("nota5");
-                  return <td className="px-1.5 py-1.5 border-t text-center font-semibold text-xs" style={{ ...cs, backgroundColor: p !== null ? colorNota(p) : "transparent" }}>{p ?? ""}</td>;
+                  return <td className="px-1.5 py-1.5 border-t text-center font-semibold text-xs" style={{ ...cs, color: p !== null ? colorNota(p) : "var(--text-secondary)" }}>{p ?? ""}</td>;
                 })()}
                 {(() => {
                   const p = promedioCol("nota6");
-                  return <td className="px-1.5 py-1.5 border-t text-center font-semibold text-xs" style={{ ...cs, backgroundColor: p !== null ? colorNota(p) : "transparent" }}>{p ?? ""}</td>;
+                  return <td className="px-1.5 py-1.5 border-t text-center font-semibold text-xs" style={{ ...cs, color: p !== null ? colorNota(p) : "var(--text-secondary)" }}>{p ?? ""}</td>;
                 })()}
                 <td className="px-1.5 py-1.5 border-t" style={cs}></td>
                 {(() => {
                   const na2 = filtered.map(a => a.notaAsistencia2).filter((v): v is number => v !== null);
                   const p = na2.length ? Math.round((na2.reduce((s, v) => s + v, 0) / na2.length) * 100) / 100 : null;
-                  return <td className="px-1.5 py-1.5 border-t text-center font-semibold text-xs" style={{ ...cs, backgroundColor: p !== null ? colorNota(p) : "transparent" }}>{p ?? ""}</td>;
+                  return <td className="px-1.5 py-1.5 border-t text-center font-semibold text-xs" style={{ ...cs, color: p !== null ? colorNota(p) : "var(--text-secondary)" }}>{p ?? ""}</td>;
                 })()}
                 <td className="px-1.5 py-1.5 border-t text-center font-semibold text-xs" style={cs}></td>
                 <td className="px-1.5 py-1.5 border-t text-center font-bold text-xs" style={{
