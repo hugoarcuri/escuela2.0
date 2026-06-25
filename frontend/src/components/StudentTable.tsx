@@ -181,7 +181,7 @@ export default function StudentTable({ alumnos, onRefresh, onEdit }: Props) {
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto">
+      <div>
         <table className="w-full text-sm">
           <TableHeader allSelected={selected.size === sorted.length} onToggleAll={toggleAll} hasRows={sorted.length > 0} />
             <tbody>
