@@ -192,6 +192,7 @@ export default function StudentTable({ alumnos, onRefresh, onEdit }: Props) {
     backgroundColor: "var(--bg-card)",
     borderBottom: "1px solid var(--border-color)",
     color: "var(--text-primary)",
+    fontSize: "0.8125rem",
     whiteSpace: "nowrap",
     paddingTop: 10, paddingBottom: 10,
   };
