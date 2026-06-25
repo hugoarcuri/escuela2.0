@@ -66,8 +66,8 @@ export default function GoogleFormSync({ escuelaId, cursoId, materiaId, anioLect
   }
 
   return (
-    <div className="text-xs" style={{ color: "var(--text-secondary)" }}>
-      <div className="min-w-0">
+    <div className="flex items-start gap-3 p-3 rounded-xl border" style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-color)" }}>
+      <div className="flex-1 min-w-0">
         {!token ? (
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-xs font-medium">Formulario de Inscripción</span>

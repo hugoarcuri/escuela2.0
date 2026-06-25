@@ -144,47 +144,40 @@ export default function App() {
 
             {/* Alumnos tab */}
             {tab === "alumnos" && (
-              <div>
-                <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 mb-4">
-                  <div>
-                    <h1 className="text-lg font-semibold" style={{ color: "var(--text-primary)" }}>Alumnos</h1>
-                    {sm && (sm.dia || sm.turno) && (
-                      <p className="text-xs mt-0.5" style={{ color: "var(--text-secondary)" }}>
-                        {sm.dia && <>{sm.dia} · </>}{sm.turno}
-                      </p>
-                    )}
+              <Card padding={false} className="overflow-hidden">
+                <div className="p-4 space-y-1.5">
+                  <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+                    <SectionTitle>Alumnos</SectionTitle>
+                    <div className="flex items-center gap-1.5">
+                      <button onClick={() => { setEditingAlumno(null); setFormOpen(true); }} className="btn btn-primary btn-sm">+ Agregar</button>
+                      <button onClick={async () => {
+                        if (alumnos.length === 0) return;
+                        const id = await prompt("Ingrese el ID del alumno a editar:");
+                        if (id) { const a = alumnos.find(x => x.id === parseInt(id)); if (a) { setEditingAlumno(a); setFormOpen(true); } else await alert("Alumno no encontrado"); }
+                      }} className="btn btn-ghost btn-xs" disabled={alumnos.length === 0}>Editar</button>
+                      <button onClick={async () => {
+                        const id = await prompt("Ingrese el ID del alumno a eliminar:");
+                        if (id) { await deleteAlumno(parseInt(id)); loadAlumnos(); }
+                      }} className="btn btn-ghost btn-xs" disabled={alumnos.length === 0} style={{ color: "var(--danger)" }}>Eliminar</button>
+                      <DropdownActions label="Herramientas" actions={[
+                        { label: "Eliminar Todos", onClick: async () => { const ok = await confirm("¿Eliminar TODOS los alumnos?"); if (!ok) return; const r = await deleteAllAlumnos(Number(escuelaId), Number(cursoId), Number(materiaId)); await alert(`Se eliminaron ${r.deleted} alumno(s)`); loadAlumnos(); }, variant: "danger" },
+                        { label: "Importar Excel", onClick: () => setImportModal("excel") },
+                        { label: "Pegar Lista", onClick: () => setImportModal("paste") },
+                        { label: "Exportar Backup", onClick: exportBackup },
+                        { label: "Importar Backup", onClick: () => { const i = document.createElement("input"); i.type = "file"; i.accept = ".json"; i.onchange = async (e: any) => { const f = e.target.files?.[0]; if (f) { try { await importBackup(f); await alert("Datos restaurados"); loadAlumnos(); } catch { await alert("Error"); } } }; i.click(); } },
+                      ]} />
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <button onClick={() => { setEditingAlumno(null); setFormOpen(true); }} className="btn btn-primary btn-sm">+ Agregar</button>
-                    <button onClick={async () => {
-                      if (alumnos.length === 0) return;
-                      const id = await prompt("Ingrese el ID del alumno a editar:");
-                      if (id) { const a = alumnos.find(x => x.id === parseInt(id)); if (a) { setEditingAlumno(a); setFormOpen(true); } else await alert("Alumno no encontrado"); }
-                    }} className="btn btn-ghost btn-xs" disabled={alumnos.length === 0}>Editar</button>
-                    <button onClick={async () => {
-                      const id = await prompt("Ingrese el ID del alumno a eliminar:");
-                      if (id) { await deleteAlumno(parseInt(id)); loadAlumnos(); }
-                    }} className="btn btn-ghost btn-xs" disabled={alumnos.length === 0} style={{ color: "var(--danger)" }}>Eliminar</button>
-                    <DropdownActions label="Herramientas" actions={[
-                      { label: "Eliminar Todos", onClick: async () => { const ok = await confirm("¿Eliminar TODOS los alumnos?"); if (!ok) return; const r = await deleteAllAlumnos(Number(escuelaId), Number(cursoId), Number(materiaId)); await alert(`Se eliminaron ${r.deleted} alumno(s)`); loadAlumnos(); }, variant: "danger" },
-                      { label: "Importar Excel", onClick: () => setImportModal("excel") },
-                      { label: "Pegar Lista", onClick: () => setImportModal("paste") },
-                      { label: "Exportar Backup", onClick: exportBackup },
-                      { label: "Importar Backup", onClick: () => { const i = document.createElement("input"); i.type = "file"; i.accept = ".json"; i.onchange = async (e: any) => { const f = e.target.files?.[0]; if (f) { try { await importBackup(f); await alert("Datos restaurados"); loadAlumnos(); } catch { await alert("Error"); } } }; i.click(); } },
-                    ]} />
-                  </div>
-                </div>
 
-                <StatsBar alumnos={alumnos} />
+                  <StatsBar alumnos={alumnos} />
 
-                <div className="mt-4">
                   <GoogleFormSync escuelaId={Number(escuelaId)} cursoId={Number(cursoId)} materiaId={Number(materiaId)} anioLectivo={anioLectivo} onSync={loadAlumnos} />
                 </div>
 
-                <div className="mt-2">
+                <div className="border-t" style={{ borderColor: "var(--border-color)" }}>
                   <StudentTable alumnos={alumnos} onRefresh={loadAlumnos} onEdit={a => { setEditingAlumno(a); setFormOpen(true); }} />
                 </div>
-              </div>
+              </Card>
             )}
 
             {/* Asistencias tab */}

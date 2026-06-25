@@ -156,7 +156,7 @@ export default function StudentTable({ alumnos, onRefresh, onEdit }: Props) {
   const cs: React.CSSProperties = { borderColor: "var(--border-color)", color: "var(--text-primary)" };
 
   return (
-    <div className="rounded-xl border" style={{ borderColor: "var(--border-color)", backgroundColor: "var(--bg-card)" }}>
+    <div>
       {savedMsg && (
         <div className="fixed top-4 right-4 z-50 px-4 py-2 rounded-lg text-sm font-medium shadow-lg"
           style={{ backgroundColor: savedMsg.includes("✓") ? "var(--success)" : "var(--danger)", color: "#fff" }}>
@@ -165,7 +165,7 @@ export default function StudentTable({ alumnos, onRefresh, onEdit }: Props) {
       )}
 
       {/* Filter + Bulk actions bar */}
-      <div className="flex flex-wrap items-center gap-2 px-3 py-2">
+      <div className="flex flex-wrap items-center gap-2 px-3 py-2 border-b" style={{ borderColor: "var(--border-color)" }}>
         <select value={filtro} onChange={e => setFiltro(e.target.value)}
           className="input !w-auto !py-1 !text-xs">
           <option value="todos">Todos</option>
@@ -182,7 +182,7 @@ export default function StudentTable({ alumnos, onRefresh, onEdit }: Props) {
       </div>
 
       {/* Table */}
-      <div style={{ overflowY: "auto", overflowX: "auto", maxHeight: "calc(100vh - 340px)" }}>
+      <div style={{ overflowY: "auto", overflowX: "auto", maxHeight: "calc(100vh - 280px)" }}>
         <table className="w-full text-sm">
           <TableHeader allSelected={selected.size === sorted.length} onToggleAll={toggleAll} hasRows={sorted.length > 0} />
             <tbody>
@@ -310,7 +310,7 @@ export default function StudentTable({ alumnos, onRefresh, onEdit }: Props) {
       </div>
 
       {/* Footer */}
-      <div className="px-3 py-1.5 text-xs" style={{ color: "var(--text-secondary)" }}>
+      <div className="px-3 py-1.5 text-xs border-t" style={{ color: "var(--text-secondary)", borderColor: "var(--border-color)" }}>
         {filtered.length} alumno{filtered.length !== 1 ? "s" : ""} · Clic en celda para editar · Enter/Tab siguiente · Esc cancelar
       </div>
     </div>
