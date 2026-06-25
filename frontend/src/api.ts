@@ -261,6 +261,42 @@ export async function saveAsistenciasBatch(records: { alumnoId: number; materiaI
   if (error) throw error;
 }
 
+export async function getAttendanceGrades(materiaId: number, anio: number): Promise<Map<number, { na1: number | null; na2: number | null }>> {
+  const { data, error } = await supabase.from("asistencias")
+    .select("alumnoId, fecha, estado")
+    .eq("materiaId", materiaId)
+    .gte("fecha", `${anio}-01-01`)
+    .lte("fecha", `${anio}-12-31`);
+  if (error) throw error;
+  if (!data || data.length === 0) return new Map();
+
+  const allDates = [...new Set(data.map(a => a.fecha))].sort();
+  const month = (d: string) => new Date(d).getMonth() + 1;
+  const sem1 = allDates.filter(d => month(d) >= 3 && month(d) <= 7);
+  const sem2 = allDates.filter(d => month(d) >= 8 && month(d) <= 12);
+  const isPresent = (e: string) => e === "P" || e === "Lic" || e === "F";
+
+  const byStudent = new Map<number, Set<string>>();
+  const presentSet = new Map<number, Set<string>>();
+  for (const a of data) {
+    if (!byStudent.has(a.alumnoId)) { byStudent.set(a.alumnoId, new Set()); presentSet.set(a.alumnoId, new Set()); }
+    byStudent.get(a.alumnoId)!.add(a.fecha);
+    if (isPresent(a.estado)) presentSet.get(a.alumnoId)!.add(a.fecha);
+  }
+
+  function calcGrade(id: number, dates: string[]): number | null {
+    if (dates.length === 0) return null;
+    const p = presentSet.get(id) || new Set();
+    let count = 0;
+    for (const d of dates) if (p.has(d)) count++;
+    return Math.round((count / dates.length) * 10 * 100) / 100;
+  }
+
+  const result = new Map<number, { na1: number | null; na2: number | null }>();
+  for (const [id] of byStudent) result.set(id, { na1: calcGrade(id, sem1), na2: calcGrade(id, sem2) });
+  return result;
+}
+
 /* Agenda */
 export async function getAgenda(materiaId: number): Promise<AgendaItem[]> {
   const { data, error } = await supabase.from("agenda")

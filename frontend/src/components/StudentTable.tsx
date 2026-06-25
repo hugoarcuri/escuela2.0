@@ -251,6 +251,9 @@ export default function StudentTable({ alumnos, onRefresh, onEdit }: Props) {
                     </span>
                   </td>
                   <td className="text-center font-semibold" style={cs}>{a.nota1C ?? ""}</td>
+                  <td className="text-center cursor-pointer"
+                    style={{ ...cs, backgroundColor: colorNota(a.notaAsistencia1) }}
+                    title="Nota de Asistencia 1°C">{a.notaAsistencia1 ?? ""}</td>
                   {renderNotaCell("nota4")}
                   {renderNotaCell("nota5")}
                   {renderNotaCell("nota6")}
@@ -260,6 +263,9 @@ export default function StudentTable({ alumnos, onRefresh, onEdit }: Props) {
                     </span>
                   </td>
                   <td className="text-center font-semibold" style={cs}>{a.nota2C ?? ""}</td>
+                  <td className="text-center cursor-pointer"
+                    style={{ ...cs, backgroundColor: colorNota(a.notaAsistencia2) }}
+                    title="Nota de Asistencia 2°C">{a.notaAsistencia2 ?? ""}</td>
                   <td className="text-center font-bold" style={{
                     ...cs,
                     color: a.notaFinal !== null ? (a.notaFinal >= 7 ? "var(--success)" : a.notaFinal >= 4 ? "var(--warning)" : "var(--danger)") : undefined,
@@ -295,13 +301,35 @@ export default function StudentTable({ alumnos, onRefresh, onEdit }: Props) {
                 })}
                 <td className="px-1.5 py-1.5 border-t" style={cs}></td>
                 <td className="px-1.5 py-1.5 border-t text-center font-semibold text-xs" style={cs}></td>
-                <td colSpan={3} className="px-1.5 py-1.5 border-t" style={cs}></td>
+                {(() => {
+                  const na1 = filtered.map(a => a.notaAsistencia1).filter((v): v is number => v !== null);
+                  const p = na1.length ? Math.round((na1.reduce((s, v) => s + v, 0) / na1.length) * 100) / 100 : null;
+                  return <td className="px-1.5 py-1.5 border-t text-center font-semibold text-xs" style={{ ...cs, backgroundColor: p !== null ? colorNota(p) : "transparent" }}>{p ?? ""}</td>;
+                })()}
+                {(() => {
+                  const p = promedioCol("nota4");
+                  return <td className="px-1.5 py-1.5 border-t text-center font-semibold text-xs" style={{ ...cs, backgroundColor: p !== null ? colorNota(p) : "transparent" }}>{p ?? ""}</td>;
+                })()}
+                {(() => {
+                  const p = promedioCol("nota5");
+                  return <td className="px-1.5 py-1.5 border-t text-center font-semibold text-xs" style={{ ...cs, backgroundColor: p !== null ? colorNota(p) : "transparent" }}>{p ?? ""}</td>;
+                })()}
+                {(() => {
+                  const p = promedioCol("nota6");
+                  return <td className="px-1.5 py-1.5 border-t text-center font-semibold text-xs" style={{ ...cs, backgroundColor: p !== null ? colorNota(p) : "transparent" }}>{p ?? ""}</td>;
+                })()}
                 <td className="px-1.5 py-1.5 border-t" style={cs}></td>
-                <td className="px-1.5 py-1.5 border-t" style={cs}></td>
+                <td className="px-1.5 py-1.5 border-t text-center font-semibold text-xs" style={cs}></td>
+                {(() => {
+                  const na2 = filtered.map(a => a.notaAsistencia2).filter((v): v is number => v !== null);
+                  const p = na2.length ? Math.round((na2.reduce((s, v) => s + v, 0) / na2.length) * 100) / 100 : null;
+                  return <td className="px-1.5 py-1.5 border-t text-center font-semibold text-xs" style={{ ...cs, backgroundColor: p !== null ? colorNota(p) : "transparent" }}>{p ?? ""}</td>;
+                })()}
                 <td className="px-1.5 py-1.5 border-t text-center font-bold text-xs" style={{
                   ...cs,
                   color: promedioGeneral !== null ? (promedioGeneral >= 7 ? "var(--success)" : promedioGeneral >= 4 ? "var(--warning)" : "var(--danger)") : undefined,
                 }}>{promedioGeneral ?? ""}</td>
+                <td className="px-1.5 py-1.5 border-t" style={cs}></td>
                 <td className="px-1.5 py-1.5 border-t" style={cs}></td>
               </tr>
             </tfoot>

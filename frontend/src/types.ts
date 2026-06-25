@@ -21,6 +21,8 @@ export interface Alumno extends AlumnoDB {
   informe2: string | null; nota2C: number | null;
   notaFinal: number | null;
   situacionFinal: string;
+  notaAsistencia1: number | null;
+  notaAsistencia2: number | null;
 }
 export interface AlumnoFormData {
   apellidoNombre: string;
@@ -77,6 +79,8 @@ export function mapAlumno(a: AlumnoDB, modoManual: boolean): Alumno {
     situacionFinal: calcSituacion(notaFinal),
     informe1: calcInforme(nota1C),
     informe2: calcInforme(nota2C),
+    notaAsistencia1: null,
+    notaAsistencia2: null,
   };
 }
 

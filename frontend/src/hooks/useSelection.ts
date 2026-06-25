@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { getEscuelas, getCursos, getMaterias, getAlumnos } from "../api";
+import { getEscuelas, getCursos, getMaterias, getAlumnos, getAttendanceGrades } from "../api";
 import type { Escuela, Curso, Materia, Alumno } from "../types";
 
 function loadSaved(key: string): Record<number, number> {
@@ -104,7 +104,13 @@ export function useSelection() {
   // Load alumnos
   const loadAlumnos = useCallback(() => {
     if (escuelaId && cursoId && materiaId) {
-      getAlumnos({ escuelaId: Number(escuelaId), cursoId: Number(cursoId), materiaId: Number(materiaId), anioLectivo, search: search || undefined }).then(setAlumnos);
+      getAlumnos({ escuelaId: Number(escuelaId), cursoId: Number(cursoId), materiaId: Number(materiaId), anioLectivo, search: search || undefined }).then(async (raw) => {
+        const grades = await getAttendanceGrades(Number(materiaId), anioLectivo);
+        setAlumnos(raw.map(a => {
+          const g = grades.get(a.id);
+          return { ...a, notaAsistencia1: g?.na1 ?? null, notaAsistencia2: g?.na2 ?? null };
+        }));
+      });
     } else setAlumnos([]);
   }, [escuelaId, cursoId, materiaId, anioLectivo, search]);
 
