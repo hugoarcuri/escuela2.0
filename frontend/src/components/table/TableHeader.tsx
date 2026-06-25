@@ -1,4 +1,4 @@
-const HEADERS = ["", "Apellido y Nombre", "N 1", "N 2", "N 3", "Inf 1", "1°C", "N.A 1", "N 4", "N 5", "N 6", "Inf 2", "2°C", "N.A 2", "N Final", "Sit.", "Obs."];
+const HEADERS = ["", "Apellido y Nombre", "N 1", "N 2", "N 3", "Inf 1", "N.A 1", "1°C", "N 4", "N 5", "N 6", "Inf 2", "N.A 2", "2°C", "N Final", "Sit.", "Obs."];
 
 interface Props {
   allSelected: boolean;
