@@ -333,5 +333,10 @@ export async function deleteAgendaItem(id: number): Promise<void> {
   if (error) throw error;
 }
 
+export async function toggleAgendaDone(id: number, done: boolean): Promise<void> {
+  const { error } = await supabase.rpc("toggle_agenda_done", { item_id: id, val: done });
+  if (error) throw error;
+}
+
 export function getExportExcelUrl(): string { return ""; }
 export function getExportPdfUrl(): string { return ""; }

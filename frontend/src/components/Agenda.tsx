@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import type { AgendaItem } from "../types";
-import { getAgenda, saveAgendaItem, updateAgendaItem, deleteAgendaItem } from "../api";
+import { getAgenda, saveAgendaItem, updateAgendaItem, deleteAgendaItem, toggleAgendaDone } from "../api";
 
 interface Props {
   materiaId: number;
@@ -83,6 +83,13 @@ export default function Agenda({ materiaId }: Props) {
     } catch {}
   }
 
+  async function handleToggleDone(id: number, done: boolean) {
+    try {
+      await toggleAgendaDone(id, done);
+      load();
+    } catch {}
+  }
+
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const tomorrow = new Date(today);
@@ -130,9 +137,11 @@ export default function Agenda({ materiaId }: Props) {
             const tipoInfo = TIPOS.find(t => t.key === item.tipo);
             return (
               <div key={item.id} className="flex items-center gap-2 py-0.5">
+                <input type="checkbox" checked={!!item.done} onChange={() => handleToggleDone(item.id, !item.done)}
+                  className="w-3.5 h-3.5 cursor-pointer accent-[var(--accent)]" />
                 <span className="text-xs font-bold bg-white/20 px-1.5 py-0.5 rounded">{daysUntil(item.fecha)}</span>
                 <span style={{ color: tipoInfo?.color }}>●</span>
-                <span>{item.titulo}</span>
+                <span style={{ textDecoration: item.done ? "line-through" : undefined, opacity: item.done ? 0.6 : 1 }}>{item.titulo}</span>
                 <span className="text-xs opacity-80">{tipoInfo?.label}</span>
               </div>
             );
@@ -209,7 +218,7 @@ export default function Agenda({ materiaId }: Props) {
                 const diaSem = diasSem[new Date(item.fecha + "T12:00:00").getDay()];
                 return (
                   <div key={item.id} className="flex items-start gap-3 px-4 py-3 border-b transition-colors"
-                    style={{ borderColor: "var(--border-color)" }}
+                    style={{ borderColor: "var(--border-color)", opacity: item.done ? 0.55 : 1 }}
                     onMouseOver={e => e.currentTarget.style.backgroundColor = "var(--hover-bg)"}
                     onMouseOut={e => e.currentTarget.style.backgroundColor = "transparent"}>
                     <div className="flex flex-col items-center w-12 shrink-0">
@@ -218,13 +227,16 @@ export default function Agenda({ materiaId }: Props) {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
+                        <input type="checkbox" checked={!!item.done} onChange={() => handleToggleDone(item.id, !item.done)}
+                          className="w-3.5 h-3.5 cursor-pointer accent-[var(--accent)]" />
                         <span className="text-xs font-semibold px-1.5 py-0.5 rounded" style={{ backgroundColor: (tipoInfo?.color || "#888") + "20", color: tipoInfo?.color }}>
                           {tipoInfo?.label || item.tipo}
                         </span>
-
                       </div>
-                      <div className="text-sm font-medium mt-0.5" style={{ color: "var(--text-primary)" }}>{item.titulo}</div>
-                      {item.descripcion && <div className="text-xs mt-0.5" style={{ color: "var(--text-secondary)" }}>{item.descripcion}</div>}
+                      <div className="text-sm font-medium mt-0.5"
+                        style={{ color: "var(--text-primary)", textDecoration: item.done ? "line-through" : undefined }}>{item.titulo}</div>
+                      {item.descripcion && <div className="text-xs mt-0.5"
+                        style={{ color: "var(--text-secondary)", textDecoration: item.done ? "line-through" : undefined }}>{item.descripcion}</div>}
                     </div>
                     <div className="flex gap-1 shrink-0">
                       <button onClick={() => openForm(item)} className="p-1 rounded hover:bg-[var(--hover-bg)]" style={{ color: "var(--text-secondary)", cursor: "pointer" }} title="Editar">

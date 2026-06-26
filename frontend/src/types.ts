@@ -92,5 +92,6 @@ export interface AgendaItem {
   fecha: string;
   hora: string;
   tipo: "evaluacion" | "entrega";
+  done?: boolean;
   googleEventId: string;
 }

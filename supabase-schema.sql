@@ -89,6 +89,7 @@ CREATE TABLE IF NOT EXISTS agenda (
   fecha DATE NOT NULL,
   hora TEXT DEFAULT '',
   tipo TEXT NOT NULL DEFAULT 'evaluacion',
+  done BOOLEAN DEFAULT FALSE,
   "googleEventId" TEXT DEFAULT '',
   "createdAt" TIMESTAMPTZ DEFAULT NOW(),
   "updatedAt" TIMESTAMPTZ DEFAULT NOW()
@@ -141,6 +142,17 @@ CREATE OR REPLACE FUNCTION public.delete_agenda(item_id INTEGER)
 RETURNS VOID AS $$
 BEGIN
   DELETE FROM public.agenda WHERE id = item_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Migración: agregar columna done a agenda (para apps existentes)
+ALTER TABLE agenda ADD COLUMN IF NOT EXISTS done BOOLEAN DEFAULT FALSE;
+
+CREATE OR REPLACE FUNCTION public.toggle_agenda_done(item_id INTEGER, val BOOLEAN)
+RETURNS VOID AS $$
+BEGIN
+  UPDATE public.agenda SET done = val, "updatedAt" = NOW()
+  WHERE id = item_id;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
