@@ -13,10 +13,9 @@ type CampoNota = "nota1" | "nota2" | "nota3" | "nota4" | "nota5" | "nota6";
 
 function colorNota(val: number | null): string {
   if (val === null) return "transparent";
-  if (val >= 1 && val <= 3) return "var(--nota-baja)";
-  if (val >= 4 && val <= 6) return "var(--nota-media)";
-  if (val >= 7 && val <= 10) return "var(--nota-alta)";
-  return "transparent";
+  if (val >= 7) return "#3b82f6";
+  if (val >= 4) return "var(--success)";
+  return "var(--danger)";
 }
 
 const CAMPOS: CampoNota[] = ["nota1", "nota2", "nota3", "nota4", "nota5", "nota6"];
@@ -214,7 +213,7 @@ export default function StudentTable({ alumnos, onRefresh, onEdit }: Props) {
                 }
                 return (
                   <td className="text-center cursor-pointer"
-                    style={{ ...cs, color: val !== null ? colorNota(val) : undefined, fontSize: "0.875rem" }}
+                    style={{ ...cs, color: val !== null ? colorNota(val) : undefined, fontSize: "0.875rem", fontWeight: "bold" }}
                     onClick={() => startEdit(a.id, campo, String(val ?? ""))}
                     title="Clic para editar">
                     {val ?? ""}
@@ -248,7 +247,7 @@ export default function StudentTable({ alumnos, onRefresh, onEdit }: Props) {
                   {renderNotaCell("nota2")}
                   {renderNotaCell("nota3")}
                   <td className="text-center cursor-pointer"
-                    style={{ ...cs, color: a.notaAsistencia1 !== null ? colorNota(a.notaAsistencia1) : undefined, fontSize: "0.875rem" }}
+                    style={{ ...cs, color: a.notaAsistencia1 !== null ? colorNota(a.notaAsistencia1) : undefined, fontSize: "0.875rem", fontWeight: "bold" }}
                     title="Nota de Asistencia 1°C">{a.notaAsistencia1 ?? ""}</td>
                   <td className="text-center" style={cs}>
                     {a.informe1 && <span className="badge" style={{
@@ -256,12 +255,12 @@ export default function StudentTable({ alumnos, onRefresh, onEdit }: Props) {
                       color: a.informe1 === "TEA" ? "#3b82f6" : a.nota1C !== null && a.nota1C < 4 ? "var(--danger)" : "var(--success)",
                     }}>{a.informe1}</span>}
                   </td>
-                  <td className="text-center font-semibold" style={{ ...cs, fontSize: "0.875rem" }}>{a.nota1C ?? ""}</td>
+                  <td className="text-center font-bold" style={{ ...cs, fontSize: "0.875rem" }}>{a.nota1C ?? ""}</td>
                   {renderNotaCell("nota4")}
                   {renderNotaCell("nota5")}
                   {renderNotaCell("nota6")}
                   <td className="text-center cursor-pointer"
-                    style={{ ...cs, color: a.notaAsistencia2 !== null ? colorNota(a.notaAsistencia2) : undefined, fontSize: "0.875rem" }}
+                    style={{ ...cs, color: a.notaAsistencia2 !== null ? colorNota(a.notaAsistencia2) : undefined, fontSize: "0.875rem", fontWeight: "bold" }}
                     title="Nota de Asistencia 2°C">{a.notaAsistencia2 ?? ""}</td>
                   <td className="text-center" style={cs}>
                     {a.informe2 && <span className="badge" style={{
@@ -269,7 +268,7 @@ export default function StudentTable({ alumnos, onRefresh, onEdit }: Props) {
                       color: a.informe2 === "TEA" ? "#3b82f6" : a.nota2C !== null && a.nota2C < 4 ? "var(--danger)" : "var(--success)",
                     }}>{a.informe2}</span>}
                   </td>
-                  <td className="text-center font-semibold" style={{ ...cs, fontSize: "0.875rem" }}>{a.nota2C ?? ""}</td>
+                  <td className="text-center font-bold" style={{ ...cs, fontSize: "0.875rem" }}>{a.nota2C ?? ""}</td>
                   <td className="text-center font-bold" style={{
                     ...cs,
                     fontSize: "0.875rem",
