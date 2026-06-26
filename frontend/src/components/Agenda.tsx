@@ -13,6 +13,7 @@ const TIPOS = [
 
 export default function Agenda({ materiaId }: Props) {
   const [items, setItems] = useState<AgendaItem[]>([]);
+  const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
   const [formOpen, setFormOpen] = useState(false);
   const [toast, setToast] = useState("");
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -206,10 +207,13 @@ export default function Agenda({ materiaId }: Props) {
           const monthName = new Date(Number(y), Number(m) - 1).toLocaleString("es-AR", { month: "long", year: "numeric" });
           return (
             <div key={month}>
-              <div className="px-4 py-2 text-sm font-semibold sticky top-0" style={{ backgroundColor: "var(--bg-card)", color: "var(--text-primary)", borderBottom: "1px solid var(--border-color)" }}>
+              <div className="px-4 py-2 text-sm font-semibold sticky top-0 cursor-pointer select-none flex items-center gap-2"
+                style={{ backgroundColor: "var(--bg-card)", color: "var(--text-primary)", borderBottom: "1px solid var(--border-color)" }}
+                onClick={() => setCollapsed(prev => { const next = new Set(prev); if (next.has(month)) next.delete(month); else next.add(month); return next; })}>
+                <span style={{ fontSize: "0.625rem", transition: "transform 0.15s", display: "inline-block", transform: collapsed.has(month) ? "rotate(-90deg)" : "rotate(0deg)" }}>▼</span>
                 {monthName.charAt(0).toUpperCase() + monthName.slice(1)}
               </div>
-              {grouped[month].map(item => {
+              {!collapsed.has(month) && grouped[month].map(item => {
                 const tipoInfo = TIPOS.find(t => t.key === item.tipo);
                 const dia = item.fecha.slice(8, 10);
                 const diasSem = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
