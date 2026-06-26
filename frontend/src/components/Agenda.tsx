@@ -136,9 +136,7 @@ export default function Agenda({ materiaId }: Props) {
           {upcoming.map(item => {
             const tipoInfo = TIPOS.find(t => t.key === item.tipo);
             return (
-              <div key={item.id} className="flex items-center gap-2 py-0.5">
-                <input type="checkbox" checked={!!item.done} onChange={() => handleToggleDone(item.id, !item.done)}
-                  className="w-3.5 h-3.5 cursor-pointer accent-[var(--accent)]" />
+              <div key={item.id} className="flex items-center gap-2 py-0.5 cursor-pointer" onClick={() => handleToggleDone(item.id, !item.done)}>
                 <span className="text-xs font-bold bg-white/20 px-1.5 py-0.5 rounded">{daysUntil(item.fecha)}</span>
                 <span style={{ color: tipoInfo?.color }}>●</span>
                 <span style={{ textDecoration: item.done ? "line-through" : undefined, opacity: item.done ? 0.6 : 1 }}>{item.titulo}</span>
@@ -217,8 +215,9 @@ export default function Agenda({ materiaId }: Props) {
                 const diasSem = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
                 const diaSem = diasSem[new Date(item.fecha + "T12:00:00").getDay()];
                 return (
-                  <div key={item.id} className="flex items-start gap-3 px-4 py-3 border-b transition-colors"
+                  <div key={item.id} className="flex items-start gap-3 px-4 py-3 border-b transition-colors cursor-pointer"
                     style={{ borderColor: "var(--border-color)", opacity: item.done ? 0.55 : 1 }}
+                    onClick={() => handleToggleDone(item.id, !item.done)}
                     onMouseOver={e => e.currentTarget.style.backgroundColor = "var(--hover-bg)"}
                     onMouseOut={e => e.currentTarget.style.backgroundColor = "transparent"}>
                     <div className="flex flex-col items-center w-12 shrink-0">
@@ -227,8 +226,6 @@ export default function Agenda({ materiaId }: Props) {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <input type="checkbox" checked={!!item.done} onChange={() => handleToggleDone(item.id, !item.done)}
-                          className="w-3.5 h-3.5 cursor-pointer accent-[var(--accent)]" />
                         <span className="text-xs font-semibold px-1.5 py-0.5 rounded" style={{ backgroundColor: (tipoInfo?.color || "#888") + "20", color: tipoInfo?.color }}>
                           {tipoInfo?.label || item.tipo}
                         </span>
@@ -238,7 +235,7 @@ export default function Agenda({ materiaId }: Props) {
                       {item.descripcion && <div className="text-xs mt-0.5"
                         style={{ color: "var(--text-secondary)", textDecoration: item.done ? "line-through" : undefined }}>{item.descripcion}</div>}
                     </div>
-                    <div className="flex gap-1 shrink-0">
+                    <div className="flex gap-1 shrink-0" onClick={e => e.stopPropagation()}>
                       <button onClick={() => openForm(item)} className="p-1 rounded hover:bg-[var(--hover-bg)]" style={{ color: "var(--text-secondary)", cursor: "pointer" }} title="Editar">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                       </button>
