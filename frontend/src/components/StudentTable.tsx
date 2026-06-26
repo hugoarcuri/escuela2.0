@@ -214,7 +214,7 @@ export default function StudentTable({ alumnos, onRefresh, onEdit }: Props) {
                 }
                 return (
                   <td className="text-center cursor-pointer"
-                    style={{ ...cs, color: val !== null ? colorNota(val) : undefined }}
+                    style={{ ...cs, color: val !== null ? colorNota(val) : undefined, fontSize: "0.875rem" }}
                     onClick={() => startEdit(a.id, campo, String(val ?? ""))}
                     title="Clic para editar">
                     {val ?? ""}
@@ -248,28 +248,29 @@ export default function StudentTable({ alumnos, onRefresh, onEdit }: Props) {
                   {renderNotaCell("nota2")}
                   {renderNotaCell("nota3")}
                   <td className="text-center cursor-pointer"
-                    style={{ ...cs, color: a.notaAsistencia1 !== null ? colorNota(a.notaAsistencia1) : undefined }}
+                    style={{ ...cs, color: a.notaAsistencia1 !== null ? colorNota(a.notaAsistencia1) : undefined, fontSize: "0.875rem" }}
                     title="Nota de Asistencia 1°C">{a.notaAsistencia1 ?? ""}</td>
                   <td className="text-center" style={cs}>
                     <span className={`badge ${a.informe1 === "TEA" ? "badge-tea" : a.informe1 === "TEP" ? "badge-tep" : ""}`}>
                       {a.informe1 ?? ""}
                     </span>
                   </td>
-                  <td className="text-center font-semibold" style={cs}>{a.nota1C ?? ""}</td>
+                  <td className="text-center font-semibold" style={{ ...cs, fontSize: "0.875rem" }}>{a.nota1C ?? ""}</td>
                   {renderNotaCell("nota4")}
                   {renderNotaCell("nota5")}
                   {renderNotaCell("nota6")}
                   <td className="text-center cursor-pointer"
-                    style={{ ...cs, color: a.notaAsistencia2 !== null ? colorNota(a.notaAsistencia2) : undefined }}
+                    style={{ ...cs, color: a.notaAsistencia2 !== null ? colorNota(a.notaAsistencia2) : undefined, fontSize: "0.875rem" }}
                     title="Nota de Asistencia 2°C">{a.notaAsistencia2 ?? ""}</td>
                   <td className="text-center" style={cs}>
                     <span className={`badge ${a.informe2 === "TEA" ? "badge-tea" : a.informe2 === "TEP" ? "badge-tep" : ""}`}>
                       {a.informe2 ?? ""}
                     </span>
                   </td>
-                  <td className="text-center font-semibold" style={cs}>{a.nota2C ?? ""}</td>
+                  <td className="text-center font-semibold" style={{ ...cs, fontSize: "0.875rem" }}>{a.nota2C ?? ""}</td>
                   <td className="text-center font-bold" style={{
                     ...cs,
+                    fontSize: "0.875rem",
                     color: a.notaFinal !== null ? (a.notaFinal >= 7 ? "var(--success)" : a.notaFinal >= 4 ? "var(--warning)" : "var(--danger)") : undefined,
                   }}>{a.notaFinal ?? ""}</td>
                   <td className="text-center" style={cs}>
