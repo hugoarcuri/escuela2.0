@@ -251,9 +251,10 @@ export default function StudentTable({ alumnos, onRefresh, onEdit }: Props) {
                     style={{ ...cs, color: a.notaAsistencia1 !== null ? colorNota(a.notaAsistencia1) : undefined, fontSize: "0.875rem" }}
                     title="Nota de Asistencia 1°C">{a.notaAsistencia1 ?? ""}</td>
                   <td className="text-center" style={cs}>
-                    <span className={`badge ${a.informe1 === "TEA" ? "badge-tea" : a.informe1 === "TEP" ? "badge-tep" : ""}`}>
-                      {a.informe1 ?? ""}
-                    </span>
+                    {a.informe1 && <span className="badge" style={{
+                      backgroundColor: a.informe1 === "TEA" ? "rgba(59,130,246,0.15)" : a.nota1C !== null && a.nota1C < 4 ? "rgba(239,68,68,0.15)" : "rgba(34,197,94,0.15)",
+                      color: a.informe1 === "TEA" ? "#3b82f6" : a.nota1C !== null && a.nota1C < 4 ? "var(--danger)" : "var(--success)",
+                    }}>{a.informe1}</span>}
                   </td>
                   <td className="text-center font-semibold" style={{ ...cs, fontSize: "0.875rem" }}>{a.nota1C ?? ""}</td>
                   {renderNotaCell("nota4")}
@@ -263,20 +264,22 @@ export default function StudentTable({ alumnos, onRefresh, onEdit }: Props) {
                     style={{ ...cs, color: a.notaAsistencia2 !== null ? colorNota(a.notaAsistencia2) : undefined, fontSize: "0.875rem" }}
                     title="Nota de Asistencia 2°C">{a.notaAsistencia2 ?? ""}</td>
                   <td className="text-center" style={cs}>
-                    <span className={`badge ${a.informe2 === "TEA" ? "badge-tea" : a.informe2 === "TEP" ? "badge-tep" : ""}`}>
-                      {a.informe2 ?? ""}
-                    </span>
+                    {a.informe2 && <span className="badge" style={{
+                      backgroundColor: a.informe2 === "TEA" ? "rgba(59,130,246,0.15)" : a.nota2C !== null && a.nota2C < 4 ? "rgba(239,68,68,0.15)" : "rgba(34,197,94,0.15)",
+                      color: a.informe2 === "TEA" ? "#3b82f6" : a.nota2C !== null && a.nota2C < 4 ? "var(--danger)" : "var(--success)",
+                    }}>{a.informe2}</span>}
                   </td>
                   <td className="text-center font-semibold" style={{ ...cs, fontSize: "0.875rem" }}>{a.nota2C ?? ""}</td>
                   <td className="text-center font-bold" style={{
                     ...cs,
                     fontSize: "0.875rem",
-                    color: a.notaFinal !== null ? (a.notaFinal >= 7 ? "var(--success)" : a.notaFinal >= 4 ? "var(--warning)" : "var(--danger)") : undefined,
+                    color: a.notaFinal !== null ? (a.notaFinal >= 7 ? "#3b82f6" : a.notaFinal >= 4 ? "var(--success)" : "var(--danger)") : undefined,
                   }}>{a.notaFinal ?? ""}</td>
                   <td className="text-center" style={cs}>
-                    <span className={`badge ${a.situacionFinal === "Aprobado" ? "badge-ok" : a.situacionFinal === "Desaprobado" ? "badge-ko" : ""}`}>
-                      {a.situacionFinal}
-                    </span>
+                    {a.situacionFinal && <span className="badge" style={{
+                      backgroundColor: a.situacionFinal === "Aprobado" ? "rgba(59,130,246,0.15)" : a.notaFinal !== null && a.notaFinal < 4 ? "rgba(239,68,68,0.15)" : "rgba(34,197,94,0.15)",
+                      color: a.situacionFinal === "Aprobado" ? "#3b82f6" : a.notaFinal !== null && a.notaFinal < 4 ? "var(--danger)" : "var(--success)",
+                    }}>{a.situacionFinal}</span>}
                   </td>
                   <td className="max-w-[120px] cursor-pointer" style={cs}
                     onClick={() => startEdit(a.id, "observaciones", a.observaciones || "")}>
