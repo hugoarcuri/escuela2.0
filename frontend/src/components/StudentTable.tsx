@@ -258,7 +258,7 @@ export default function StudentTable({ alumnos, onRefresh, onEdit, materiaId }: 
                       color: a.informe1 === "TEA" ? "#3b82f6" : a.nota1C !== null && a.nota1C < 4 ? "var(--danger)" : "var(--success)",
                     }}>{a.informe1}</span>}
                   </td>
-                  <td className="text-center font-bold" style={{ ...cs, fontSize: "0.875rem", color: a.nota1C !== null ? (a.nota1C >= 7 ? "#3b82f6" : "var(--danger)") : undefined }}>{a.nota1C ?? ""}</td>
+                  <td className="text-center font-bold" style={{ ...cs, fontSize: "0.875rem", color: a.nota1C !== null ? (a.nota1C >= 7 ? "#3b82f6" : "var(--success)") : undefined }}>{a.nota1C ?? ""}</td>
                   {renderNotaCell("nota4")}
                   {renderNotaCell("nota5")}
                   {renderNotaCell("nota6")}
@@ -271,7 +271,7 @@ export default function StudentTable({ alumnos, onRefresh, onEdit, materiaId }: 
                       color: a.informe2 === "TEA" ? "#3b82f6" : a.nota2C !== null && a.nota2C < 4 ? "var(--danger)" : "var(--success)",
                     }}>{a.informe2}</span>}
                   </td>
-                  <td className="text-center font-bold" style={{ ...cs, fontSize: "0.875rem", color: a.nota2C !== null ? (a.nota2C >= 7 ? "#3b82f6" : "var(--danger)") : undefined }}>{a.nota2C ?? ""}</td>
+                  <td className="text-center font-bold" style={{ ...cs, fontSize: "0.875rem", color: a.nota2C !== null ? (a.nota2C >= 7 ? "#3b82f6" : "var(--success)") : undefined }}>{a.nota2C ?? ""}</td>
                   <td className="text-center font-bold" style={{
                     ...cs,
                     fontSize: "0.875rem",
@@ -316,7 +316,7 @@ export default function StudentTable({ alumnos, onRefresh, onEdit, materiaId }: 
                 {(() => {
                   const vals1C = filtered.map(a => a.nota1C).filter((v): v is number => v !== null);
                   const p1C = vals1C.length ? Math.round((vals1C.reduce((s, v) => s + v, 0) / vals1C.length) * 100) / 100 : null;
-                  return <td className="px-1.5 py-1.5 border-t text-center font-semibold text-xs" style={{ ...cs, color: p1C !== null ? (p1C >= 7 ? "#3b82f6" : "var(--danger)") : "var(--text-secondary)" }}>{p1C ?? ""}</td>;
+                  return <td className="px-1.5 py-1.5 border-t text-center font-semibold text-xs" style={{ ...cs, color: p1C !== null ? (p1C >= 7 ? "#3b82f6" : "var(--success)") : "var(--text-secondary)" }}>{p1C ?? ""}</td>;
                 })()}
                 {(() => {
                   const p = promedioCol("nota4");
@@ -339,7 +339,7 @@ export default function StudentTable({ alumnos, onRefresh, onEdit, materiaId }: 
                 {(() => {
                   const vals2C = filtered.map(a => a.nota2C).filter((v): v is number => v !== null);
                   const p2C = vals2C.length ? Math.round((vals2C.reduce((s, v) => s + v, 0) / vals2C.length) * 100) / 100 : null;
-                  return <td className="px-1.5 py-1.5 border-t text-center font-semibold text-xs" style={{ ...cs, color: p2C !== null ? (p2C >= 7 ? "#3b82f6" : "var(--danger)") : "var(--text-secondary)" }}>{p2C ?? ""}</td>;
+                  return <td className="px-1.5 py-1.5 border-t text-center font-semibold text-xs" style={{ ...cs, color: p2C !== null ? (p2C >= 7 ? "#3b82f6" : "var(--success)") : "var(--text-secondary)" }}>{p2C ?? ""}</td>;
                 })()}
                 <td className="px-1.5 py-1.5 border-t text-center font-bold text-xs" style={{
                   ...cs,
