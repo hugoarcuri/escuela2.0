@@ -152,11 +152,11 @@ export default function StudentTable({ alumnos, onRefresh, onEdit, materiaId }: 
 
   if (sorted.length === 0) return <div className="empty-state">No hay alumnos</div>;
 
-  const cs: React.CSSProperties = { borderBottom: "1px solid var(--border-color)", borderRight: "1px solid var(--border-color)", color: "var(--text-primary)", paddingTop: 10, paddingBottom: 10 };
-  const csLast: React.CSSProperties = { borderBottom: "1px solid var(--border-color)", color: "var(--text-primary)", paddingTop: 10, paddingBottom: 10 };
+  const cs: React.CSSProperties = { borderBottom: "1px solid var(--border-color)", borderRight: "1px solid var(--border-color)", color: "var(--text-primary)", padding: "6px 4px", fontSize: "0.75rem" };
+  const csLast: React.CSSProperties = { borderBottom: "1px solid var(--border-color)", color: "var(--text-primary)", padding: "6px 4px", fontSize: "0.75rem" };
 
   return (
-    <div>
+    <div className="flex flex-col" style={{ height: "100%" }}>
       {savedMsg && (
         <div className="fixed top-4 right-4 z-50 px-4 py-2 rounded-lg text-sm font-medium shadow-lg"
           style={{ backgroundColor: savedMsg.includes("✓") ? "var(--success)" : "var(--danger)", color: "#fff" }}>
@@ -165,38 +165,49 @@ export default function StudentTable({ alumnos, onRefresh, onEdit, materiaId }: 
       )}
 
       {/* Filter + Bulk actions bar */}
-      <div className="flex flex-wrap items-center gap-2 px-3 py-2 border-b" style={{ borderColor: "var(--border-color)" }}>
+      <div className="flex flex-wrap items-center gap-2 px-3 py-1.5 border-b shrink-0" style={{ borderColor: "var(--border-color)", minHeight: 36 }}>
         <select value={filtro} onChange={e => setFiltro(e.target.value)}
-          className="input !w-auto !py-1 !text-xs">
+          className="input !w-auto !py-0.5 !text-xs !px-2">
           <option value="todos">Todos</option>
-          <option value="TEA">Solo TEA</option>
-          <option value="TEP">Solo TEP</option>
+          <option value="TEA">TEA</option>
+          <option value="TEP">TEP</option>
           <option value="aprobados">Aprobados</option>
           <option value="desaprobados">Desaprobados</option>
         </select>
         <span className="text-xs" style={{ color: "var(--text-secondary)" }}>{filtered.length} de {alumnos.length}</span>
-        <div className="flex-1" />
         {selected.size > 0 && (
-          <button onClick={deleteSelected} className="btn btn-danger btn-xs">Eliminar {selected.size}</button>
+          <div className="flex items-center gap-2 ml-auto">
+            <span className="text-xs font-medium" style={{ color: "var(--accent)" }}>{selected.size} seleccionado{selected.size !== 1 ? "s" : ""}</span>
+            <button onClick={deleteSelected} className="btn btn-danger btn-xs">Eliminar</button>
+            <button onClick={() => setSelected(new Set())} className="btn btn-ghost btn-xs">Deseleccionar</button>
+          </div>
         )}
       </div>
 
-      {/* Table */}
-      <div>
-        <table className="w-full" style={{ fontSize: "0.75rem" }}>
+      {/* Table wrapper for scroll */}
+      <div className="flex-1 overflow-auto" style={{ minHeight: 0 }}>
+        <table className="w-full" style={{ borderCollapse: "separate", borderSpacing: 0, fontSize: "0.75rem" }}>
           <TableHeader allSelected={selected.size === sorted.length} onToggleAll={toggleAll} hasRows={sorted.length > 0} materiaId={materiaId} />
-            <tbody>
-              {sorted.map((a, idx) => {
-              const isEditing = (campo: CampoNota | "observaciones") => editing?.alumnoId === a.id && editing?.campo === campo;
+          <tbody>
+            {sorted.map((a, idx) => {
+            const isEditing = (campo: CampoNota | "observaciones") => editing?.alumnoId === a.id && editing?.campo === campo;
   const stickyStyle: React.CSSProperties = {
-    position: "sticky", left: 0, zIndex: 2,
+    position: "sticky", left: 36, zIndex: 2,
     backgroundColor: "var(--bg-card)",
     borderBottom: "1px solid var(--border-color)",
     borderRight: "1px solid var(--border-color)",
     color: "var(--text-primary)",
     fontSize: "0.8125rem",
     whiteSpace: "nowrap",
-    paddingTop: 10, paddingBottom: 10,
+    padding: "6px 4px",
+  };
+  const stickyCheckStyle: React.CSSProperties = {
+    position: "sticky", left: 0, zIndex: 2,
+    backgroundColor: "var(--bg-card)",
+    borderBottom: "1px solid var(--border-color)",
+    borderRight: "1px solid var(--border-color)",
+    color: "var(--text-primary)",
+    padding: "6px 4px",
   };
 
               function renderNotaCell(campo: CampoNota) {
@@ -208,15 +219,15 @@ export default function StudentTable({ alumnos, onRefresh, onEdit, materiaId }: 
                         value={editValue} onChange={e => setEditValue(e.target.value)}
                         onBlur={saveEdit}
                         onKeyDown={e => handleKeyDown(e, idx, campo)}
-                        className="w-full h-full px-3 py-2 outline-none border-2 border-[var(--accent)] rounded"
-                        style={{ backgroundColor: "var(--bg-card)", color: "var(--text-primary)", width: 70 }}
+                        className="w-full h-full px-2 py-1 outline-none border-2 border-[var(--accent)] rounded"
+                        style={{ backgroundColor: "var(--bg-card)", color: "var(--text-primary)", width: 62 }}
                         autoFocus />
                     </td>
                   );
                 }
                 return (
                   <td className="text-center cursor-pointer"
-                    style={{ ...cs, color: val !== null ? colorNota(val) : undefined, fontSize: "0.875rem", fontWeight: "bold" }}
+                    style={{ ...cs, color: val !== null ? colorNota(val) : undefined, fontSize: "0.8125rem", fontWeight: 600 }}
                     onClick={() => startEdit(a.id, campo, String(val ?? ""))}
                     title="Clic para editar">
                     {val ?? ""}
@@ -225,14 +236,17 @@ export default function StudentTable({ alumnos, onRefresh, onEdit, materiaId }: 
               }
 
               return (
-                <tr key={a.id}>
-                  <td className="text-center" style={cs}>
+                <tr key={a.id}
+                  style={{ backgroundColor: selected.has(a.id) ? "rgba(59,130,246,0.06)" : undefined }}
+                  onMouseOver={e => { if (!selected.has(a.id)) e.currentTarget.style.backgroundColor = "var(--hover-bg)"; }}
+                  onMouseOut={e => { if (!selected.has(a.id)) e.currentTarget.style.backgroundColor = "transparent"; }}>
+                  <td className="text-center" style={stickyCheckStyle}>
                     <input type="checkbox" checked={selected.has(a.id)} onChange={() => toggleSelect(a.id)} />
                   </td>
                   <td className="font-medium" style={stickyStyle}
                     onClick={() => onEdit(a)}>
                     <button onClick={e => { e.stopPropagation(); toggleRecursante(a.id, !a.recursante); }}
-                      className="inline-flex items-center justify-center w-5 h-5 mr-1.5 rounded text-[10px] font-bold transition-all duration-150 hover:scale-110 active:scale-95"
+                      className="inline-flex items-center justify-center w-4 h-4 mr-1.5 rounded text-[9px] font-bold transition-all duration-150 hover:scale-110 active:scale-95"
                       style={{
                         backgroundColor: a.recursante ? "var(--danger)" : "transparent",
                         color: a.recursante ? "#fff" : "var(--text-secondary)",
@@ -250,7 +264,7 @@ export default function StudentTable({ alumnos, onRefresh, onEdit, materiaId }: 
                   {renderNotaCell("nota2")}
                   {renderNotaCell("nota3")}
                   <td className="text-center cursor-pointer"
-                    style={{ ...cs, color: a.notaAsistencia1 !== null ? colorNota(a.notaAsistencia1) : undefined, fontSize: "0.875rem", fontWeight: "bold" }}
+                    style={{ ...cs, color: a.notaAsistencia1 !== null ? colorNota(a.notaAsistencia1) : undefined, fontWeight: 600 }}
                     title="Nota de Asistencia 1°C">{a.notaAsistencia1 ?? ""}</td>
                   <td className="text-center" style={cs}>
                     {a.informe1 && <span className="badge" style={{
@@ -258,12 +272,12 @@ export default function StudentTable({ alumnos, onRefresh, onEdit, materiaId }: 
                       color: a.informe1 === "TEA" ? "#3b82f6" : a.nota1C !== null && a.nota1C < 4 ? "var(--danger)" : "var(--success)",
                     }}>{a.informe1}</span>}
                   </td>
-                  <td className="text-center font-bold" style={{ ...cs, fontSize: "0.875rem", color: a.nota1C !== null ? (a.nota1C >= 7 ? "#3b82f6" : "var(--success)") : undefined }}>{a.nota1C ?? ""}</td>
+                  <td className="text-center font-bold" style={{ ...cs, color: a.nota1C !== null ? (a.nota1C >= 7 ? "#3b82f6" : "var(--success)") : undefined }}>{a.nota1C ?? ""}</td>
                   {renderNotaCell("nota4")}
                   {renderNotaCell("nota5")}
                   {renderNotaCell("nota6")}
                   <td className="text-center cursor-pointer"
-                    style={{ ...cs, color: a.notaAsistencia2 !== null ? colorNota(a.notaAsistencia2) : undefined, fontSize: "0.875rem", fontWeight: "bold" }}
+                    style={{ ...cs, color: a.notaAsistencia2 !== null ? colorNota(a.notaAsistencia2) : undefined, fontWeight: 600 }}
                     title="Nota de Asistencia 2°C">{a.notaAsistencia2 ?? ""}</td>
                   <td className="text-center" style={cs}>
                     {a.informe2 && <span className="badge" style={{
@@ -271,19 +285,25 @@ export default function StudentTable({ alumnos, onRefresh, onEdit, materiaId }: 
                       color: a.informe2 === "TEA" ? "#3b82f6" : a.nota2C !== null && a.nota2C < 4 ? "var(--danger)" : "var(--success)",
                     }}>{a.informe2}</span>}
                   </td>
-                  <td className="text-center font-bold" style={{ ...cs, fontSize: "0.875rem", color: a.nota2C !== null ? (a.nota2C >= 7 ? "#3b82f6" : "var(--success)") : undefined }}>{a.nota2C ?? ""}</td>
+                  <td className="text-center font-bold" style={{ ...cs, color: a.nota2C !== null ? (a.nota2C >= 7 ? "#3b82f6" : "var(--success)") : undefined }}>{a.nota2C ?? ""}</td>
                   <td className="text-center font-bold" style={{
                     ...cs,
-                    fontSize: "0.875rem",
                     color: a.notaFinal !== null ? (a.notaFinal >= 7 ? "#3b82f6" : a.notaFinal >= 4 ? "var(--success)" : "var(--danger)") : undefined,
                   }}>{a.notaFinal ?? ""}</td>
                   <td className="text-center" style={cs}>
-                    {a.situacionFinal && <span className="badge" style={{
-                      backgroundColor: a.situacionFinal === "Aprobado" ? "rgba(59,130,246,0.15)" : a.notaFinal !== null && a.notaFinal < 4 ? "rgba(239,68,68,0.15)" : "rgba(34,197,94,0.15)",
-                      color: a.situacionFinal === "Aprobado" ? "#3b82f6" : a.notaFinal !== null && a.notaFinal < 4 ? "var(--danger)" : "var(--success)",
-                    }}>{a.situacionFinal}</span>}
+                    {a.situacionFinal === "Aprobado" ? (
+                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-semibold"
+                        style={{ backgroundColor: "rgba(59,130,246,0.12)", color: "#3b82f6" }}>
+                        <span>✓</span> Aprobado
+                      </span>
+                    ) : a.situacionFinal === "Desaprobado" ? (
+                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-semibold"
+                        style={{ backgroundColor: "rgba(239,68,68,0.12)", color: "var(--danger)" }}>
+                        <span>✗</span> Desaprobado
+                      </span>
+                    ) : null}
                   </td>
-                  <td className="max-w-[120px] cursor-pointer" style={csLast}
+                  <td className="max-w-[100px] cursor-pointer" style={csLast}
                     onClick={() => startEdit(a.id, "observaciones", a.observaciones || "")}>
                     {isEditing("observaciones") ? (
                       <input ref={inputRef} type="text" value={editValue} onChange={e => setEditValue(e.target.value)}
@@ -299,61 +319,61 @@ export default function StudentTable({ alumnos, onRefresh, onEdit, materiaId }: 
             })}
           </tbody>
           {/* Averages row */}
-            <tfoot>
-              <tr style={{ backgroundColor: "var(--bg-secondary)" }}>
-                <td className="px-1.5 py-1.5 border-t font-semibold text-xs" style={cs}></td>
-                <td className="px-1.5 py-1.5 border-t font-semibold text-xs" style={cs}>Prom</td>
-                {CAMPOS.map(c => {
-                  const p = promedioCol(c);
-                  return <td key={c} className="px-1.5 py-1.5 border-t text-center font-semibold text-xs" style={{ ...cs, color: p !== null ? colorNota(p) : "var(--text-secondary)" }}>{p ?? ""}</td>;
-                })}
-                {(() => {
-                  const na1 = filtered.map(a => a.notaAsistencia1).filter((v): v is number => v !== null);
-                  const p = na1.length ? Math.round((na1.reduce((s, v) => s + v, 0) / na1.length) * 100) / 100 : null;
-                  return <td className="px-1.5 py-1.5 border-t text-center font-semibold text-xs" style={{ ...cs, color: p !== null ? colorNota(p) : "var(--text-secondary)" }}>{p ?? ""}</td>;
-                })()}
-                <td className="px-1.5 py-1.5 border-t" style={cs}></td>
-                {(() => {
-                  const vals1C = filtered.map(a => a.nota1C).filter((v): v is number => v !== null);
-                  const p1C = vals1C.length ? Math.round((vals1C.reduce((s, v) => s + v, 0) / vals1C.length) * 100) / 100 : null;
-                  return <td className="px-1.5 py-1.5 border-t text-center font-semibold text-xs" style={{ ...cs, color: p1C !== null ? (p1C >= 7 ? "#3b82f6" : "var(--success)") : "var(--text-secondary)" }}>{p1C ?? ""}</td>;
-                })()}
-                {(() => {
-                  const p = promedioCol("nota4");
-                  return <td className="px-1.5 py-1.5 border-t text-center font-semibold text-xs" style={{ ...cs, color: p !== null ? colorNota(p) : "var(--text-secondary)" }}>{p ?? ""}</td>;
-                })()}
-                {(() => {
-                  const p = promedioCol("nota5");
-                  return <td className="px-1.5 py-1.5 border-t text-center font-semibold text-xs" style={{ ...cs, color: p !== null ? colorNota(p) : "var(--text-secondary)" }}>{p ?? ""}</td>;
-                })()}
-                {(() => {
-                  const p = promedioCol("nota6");
-                  return <td className="px-1.5 py-1.5 border-t text-center font-semibold text-xs" style={{ ...cs, color: p !== null ? colorNota(p) : "var(--text-secondary)" }}>{p ?? ""}</td>;
-                })()}
-                <td className="px-1.5 py-1.5 border-t" style={cs}></td>
-                {(() => {
-                  const na2 = filtered.map(a => a.notaAsistencia2).filter((v): v is number => v !== null);
-                  const p = na2.length ? Math.round((na2.reduce((s, v) => s + v, 0) / na2.length) * 100) / 100 : null;
-                  return <td className="px-1.5 py-1.5 border-t text-center font-semibold text-xs" style={{ ...cs, color: p !== null ? colorNota(p) : "var(--text-secondary)" }}>{p ?? ""}</td>;
-                })()}
-                {(() => {
-                  const vals2C = filtered.map(a => a.nota2C).filter((v): v is number => v !== null);
-                  const p2C = vals2C.length ? Math.round((vals2C.reduce((s, v) => s + v, 0) / vals2C.length) * 100) / 100 : null;
-                  return <td className="px-1.5 py-1.5 border-t text-center font-semibold text-xs" style={{ ...cs, color: p2C !== null ? (p2C >= 7 ? "#3b82f6" : "var(--success)") : "var(--text-secondary)" }}>{p2C ?? ""}</td>;
-                })()}
-                <td className="px-1.5 py-1.5 border-t text-center font-bold text-xs" style={{
-                  ...cs,
-                  color: promedioGeneral !== null ? (promedioGeneral >= 7 ? "var(--success)" : promedioGeneral >= 4 ? "var(--warning)" : "var(--danger)") : undefined,
-                }}>{promedioGeneral ?? ""}</td>
-                <td className="px-1.5 py-1.5 border-t" style={cs}></td>
-                <td className="px-1.5 py-1.5 border-t" style={csLast}></td>
-              </tr>
-            </tfoot>
+          <tfoot>
+            <tr style={{ backgroundColor: "var(--bg-secondary)" }}>
+              <td className="px-1.5 py-1 border-t font-semibold text-xs" style={cs}></td>
+              <td className="px-1.5 py-1 border-t font-semibold text-xs" style={cs}>Prom</td>
+              {CAMPOS.map(c => {
+                const p = promedioCol(c);
+                return <td key={c} className="px-1.5 py-1 border-t text-center font-semibold text-xs" style={{ ...cs, color: p !== null ? colorNota(p) : "var(--text-secondary)" }}>{p ?? ""}</td>;
+              })}
+              {(() => {
+                const na1 = filtered.map(a => a.notaAsistencia1).filter((v): v is number => v !== null);
+                const p = na1.length ? Math.round((na1.reduce((s, v) => s + v, 0) / na1.length) * 100) / 100 : null;
+                return <td className="px-1.5 py-1 border-t text-center font-semibold text-xs" style={{ ...cs, color: p !== null ? colorNota(p) : "var(--text-secondary)" }}>{p ?? ""}</td>;
+              })()}
+              <td className="px-1.5 py-1 border-t" style={cs}></td>
+              {(() => {
+                const vals1C = filtered.map(a => a.nota1C).filter((v): v is number => v !== null);
+                const p1C = vals1C.length ? Math.round((vals1C.reduce((s, v) => s + v, 0) / vals1C.length) * 100) / 100 : null;
+                return <td className="px-1.5 py-1 border-t text-center font-semibold text-xs" style={{ ...cs, color: p1C !== null ? (p1C >= 7 ? "#3b82f6" : "var(--success)") : "var(--text-secondary)" }}>{p1C ?? ""}</td>;
+              })()}
+              {(() => {
+                const p = promedioCol("nota4");
+                return <td className="px-1.5 py-1 border-t text-center font-semibold text-xs" style={{ ...cs, color: p !== null ? colorNota(p) : "var(--text-secondary)" }}>{p ?? ""}</td>;
+              })()}
+              {(() => {
+                const p = promedioCol("nota5");
+                return <td className="px-1.5 py-1 border-t text-center font-semibold text-xs" style={{ ...cs, color: p !== null ? colorNota(p) : "var(--text-secondary)" }}>{p ?? ""}</td>;
+              })()}
+              {(() => {
+                const p = promedioCol("nota6");
+                return <td className="px-1.5 py-1 border-t text-center font-semibold text-xs" style={{ ...cs, color: p !== null ? colorNota(p) : "var(--text-secondary)" }}>{p ?? ""}</td>;
+              })()}
+              <td className="px-1.5 py-1 border-t" style={cs}></td>
+              {(() => {
+                const na2 = filtered.map(a => a.notaAsistencia2).filter((v): v is number => v !== null);
+                const p = na2.length ? Math.round((na2.reduce((s, v) => s + v, 0) / na2.length) * 100) / 100 : null;
+                return <td className="px-1.5 py-1 border-t text-center font-semibold text-xs" style={{ ...cs, color: p !== null ? colorNota(p) : "var(--text-secondary)" }}>{p ?? ""}</td>;
+              })()}
+              {(() => {
+                const vals2C = filtered.map(a => a.nota2C).filter((v): v is number => v !== null);
+                const p2C = vals2C.length ? Math.round((vals2C.reduce((s, v) => s + v, 0) / vals2C.length) * 100) / 100 : null;
+                return <td className="px-1.5 py-1 border-t text-center font-semibold text-xs" style={{ ...cs, color: p2C !== null ? (p2C >= 7 ? "#3b82f6" : "var(--success)") : "var(--text-secondary)" }}>{p2C ?? ""}</td>;
+              })()}
+              <td className="px-1.5 py-1 border-t text-center font-bold text-xs" style={{
+                ...cs,
+                color: promedioGeneral !== null ? (promedioGeneral >= 7 ? "var(--success)" : promedioGeneral >= 4 ? "var(--warning)" : "var(--danger)") : undefined,
+              }}>{promedioGeneral ?? ""}</td>
+              <td className="px-1.5 py-1 border-t" style={cs}></td>
+              <td className="px-1.5 py-1 border-t" style={csLast}></td>
+            </tr>
+          </tfoot>
         </table>
       </div>
 
       {/* Footer */}
-      <div className="px-3 py-1.5 text-xs border-t" style={{ color: "var(--text-secondary)", borderColor: "var(--border-color)" }}>
+      <div className="px-3 py-1 text-xs border-t shrink-0" style={{ color: "var(--text-secondary)", borderColor: "var(--border-color)" }}>
         {filtered.length} alumno{filtered.length !== 1 ? "s" : ""} · Clic en celda para editar · Enter/Tab siguiente · Esc cancelar
       </div>
     </div>

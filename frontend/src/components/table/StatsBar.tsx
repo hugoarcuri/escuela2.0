@@ -4,15 +4,6 @@ interface Props {
   alumnos: Alumno[];
 }
 
-function Stat({ value, label, color }: { value: string | number; label: string; color?: string }) {
-  return (
-    <span className="flex items-baseline gap-1">
-      <span className="text-sm font-semibold leading-none" style={color ? { color } : undefined}>{value}</span>
-      <span className="text-xs" style={{ color: "var(--text-secondary)" }}>{label}</span>
-    </span>
-  );
-}
-
 export default function StatsBar({ alumnos }: Props) {
   const total = alumnos.length;
   const tea = alumnos.filter(a => a.informe1 === "TEA" || a.informe2 === "TEA").length;
@@ -24,19 +15,26 @@ export default function StatsBar({ alumnos }: Props) {
 
   if (total === 0) return null;
 
+  const items = [
+    { label: "Alumnos", value: total, icon: "👥", color: undefined },
+    { label: "Aprobados", value: aprobados, icon: "🟢", color: "var(--success)" },
+    { label: "Desaprobados", value: desaprobados, icon: "🔴", color: "var(--danger)" },
+    { label: "Promedio", value: prom ?? "—", icon: "📈", color: undefined },
+    { label: "TEA", value: tea, icon: "🔵", color: "#3b82f6" },
+    { label: "TEP", value: tep, icon: "🟠", color: "#f59e0b" },
+  ];
+
   return (
-    <div className="flex flex-wrap items-center gap-x-5 gap-y-0.5">
-      <Stat value={total} label="Alumnos" />
-      <span className="text-xs" style={{ color: "var(--border-color)" }}>|</span>
-      <Stat value={tea} label="TEA" color="var(--success)" />
-      <span className="text-xs" style={{ color: "var(--border-color)" }}>|</span>
-      <Stat value={tep} label="TEP" color="var(--danger)" />
-      <span className="text-xs" style={{ color: "var(--border-color)" }}>|</span>
-      <Stat value={aprobados} label="Aprob" color="var(--success)" />
-      <span className="text-xs" style={{ color: "var(--border-color)" }}>|</span>
-      <Stat value={desaprobados} label="Desaprob" color="var(--danger)" />
-      <span className="text-xs" style={{ color: "var(--border-color)" }}>|</span>
-      <Stat value={prom ?? "—"} label="Promedio" />
+    <div className="flex flex-wrap items-center gap-1.5">
+      {items.map(item => (
+        <div key={item.label}
+          className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs"
+          style={{ backgroundColor: "var(--bg-secondary)" }}>
+          <span className="text-xs leading-none">{item.icon}</span>
+          <span className="font-semibold leading-none" style={item.color ? { color: item.color } : { color: "var(--text-primary)" }}>{item.value}</span>
+          <span className="leading-none" style={{ color: "var(--text-secondary)" }}>{item.label}</span>
+        </div>
+      ))}
     </div>
   );
 }
