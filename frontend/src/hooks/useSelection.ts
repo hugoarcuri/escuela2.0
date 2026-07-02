@@ -23,6 +23,8 @@ export function useSelection() {
 
   const lastCurso = useRef<Record<number, number>>(loadSaved("lastCurso"));
   const lastMateria = useRef<Record<number, number>>(loadSaved("lastMateria"));
+  const prevCursoRef = useRef<number | "">("");
+  const prevMateriaRef = useRef<number | "">("");
 
   // Persist full session
   useEffect(() => {
@@ -33,19 +35,21 @@ export function useSelection() {
     }
   }, [escuelaId, cursoId, materiaId]);
 
-  // Save individual maps
+  // Save lastCurso map
   useEffect(() => {
     if (escuelaId && cursoId) {
       lastCurso.current[Number(escuelaId)] = Number(cursoId);
       localStorage.setItem("lastCurso", JSON.stringify(lastCurso.current));
     }
   }, [escuelaId, cursoId]);
+
+  // Save current materia for current curso when materia changes (not when curso switches)
   useEffect(() => {
-    if (cursoId && materiaId) {
+    if (cursoId && materiaId && cursoId === prevCursoRef.current) {
       lastMateria.current[Number(cursoId)] = Number(materiaId);
       localStorage.setItem("lastMateria", JSON.stringify(lastMateria.current));
     }
-  }, [cursoId, materiaId]);
+  }, [materiaId]);
 
   // Restore full state on initial load
   useEffect(() => {
@@ -88,8 +92,14 @@ export function useSelection() {
     } else { setCursos([]); setCursoId(""); setMaterias([]); setMateriaId(""); setAlumnos([]); }
   }, [escuelaId]);
 
-  // When curso changes
+  // When curso changes — save previous materia, then restore for new curso
   useEffect(() => {
+    if (prevCursoRef.current && prevCursoRef.current !== cursoId && prevMateriaRef.current) {
+      lastMateria.current[Number(prevCursoRef.current)] = Number(prevMateriaRef.current);
+      localStorage.setItem("lastMateria", JSON.stringify(lastMateria.current));
+    }
+    prevCursoRef.current = cursoId;
+    prevMateriaRef.current = materiaId;
     if (cursoId) {
       getMaterias(Number(cursoId)).then(list => {
         setMaterias(list);
