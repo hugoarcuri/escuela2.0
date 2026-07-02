@@ -211,7 +211,7 @@ export default function Asistencias({ alumnos, materiaId, dia }: Props) {
             <select value={anio} onChange={e => setAnio(Number(e.target.value))}
               className="rounded-lg border px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]"
               style={{ backgroundColor: "var(--bg-card)", color: "var(--text-primary)", borderColor: "var(--border-color)" }}>
-              {[2025, 2026, 2027, 2028].map(a => <option key={a} value={a}>{a}</option>)}
+              {[2026, 2027, 2028].map(a => <option key={a} value={a}>{a}</option>)}
             </select>
           </>
         )}

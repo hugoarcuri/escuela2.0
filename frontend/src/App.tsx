@@ -89,7 +89,7 @@ export default function App() {
             <label className="text-xs font-medium" style={{ color: "var(--text-secondary)" }}>Año:</label>
             <select value={anioLectivo} onChange={e => setAnioLectivo(Number(e.target.value))}
               className="input !w-auto !py-1 !text-xs">
-              {[2025, 2026, 2027].map(a => <option key={a} value={a}>{a}</option>)}
+              {[2026, 2027, 2028].map(a => <option key={a} value={a}>{a}</option>)}
             </select>
           </div>
           <button onClick={() => setSettingsOpen(true)} className="btn btn-ghost btn-sm">Ajustes</button>
