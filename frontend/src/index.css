@@ -42,6 +42,11 @@
   --shadow-md: 0 4px 12px rgba(0,0,0,0.3);
 }
 
+html, body, #root {
+  height: 100vh;
+  overflow: hidden;
+}
+
 body {
   background-color: var(--bg-secondary);
   color: var(--text-primary);
@@ -50,6 +55,14 @@ body {
 }
 
 input, select, button, textarea { font-family: inherit; }
+
+/* Scrollable containers */
+.scrollable {
+  overflow-y: auto;
+  overflow-x: auto;
+  flex: 1;
+  min-height: 0;
+}
 
 /* === Layout === */
 .card {

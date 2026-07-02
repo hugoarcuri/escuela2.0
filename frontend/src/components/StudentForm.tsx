@@ -87,13 +87,13 @@ export default function StudentForm({ alumno, escuelaId, cursoId, materiaId, ani
                 className="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]" style={inputStyle} />
             </div>
             <div><label className="block text-xs font-medium mb-1" style={{ color: "var(--text-secondary)" }}>Nota 1</label>
-              <input type="number" step="0.01" min="0" max="10" value={form.nota1} onChange={e => setForm(f => ({ ...f, nota1: e.target.value }))}
+              <input type="number" step="0.5" min="0" max="10" value={form.nota1} onChange={e => setForm(f => ({ ...f, nota1: e.target.value }))}
                 className="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]" style={inputStyle} /></div>
             <div><label className="block text-xs font-medium mb-1" style={{ color: "var(--text-secondary)" }}>Nota 2</label>
-              <input type="number" step="0.01" min="0" max="10" value={form.nota2} onChange={e => setForm(f => ({ ...f, nota2: e.target.value }))}
+              <input type="number" step="0.5" min="0" max="10" value={form.nota2} onChange={e => setForm(f => ({ ...f, nota2: e.target.value }))}
                 className="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]" style={inputStyle} /></div>
             <div><label className="block text-xs font-medium mb-1" style={{ color: "var(--text-secondary)" }}>Nota 3</label>
-              <input type="number" step="0.01" min="0" max="10" value={form.nota3} onChange={e => setForm(f => ({ ...f, nota3: e.target.value }))}
+              <input type="number" step="0.5" min="0" max="10" value={form.nota3} onChange={e => setForm(f => ({ ...f, nota3: e.target.value }))}
                 className="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]" style={inputStyle} /></div>
             <div className="p-3 rounded-lg" style={{ backgroundColor: "var(--bg-secondary)" }}>
               <span className="text-xs font-medium" style={{ color: "var(--text-secondary)" }}>Nota 1° Cuatrimestre: </span>
@@ -106,13 +106,13 @@ export default function StudentForm({ alumno, escuelaId, cursoId, materiaId, ani
               </div>
             </div>
             <div><label className="block text-xs font-medium mb-1" style={{ color: "var(--text-secondary)" }}>Nota 4</label>
-              <input type="number" step="0.01" min="0" max="10" value={form.nota4} onChange={e => setForm(f => ({ ...f, nota4: e.target.value }))}
+              <input type="number" step="0.5" min="0" max="10" value={form.nota4} onChange={e => setForm(f => ({ ...f, nota4: e.target.value }))}
                 className="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]" style={inputStyle} /></div>
             <div><label className="block text-xs font-medium mb-1" style={{ color: "var(--text-secondary)" }}>Nota 5</label>
-              <input type="number" step="0.01" min="0" max="10" value={form.nota5} onChange={e => setForm(f => ({ ...f, nota5: e.target.value }))}
+              <input type="number" step="0.5" min="0" max="10" value={form.nota5} onChange={e => setForm(f => ({ ...f, nota5: e.target.value }))}
                 className="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]" style={inputStyle} /></div>
             <div><label className="block text-xs font-medium mb-1" style={{ color: "var(--text-secondary)" }}>Nota 6</label>
-              <input type="number" step="0.01" min="0" max="10" value={form.nota6} onChange={e => setForm(f => ({ ...f, nota6: e.target.value }))}
+              <input type="number" step="0.5" min="0" max="10" value={form.nota6} onChange={e => setForm(f => ({ ...f, nota6: e.target.value }))}
                 className="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]" style={inputStyle} /></div>
             <div className="p-3 rounded-lg" style={{ backgroundColor: "var(--bg-secondary)" }}>
               <label className="block text-xs font-medium mb-1" style={{ color: "var(--text-secondary)" }}>Informe 2 <span className="text-[10px]">(automático)</span></label>

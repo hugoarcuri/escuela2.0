@@ -7,6 +7,7 @@ interface Props {
   alumnos: Alumno[];
   onRefresh: () => void;
   onEdit: (a: Alumno) => void;
+  materiaId: number;
 }
 
 type CampoNota = "nota1" | "nota2" | "nota3" | "nota4" | "nota5" | "nota6";
@@ -25,7 +26,7 @@ function parseVal(s: string): number | null {
   return isNaN(n) ? null : Math.round(n * 100) / 100;
 }
 
-export default function StudentTable({ alumnos, onRefresh, onEdit }: Props) {
+export default function StudentTable({ alumnos, onRefresh, onEdit, materiaId }: Props) {
   const [editing, setEditing] = useState<{ alumnoId: number; campo: CampoNota | "observaciones" } | null>(null);
   const [editValue, setEditValue] = useState("");
   const [selected, setSelected] = useState<Set<number>>(new Set());
@@ -151,7 +152,8 @@ export default function StudentTable({ alumnos, onRefresh, onEdit }: Props) {
 
   if (sorted.length === 0) return <div className="empty-state">No hay alumnos</div>;
 
-  const cs: React.CSSProperties = { borderBottom: "1px solid var(--border-color)", color: "var(--text-primary)", paddingTop: 10, paddingBottom: 10 };
+  const cs: React.CSSProperties = { borderBottom: "1px solid var(--border-color)", borderRight: "1px solid var(--border-color)", color: "var(--text-primary)", paddingTop: 10, paddingBottom: 10 };
+  const csLast: React.CSSProperties = { borderBottom: "1px solid var(--border-color)", color: "var(--text-primary)", paddingTop: 10, paddingBottom: 10 };
 
   return (
     <div>
@@ -182,7 +184,7 @@ export default function StudentTable({ alumnos, onRefresh, onEdit }: Props) {
       {/* Table */}
       <div>
         <table className="w-full" style={{ fontSize: "0.75rem" }}>
-          <TableHeader allSelected={selected.size === sorted.length} onToggleAll={toggleAll} hasRows={sorted.length > 0} />
+          <TableHeader allSelected={selected.size === sorted.length} onToggleAll={toggleAll} hasRows={sorted.length > 0} materiaId={materiaId} />
             <tbody>
               {sorted.map((a, idx) => {
               const isEditing = (campo: CampoNota | "observaciones") => editing?.alumnoId === a.id && editing?.campo === campo;
@@ -190,6 +192,7 @@ export default function StudentTable({ alumnos, onRefresh, onEdit }: Props) {
     position: "sticky", left: 0, zIndex: 2,
     backgroundColor: "var(--bg-card)",
     borderBottom: "1px solid var(--border-color)",
+    borderRight: "1px solid var(--border-color)",
     color: "var(--text-primary)",
     fontSize: "0.8125rem",
     whiteSpace: "nowrap",
@@ -201,7 +204,7 @@ export default function StudentTable({ alumnos, onRefresh, onEdit }: Props) {
                 if (isEditing(campo)) {
                   return (
                     <td className="p-0" style={cs}>
-                      <input ref={inputRef} type="number" step="0.01" min="0" max="10"
+                      <input ref={inputRef} type="number" step="0.5" min="0" max="10"
                         value={editValue} onChange={e => setEditValue(e.target.value)}
                         onBlur={saveEdit}
                         onKeyDown={e => handleKeyDown(e, idx, campo)}
@@ -280,7 +283,7 @@ export default function StudentTable({ alumnos, onRefresh, onEdit }: Props) {
                       color: a.situacionFinal === "Aprobado" ? "#3b82f6" : a.notaFinal !== null && a.notaFinal < 4 ? "var(--danger)" : "var(--success)",
                     }}>{a.situacionFinal}</span>}
                   </td>
-                  <td className="max-w-[120px] cursor-pointer" style={cs}
+                  <td className="max-w-[120px] cursor-pointer" style={csLast}
                     onClick={() => startEdit(a.id, "observaciones", a.observaciones || "")}>
                     {isEditing("observaciones") ? (
                       <input ref={inputRef} type="text" value={editValue} onChange={e => setEditValue(e.target.value)}
@@ -335,7 +338,7 @@ export default function StudentTable({ alumnos, onRefresh, onEdit }: Props) {
                   color: promedioGeneral !== null ? (promedioGeneral >= 7 ? "var(--success)" : promedioGeneral >= 4 ? "var(--warning)" : "var(--danger)") : undefined,
                 }}>{promedioGeneral ?? ""}</td>
                 <td className="px-1.5 py-1.5 border-t" style={cs}></td>
-                <td className="px-1.5 py-1.5 border-t" style={cs}></td>
+                <td className="px-1.5 py-1.5 border-t" style={csLast}></td>
               </tr>
             </tfoot>
         </table>

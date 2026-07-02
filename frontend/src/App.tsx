@@ -79,9 +79,9 @@ export default function App() {
   const sm = typeof materiaId === "number" ? materias.find(m => m.id === materiaId) : undefined;
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "var(--bg-secondary)" }}>
+    <div className="h-screen flex flex-col" style={{ backgroundColor: "var(--bg-secondary)" }}>
       <Header theme={theme} onToggleTheme={toggleTheme} />
-      <main className="max-w-7xl mx-auto px-4 py-6 space-y-4">
+      <main className="flex-1 min-h-0 max-w-7xl mx-auto w-full px-4 py-4 space-y-3 flex flex-col overflow-hidden">
 
         {/* Top bar: year + settings + tools */}
         <div className="flex flex-wrap items-center justify-center gap-3">
@@ -100,8 +100,7 @@ export default function App() {
         </div>
 
         {/* Card: Filtros */}
-        <Card>
-          <SectionTitle>Filtros</SectionTitle>
+        <Card className="shrink-0">
           <Selectors
             escuelas={escuelas} cursos={cursos} materias={materias}
             escuelaId={escuelaId} cursoId={cursoId} materiaId={materiaId}
@@ -144,54 +143,64 @@ export default function App() {
 
             {/* Alumnos tab */}
             {tab === "alumnos" && (
-              <Card padding={false} className="overflow-hidden">
-                <div className="p-4 space-y-1.5">
-                  <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
-                    <SectionTitle>Alumnos</SectionTitle>
-                    <div className="flex items-center gap-1.5">
-                      <button onClick={() => { setEditingAlumno(null); setFormOpen(true); }} className="btn btn-primary btn-sm">+ Agregar</button>
-                      <button onClick={async () => {
-                        if (alumnos.length === 0) return;
-                        const id = await prompt("Ingrese el ID del alumno a editar:");
-                        if (id) { const a = alumnos.find(x => x.id === parseInt(id)); if (a) { setEditingAlumno(a); setFormOpen(true); } else await alert("Alumno no encontrado"); }
-                      }} className="btn btn-secondary btn-sm" disabled={alumnos.length === 0}>Editar</button>
-                      <button onClick={async () => {
-                        const id = await prompt("Ingrese el ID del alumno a eliminar:");
-                        if (id) { await deleteAlumno(parseInt(id)); loadAlumnos(); }
-                      }} className="btn btn-danger btn-sm" disabled={alumnos.length === 0}>Eliminar</button>
-                      <DropdownActions label="Herramientas" actions={[
-                        { label: "Eliminar Todos", onClick: async () => { const ok = await confirm("¿Eliminar TODOS los alumnos?"); if (!ok) return; const r = await deleteAllAlumnos(Number(escuelaId), Number(cursoId), Number(materiaId)); await alert(`Se eliminaron ${r.deleted} alumno(s)`); loadAlumnos(); }, variant: "danger" },
-                        { label: "Importar Excel", onClick: () => setImportModal("excel") },
-                        { label: "Pegar Lista", onClick: () => setImportModal("paste") },
-                        { label: "Exportar Backup", onClick: exportBackup },
-                        { label: "Importar Backup", onClick: () => { const i = document.createElement("input"); i.type = "file"; i.accept = ".json"; i.onchange = async (e: any) => { const f = e.target.files?.[0]; if (f) { try { await importBackup(f); await alert("Datos restaurados"); loadAlumnos(); } catch { await alert("Error"); } } }; i.click(); } },
-                      ]} />
+              <div className="flex-1 min-h-0 flex flex-col">
+                <Card padding={false} className="flex-1 min-h-0 flex flex-col overflow-hidden">
+                  <div className="p-3 space-y-1 shrink-0">
+                    <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+                      <SectionTitle>Alumnos</SectionTitle>
+                      <div className="flex items-center gap-1.5">
+                        <button onClick={() => { setEditingAlumno(null); setFormOpen(true); }} className="btn btn-primary btn-sm">+ Agregar</button>
+                        <button onClick={async () => {
+                          if (alumnos.length === 0) return;
+                          const id = await prompt("Ingrese el ID del alumno a editar:");
+                          if (id) { const a = alumnos.find(x => x.id === parseInt(id)); if (a) { setEditingAlumno(a); setFormOpen(true); } else await alert("Alumno no encontrado"); }
+                        }} className="btn btn-secondary btn-sm" disabled={alumnos.length === 0}>Editar</button>
+                        <button onClick={async () => {
+                          const id = await prompt("Ingrese el ID del alumno a eliminar:");
+                          if (id) { await deleteAlumno(parseInt(id)); loadAlumnos(); }
+                        }} className="btn btn-danger btn-sm" disabled={alumnos.length === 0}>Eliminar</button>
+                        <DropdownActions label="Herramientas" actions={[
+                          { label: "Eliminar Todos", onClick: async () => { const ok = await confirm("¿Eliminar TODOS los alumnos?"); if (!ok) return; const r = await deleteAllAlumnos(Number(escuelaId), Number(cursoId), Number(materiaId)); await alert(`Se eliminaron ${r.deleted} alumno(s)`); loadAlumnos(); }, variant: "danger" },
+                          { label: "Importar Excel", onClick: () => setImportModal("excel") },
+                          { label: "Pegar Lista", onClick: () => setImportModal("paste") },
+                          { label: "Exportar Backup", onClick: exportBackup },
+                          { label: "Importar Backup", onClick: () => { const i = document.createElement("input"); i.type = "file"; i.accept = ".json"; i.onchange = async (e: any) => { const f = e.target.files?.[0]; if (f) { try { await importBackup(f); await alert("Datos restaurados"); loadAlumnos(); } catch { await alert("Error"); } } }; i.click(); } },
+                        ]} />
+                      </div>
                     </div>
+
+                    <StatsBar alumnos={alumnos} />
+
+                    <GoogleFormSync escuelaId={Number(escuelaId)} cursoId={Number(cursoId)} materiaId={Number(materiaId)} anioLectivo={anioLectivo} onSync={loadAlumnos} />
                   </div>
 
-                  <StatsBar alumnos={alumnos} />
-
-                  <GoogleFormSync escuelaId={Number(escuelaId)} cursoId={Number(cursoId)} materiaId={Number(materiaId)} anioLectivo={anioLectivo} onSync={loadAlumnos} />
-                </div>
-
-                <div className="border-t" style={{ borderColor: "var(--border-color)" }}>
-                  <StudentTable alumnos={alumnos} onRefresh={loadAlumnos} onEdit={a => { setEditingAlumno(a); setFormOpen(true); }} />
-                </div>
-              </Card>
+                  <div className="border-t flex-1 min-h-0 scrollable" style={{ borderColor: "var(--border-color)" }}>
+                    <StudentTable alumnos={alumnos} onRefresh={loadAlumnos} onEdit={a => { setEditingAlumno(a); setFormOpen(true); }} materiaId={Number(materiaId)} />
+                  </div>
+                </Card>
+              </div>
             )}
 
             {/* Asistencias tab */}
             {tab === "asistencias" && (
-              <Card>
-                <Asistencias alumnos={alumnos} materiaId={Number(materiaId)} dia={sm?.dia || ""} />
-              </Card>
+              <div className="flex-1 min-h-0 flex flex-col">
+                <Card className="flex-1 min-h-0 flex flex-col overflow-hidden">
+                  <div className="flex-1 min-h-0 scrollable">
+                    <Asistencias alumnos={alumnos} materiaId={Number(materiaId)} dia={sm?.dia || ""} />
+                  </div>
+                </Card>
+              </div>
             )}
 
             {/* Agenda tab */}
             {tab === "agenda" && (
-              <Card>
-                <Agenda materiaId={Number(materiaId)} />
-              </Card>
+              <div className="flex-1 min-h-0 flex flex-col">
+                <Card className="flex-1 min-h-0 flex flex-col overflow-hidden">
+                  <div className="flex-1 min-h-0 scrollable">
+                    <Agenda materiaId={Number(materiaId)} />
+                  </div>
+                </Card>
+              </div>
             )}
           </>);
         })()}

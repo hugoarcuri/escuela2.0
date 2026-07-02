@@ -30,6 +30,7 @@ const ESTADOS = [
   { key: "T", label: "T", title: "Tarde", color: "#f59e0b" },
   { key: "Lic", label: "Lic", title: "Licencia (docente ausente)", color: "var(--accent)" },
   { key: "F", label: "F", title: "Feriado (no hubo clase)", color: "#888" },
+  { key: "Paro", label: "Paro", title: "Paro (no hubo clase)", color: "#e91e63" },
 ];
 
 const MESES = ["Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
@@ -141,6 +142,20 @@ export default function Asistencias({ alumnos, materiaId, dia }: Props) {
     });
   }
 
+  async function limpiarDia(fecha: string) {
+    try {
+      const { error } = await supabase.from("asistencias").delete()
+        .eq("materiaId", materiaId).eq("fecha", fecha);
+      if (error) throw error;
+      setAsistencias(prev => {
+        const next = { ...prev };
+        for (const a of alumnos) delete next[`${a.id}:${fecha}`];
+        return next;
+      });
+      showToast("✓ Día limpiado");
+    } catch { showToast("✗ Error al limpiar"); }
+  }
+
   async function autoSave(fecha: string, alumnoId: number, estado: string) {
     try {
       const { error } = await supabase.from("asistencias").upsert(
@@ -208,7 +223,7 @@ export default function Asistencias({ alumnos, materiaId, dia }: Props) {
         )}
       </div>
 
-      <div className="overflow-x-auto overflow-y-auto rounded-xl border" style={{ borderColor: "var(--border-color)", maxHeight: "calc(100vh - 320px)" }}>
+      <div className="rounded-xl border" style={{ borderColor: "var(--border-color)" }}>
         <table className="w-full text-sm">
           <thead>
             <tr>
@@ -216,7 +231,31 @@ export default function Asistencias({ alumnos, materiaId, dia }: Props) {
                   style={{ ...thStyle, minWidth: 180 }}>Alumno</th>
               {vista === "dia" && (
                 <th className="px-2 py-2 text-center font-medium uppercase tracking-wider border-b sticky top-0 z-10"
-                  style={{ ...thStyle, minWidth: 90 }}>Asistencia</th>
+                  style={{ ...thStyle, minWidth: 90 }}>
+                  <div className="flex flex-col items-center gap-1">
+                    <span>Asistencia</span>
+                    <div className="flex justify-center gap-0.5">
+                      <button onClick={() => marcarTodos(diaActual, "P")}
+                        className="text-[10px] px-1 py-0.5 rounded hover:opacity-80"
+                        style={{ color: "var(--success)" }}>P</button>
+                      <button onClick={() => marcarTodos(diaActual, "A")}
+                        className="text-[10px] px-1 py-0.5 rounded hover:opacity-80"
+                        style={{ color: "var(--danger)" }}>A</button>
+                      <button onClick={() => marcarTodos(diaActual, "Lic")}
+                        className="text-[10px] px-1 py-0.5 rounded hover:opacity-80"
+                        style={{ color: "var(--accent)" }}>Lic</button>
+                      <button onClick={() => marcarTodos(diaActual, "F")}
+                        className="text-[10px] px-1 py-0.5 rounded hover:opacity-80"
+                        style={{ color: "#888" }}>F</button>
+                      <button onClick={() => marcarTodos(diaActual, "Paro")}
+                        className="text-[10px] px-1 py-0.5 rounded hover:opacity-80"
+                        style={{ color: "#e91e63" }}>Paro</button>
+                      <button onClick={() => limpiarDia(diaActual)}
+                        className="text-[10px] px-1 py-0.5 rounded hover:opacity-80"
+                        style={{ color: "var(--text-secondary)" }} title="Limpiar asistencias del día">✕</button>
+                    </div>
+                  </div>
+                </th>
               )}
               {vista === "mes" && fechas.map(fecha => {
                 const feriado = feriadosMap.get(fecha);
@@ -241,6 +280,12 @@ export default function Asistencias({ alumnos, materiaId, dia }: Props) {
                       <button onClick={() => marcarTodos(fecha, "F")}
                         className="text-[10px] px-1 py-0.5 rounded hover:opacity-80"
                         style={{ color: "#888" }}>F</button>
+                      <button onClick={() => marcarTodos(fecha, "Paro")}
+                        className="text-[10px] px-1 py-0.5 rounded hover:opacity-80"
+                        style={{ color: "#e91e63" }}>Paro</button>
+                      <button onClick={() => limpiarDia(fecha)}
+                        className="text-[10px] px-1 py-0.5 rounded hover:opacity-80"
+                        style={{ color: "var(--text-secondary)" }} title="Limpiar asistencias del día">✕</button>
                     </div>
                   )}
                 </th>
@@ -290,7 +335,7 @@ export default function Asistencias({ alumnos, materiaId, dia }: Props) {
                     const esFeriado = feriadosMap.has(fecha);
                     const estado = asistencias[`${a.id}:${fecha}`] || "-";
                     const est = ESTADOS.find(e => e.key === estado)!;
-                    if (!esFeriado) { total++; if (estado === "P" || estado === "Lic" || estado === "F") presente++; }
+                    if (!esFeriado) { total++; if (estado === "P" || estado === "Lic" || estado === "F" || estado === "Paro") presente++; }
                     return (
                       <td key={fecha} className="px-1 py-1.5 text-center border-b" style={{
                         borderColor: "var(--border-color)",
@@ -342,16 +387,17 @@ export default function Asistencias({ alumnos, materiaId, dia }: Props) {
                   if (feriadosMap.has(fecha)) {
                     return <td key={fecha} className="px-1 py-1.5 border-t text-center" style={{ borderColor: "var(--border-color)", backgroundColor: "#444" }}></td>;
                   }
-                  const c = { P: 0, A: 0, T: 0, Lic: 0, F: 0 };
+                  const c: Record<string, number> = { P: 0, A: 0, T: 0, Lic: 0, F: 0, Paro: 0 };
                   for (const a of alumnos) {
                     const estado = asistencias[`${a.id}:${fecha}`] || "-";
-                    if (estado !== "-") c[estado as keyof typeof c]++;
+                    if (estado !== "-") c[estado] = (c[estado] || 0) + 1;
                   }
                   return (
                     <td key={fecha} className="px-1 py-1.5 border-t text-center" style={{ borderColor: "var(--border-color)" }}>
                       <span className="text-xs font-semibold" style={{ color: "var(--success)" }}>{c.P}</span>
                       {c.A > 0 && <span className="text-xs ml-0.5" style={{ color: "var(--danger)" }}>/{c.A}</span>}
                       {c.T > 0 && <span className="text-[10px] ml-0.5" style={{ color: "#f59e0b" }}>T{c.T}</span>}
+                      {c.Paro > 0 && <span className="text-[10px] ml-0.5" style={{ color: "#e91e63" }}>P{c.Paro}</span>}
                     </td>
                   );
                 })}
@@ -364,7 +410,7 @@ export default function Asistencias({ alumnos, materiaId, dia }: Props) {
       <div className="px-3 py-1.5 text-xs" style={{ color: "var(--text-secondary)", backgroundColor: "var(--bg-card)", borderLeft: "1px solid var(--border-color)", borderRight: "1px solid var(--border-color)", borderBottom: "1px solid var(--border-color)" }}>
         {alumnos.length} alumno{alumnos.length !== 1 ? "s" : ""}
         {vista === "mes" && ` · ${totalClasesMes} clase${totalClasesMes !== 1 ? "s" : ""} en el mes`}
-        {vista === "dia" ? " · Clic en círculo: - → P → A → T" : " · Clic para cambiar: - → P → A → T"}
+        {vista === "dia" ? " · Clic en círculo: - → P → A → T" : " · Clic para cambiar: - → P → A → T"} · Lic/F/Paro desde encabezados
       </div>
     </div>
   );
