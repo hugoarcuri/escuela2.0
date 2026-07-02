@@ -298,7 +298,7 @@ export default function StudentTable({ alumnos, onRefresh, onEdit, materiaId }: 
                       </span>
                     ) : a.situacionFinal === "Desaprobado" ? (
                       <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-semibold"
-                        style={{ backgroundColor: "rgba(239,68,68,0.12)", color: "var(--danger)" }}>
+                        style={{ backgroundColor: "rgba(34,197,94,0.12)", color: "var(--success)" }}>
                         <span>✗</span> Desaprobado
                       </span>
                     ) : null}

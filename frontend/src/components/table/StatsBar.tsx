@@ -17,8 +17,8 @@ export default function StatsBar({ alumnos }: Props) {
 
   const items = [
     { label: "Alumnos", value: total, icon: "👥", color: undefined },
-    { label: "Aprobados", value: aprobados, icon: "🟢", color: "var(--success)" },
-    { label: "Desaprobados", value: desaprobados, icon: "🔴", color: "var(--danger)" },
+    { label: "Aprobados", value: aprobados, icon: "🔵", color: "#3b82f6" },
+    { label: "Desaprobados", value: desaprobados, icon: "🟢", color: "var(--success)" },
     { label: "Promedio", value: prom ?? "—", icon: "📈", color: undefined },
     { label: "TEA", value: tea, icon: "🔵", color: "#3b82f6" },
     { label: "TEP", value: tep, icon: "🟠", color: "#f59e0b" },
