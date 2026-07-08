@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { getSettings, saveSettings, deleteAlumno, deleteAllAlumnos, exportBackup, importBackup, importExcel, importList, setNotaFinalMode as setApiNotaMode } from "./api";
 import { useTheme } from "./hooks/useTheme";
+import { useSchoolTheme, getSchoolInfo } from "./hooks/useSchoolTheme";
 import { useSelection } from "./hooks/useSelection";
 import Header from "./components/Header";
 import Selectors from "./components/Selectors";
@@ -27,6 +28,7 @@ export default function App() {
     escuelaId, setEscuelaId, cursoId, setCursoId, materiaId, setMateriaId,
     search, setSearch, anioLectivo, setAnioLectivo,
   } = sel;
+  useSchoolTheme(escuelas, escuelaId, theme);
 
   const [formOpen, setFormOpen] = useState(false);
   const [editingAlumno, setEditingAlumno] = useState<typeof alumnos[0] | null>(null);
@@ -77,10 +79,11 @@ export default function App() {
   }
 
   const sm = typeof materiaId === "number" ? materias.find(m => m.id === materiaId) : undefined;
+  const schoolInfo = getSchoolInfo(escuelas, escuelaId);
 
   return (
     <div className="h-screen flex flex-col" style={{ backgroundColor: "var(--bg-secondary)" }}>
-      <Header theme={theme} onToggleTheme={toggleTheme} />
+      <Header theme={theme} onToggleTheme={toggleTheme} schoolInfo={schoolInfo} />
       <main className="flex-1 min-h-0 max-w-7xl mx-auto w-full px-4 py-4 space-y-3 flex flex-col overflow-hidden">
 
         {/* Top bar: year + settings + tools */}

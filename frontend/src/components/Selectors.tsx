@@ -43,13 +43,10 @@ export default function Selectors({
 
   const selectedEscuela = escuelas.find(e => e.id === escuelaId);
 
-  const BLUE = { bg: "rgba(59,130,246,.12)", border: "rgba(59,130,246,.30)", text: "#93c5fd", name: "matanza" };
-  const RED = { bg: "rgba(239,68,68,.12)", border: "rgba(239,68,68,.30)", text: "#fca5a5", name: "moron" };
-
-  function escuelaBadge(nombre: string): { bg: string; border: string; text: string; name: string } | undefined {
+  function escuelaBadge(nombre: string): { name: string } | undefined {
     const n = nombre.toLowerCase();
-    if (n.includes("matanza")) return BLUE;
-    if (n.includes("morón") || n.includes("moron")) return RED;
+    if (n.includes("matanza")) return { name: "matanza" };
+    if (n.includes("morón") || n.includes("moron")) return { name: "moron" };
     return undefined;
   }
 
@@ -65,15 +62,15 @@ export default function Selectors({
               {selectedEscuela ? (
                 <div className="flex items-center gap-2" style={(() => {
                   const b = escuelaBadge(selectedEscuela.nombre);
-                  return b ? { backgroundColor: b.bg, border: `1px solid ${b.border}`, borderRadius: "var(--radius-sm)", padding: "2px 10px 2px 8px" } : {};
+                  return b ? { backgroundColor: "color-mix(in srgb, var(--accent) 15%, transparent)", border: "1px solid color-mix(in srgb, var(--accent) 30%, transparent)", borderRadius: "var(--radius-sm)", padding: "2px 10px 2px 8px" } : {};
                 })()}>
                   {(() => {
                     const b = escuelaBadge(selectedEscuela.nombre);
-                    return b ? <span className="inline-block w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: b.text }} /> : null;
+                    return b ? <span className="inline-block w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: "var(--accent)" }} /> : null;
                   })()}
                   <div className="flex flex-col leading-tight">
                     <span className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>{selectedEscuela.nombre}</span>
-                    {selectedEscuela.distrito && <span className="text-[10px]" style={{ color: escuelaBadge(selectedEscuela.nombre)?.text ?? "var(--text-secondary)" }}>{selectedEscuela.distrito}</span>}
+                    {selectedEscuela.distrito && <span className="text-[10px]" style={{ color: "var(--accent)" }}>{selectedEscuela.distrito}</span>}
                   </div>
                 </div>
               ) : <span className="opacity-60">Seleccionar escuela</span>}
@@ -91,24 +88,24 @@ export default function Selectors({
                   return (
                     <div key={e.id} className="flex items-center group px-3 py-2 transition-colors"
                       style={{
-                        backgroundColor: b ? (b.bg) : isSelected ? "var(--hover-bg)" : "transparent",
-                        borderBottom: b ? `1px solid ${b.border}` : undefined,
+                        backgroundColor: b ? "color-mix(in srgb, var(--accent) 10%, transparent)" : isSelected ? "var(--hover-bg)" : "transparent",
+                        borderBottom: b ? "1px solid color-mix(in srgb, var(--accent) 25%, transparent)" : undefined,
                       }}
-                      onMouseEnter={e => { if (b) e.currentTarget.style.backgroundColor = b.name === "matanza" ? "rgba(59,130,246,.20)" : "rgba(239,68,68,.20)"; }}
-                      onMouseLeave={e => { if (b) e.currentTarget.style.backgroundColor = b.bg; }}>
+                      onMouseEnter={ev => { if (b) ev.currentTarget.style.backgroundColor = "color-mix(in srgb, var(--accent) 18%, transparent)"; }}
+                      onMouseLeave={ev => { if (b) ev.currentTarget.style.backgroundColor = "color-mix(in srgb, var(--accent) 10%, transparent)"; }}>
                       <button onClick={() => { onEscuelaChange(e.id); setEscuelaOpen(false); }}
                         className="flex-1 text-left transition-colors">
                         <div className="flex items-center gap-2">
-                          {b ? <span className="inline-block w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: b.text }} /> : null}
+                          {b ? <span className="inline-block w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: "var(--accent)" }} /> : null}
                           <div className="flex flex-col leading-tight">
                             <span className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>{e.nombre}</span>
-                            {e.distrito && <span className="text-[10px]" style={{ color: b?.text ?? "var(--text-secondary)" }}>{e.distrito}</span>}
+                            {e.distrito && <span className="text-[10px]" style={{ color: b ? "var(--accent)" : "var(--text-secondary)" }}>{e.distrito}</span>}
                           </div>
                         </div>
                       </button>
                       <button onClick={(ev) => { ev.stopPropagation(); onEditEscuela(e.id); setEscuelaOpen(false); }}
                         className="p-1.5 rounded opacity-0 group-hover:opacity-100 hover:bg-[var(--hover-bg)] transition-all shrink-0"
-                        title="Editar escuela" style={{ color: b?.text ?? "var(--accent)" }}>
+                        title="Editar escuela" style={{ color: "var(--accent)" }}>
                         <Pencil size={13} />
                       </button>
                     </div>
