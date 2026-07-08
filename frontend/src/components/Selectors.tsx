@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import type { Escuela, Curso, Materia } from "../types";
+import { findSchoolTheme } from "../data/schoolThemes";
 import { Search, Gear, Pencil } from "./Icons";
 
 interface Props {
@@ -44,10 +45,8 @@ export default function Selectors({
   const selectedEscuela = escuelas.find(e => e.id === escuelaId);
 
   function escuelaBadge(nombre: string): { name: string } | undefined {
-    const n = nombre.toLowerCase();
-    if (n.includes("matanza")) return { name: "matanza" };
-    if (n.includes("morón") || n.includes("moron")) return { name: "moron" };
-    return undefined;
+    const theme = findSchoolTheme(nombre);
+    return theme ? { name: theme.id } : undefined;
   }
 
   return (

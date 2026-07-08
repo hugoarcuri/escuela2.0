@@ -16,7 +16,7 @@ export const SCHOOL_THEMES: SchoolTheme[] = [
   {
     id: "tecnica6-matanza",
     name: "E.E.T. N°6 – La Matanza",
-    keywords: ["matanza", "isidro casanova"],
+    keywords: ["matanza", "isidro casanova", "casanova"],
     logoUrl: "https://scontent.feze9-1.fna.fbcdn.net/v/t39.30808-6/552883378_1143518107843689_9011275040391533533_n.jpg?stp=dst-jpg_tt6&cstp=mx512x512&ctp=s512x512&_nc_cat=103&ccb=1-7&_nc_sid=6ee11a&_nc_eui2=AeH_X5ZQIx01_lM_iXsEjaLW0WmQYn9_Mp7RaZBif38ynuOXg38S9L6gE1ZwPQSn3kNcCNuHvOO8Q12jsaGzIl33&_nc_ohc=CUam7WdV62gQ7kNvwH3SPJ7&_nc_oc=AdqcWNmQ2eHoyV9zK2IqbOJr5OTTJ5VqE_UCBIeOrzfMLMZqWByH0WaqFvRWoD4vMQI&_nc_zt=23&_nc_ht=scontent.feze9-1.fna&_nc_gid=m3UQMbNAJN_0ZFhnP2JiHQ&_nc_ss=7b2a8&oh=00_AQAHboTJ4BRuYfRbKxcnEwx8t-KRYAW8vHLo1sh_6XArXA&oe=6A546CD0",
     colors: {
       light: {
