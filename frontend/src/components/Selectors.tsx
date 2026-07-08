@@ -142,7 +142,10 @@ export default function Selectors({
       <div className="flex-1 min-w-[180px]">
         <label className="block text-xs font-medium mb-1" style={{ color: "var(--text-secondary)" }}>Materia</label>
         <div className="flex gap-1">
-          <select value={materiaId} onChange={e => onMateriaChange(e.target.value ? Number(e.target.value) : "")}
+          <select value={materiaId} onChange={e => {
+            if (e.target.value === "__add__") { onAdminMateria(); return; }
+            onMateriaChange(e.target.value ? Number(e.target.value) : "");
+          }}
             disabled={!cursoId}
             className="flex-1 rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)] disabled:opacity-50"
             style={s}>
@@ -150,6 +153,7 @@ export default function Selectors({
             {materias.map(m => <option key={m.id} value={m.id}>
               {m.nombre}{m.dia ? ` — ${m.dia}` : ""}{m.turno ? ` (${m.turno})` : ""}
             </option>)}
+            <option value="__add__" className="font-semibold" style={{ color: "var(--accent)" }}>+ Agregar nueva materia</option>
           </select>
           <button onClick={onAdminMateria} className="p-2 rounded-lg border hover:bg-[var(--hover-bg)] transition-colors" title="Administrar materias" style={s}>
             <Gear />
