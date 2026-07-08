@@ -42,7 +42,7 @@ export const SCHOOL_THEMES: SchoolTheme[] = [
   {
     id: "tecnica6-moron",
     name: "E.E.S.T. N°6 Chacabuco – Morón",
-    keywords: ["chacabuco"],
+    keywords: ["chacabuco", "morón", "moron"],
     logoUrl: "https://www.tecnica6moron.edu.ar/SitioAnterior/img/Logo%20chaca.png",
     colors: {
       light: {
