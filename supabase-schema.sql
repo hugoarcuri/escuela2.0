@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS cursos (
   nombre TEXT NOT NULL,
   anio INTEGER NOT NULL,
   division TEXT NOT NULL,
+  grupo TEXT DEFAULT '',
   turno TEXT NOT NULL,
   "escuelaId" INTEGER NOT NULL REFERENCES escuelas(id) ON DELETE CASCADE,
   "createdAt" TIMESTAMPTZ DEFAULT NOW(),

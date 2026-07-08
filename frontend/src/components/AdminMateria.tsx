@@ -82,14 +82,8 @@ export default function AdminMateria({ onClose, onChanged, initialEscuelaId, ini
               <option value={0}>Curso</option>
               {cursos.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
             </select>
-            <select value={form.nombre} onChange={e => setForm(f => ({ ...f, nombre: e.target.value }))}
-              className="rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]" style={s}>
-              <option value="">Materia</option>
-              <option value="SISTEMAS">SISTEMAS</option>
-              <option value="PROGRAMACIÓN">PROGRAMACIÓN</option>
-              <option value="HARDWARE">HARDWARE</option>
-              <option value="APLICACIONES">APLICACIONES</option>
-            </select>
+            <input type="text" placeholder="Materia" value={form.nombre} onChange={e => setForm(f => ({ ...f, nombre: e.target.value }))}
+              className="rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]" style={s} />
             <select value={form.dia} onChange={e => setForm(f => ({ ...f, dia: e.target.value }))}
               className="rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]" style={s}>
               <option value="">Día</option>

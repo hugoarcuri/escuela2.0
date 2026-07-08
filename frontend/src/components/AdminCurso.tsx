@@ -10,7 +10,7 @@ const s: React.CSSProperties = { backgroundColor: "var(--bg-card)", color: "var(
 export default function AdminCurso({ onClose, onChanged }: Props) {
   const [list, setList] = useState<Curso[]>([]);
   const [escuelas, setEscuelas] = useState<Escuela[]>([]);
-  const [form, setForm] = useState<CursoFormData>({ anio: "", division: "", turno: "", escuelaId: 0 });
+  const [form, setForm] = useState<CursoFormData>({ anio: "", division: "", grupo: "", turno: "", escuelaId: 0 });
   const [editing, setEditing] = useState<Curso | null>(null);
   const { confirm, modal: confirmModal } = useConfirm();
   const { alert, modal: alertModal } = useAlert();
@@ -20,9 +20,9 @@ export default function AdminCurso({ onClose, onChanged }: Props) {
   useEffect(() => { load(); }, [load]);
   useEffect(() => { loadCursos(); }, [loadCursos]);
 
-  function resetForm() { setForm({ anio: "", division: "", turno: "", escuelaId: escuelas[0]?.id || 0 }); setEditing(null); }
+  function resetForm() { setForm({ anio: "", division: "", grupo: "", turno: "", escuelaId: escuelas[0]?.id || 0 }); setEditing(null); }
 
-  function editItem(c: Curso) { setEditing(c); setForm({ anio: String(c.anio), division: c.division, turno: c.turno || "", escuelaId: c.escuelaId }); }
+  function editItem(c: Curso) { setEditing(c); setForm({ anio: String(c.anio), division: c.division, grupo: c.grupo || "", turno: c.turno || "", escuelaId: c.escuelaId }); }
 
   async function handleSave() {
     if (!form.anio || !form.division || !form.escuelaId) { await alert("Completá año, división y escuela"); return; }
@@ -56,6 +56,8 @@ export default function AdminCurso({ onClose, onChanged }: Props) {
               className="w-20 rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]" style={s} />
             <input type="text" placeholder="División" value={form.division} onChange={e => setForm(f => ({ ...f, division: e.target.value }))}
               className="w-24 rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]" style={s} />
+            <input type="text" placeholder="Grupo" value={form.grupo} onChange={e => setForm(f => ({ ...f, grupo: e.target.value }))}
+              className="w-24 rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]" style={s} />
             <input type="text" placeholder="Turno" value={form.turno} onChange={e => setForm(f => ({ ...f, turno: e.target.value }))}
               className="w-28 rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]" style={s} />
             <button onClick={handleSave} className="btn-primary text-sm px-3 py-2">{editing ? "Actualizar" : "Agregar"}</button>
@@ -64,7 +66,7 @@ export default function AdminCurso({ onClose, onChanged }: Props) {
           <div className="space-y-1 max-h-60 overflow-y-auto">
             {list.map(c => (
               <div key={c.id} className="flex items-center justify-between p-2 rounded-lg hover:bg-[var(--hover-bg)]">
-                <div className="text-sm font-medium">{c.nombre} {c.turno ? `(${c.turno})` : ""}</div>
+                <div className="text-sm font-medium">{c.nombre} {c.grupo ? `- ${c.grupo}` : ""} {c.turno ? `(${c.turno})` : ""}</div>
                 <div className="flex gap-1">
                   <button onClick={() => editItem(c)} className="text-xs px-2 py-1 rounded hover:bg-[var(--hover-bg)]" style={{ color: "var(--accent)" }}>Editar</button>
                   <button onClick={() => handleDelete(c.id)} className="text-xs px-2 py-1 rounded hover:bg-[var(--hover-bg)]" style={{ color: "var(--danger)" }}>Eliminar</button>
