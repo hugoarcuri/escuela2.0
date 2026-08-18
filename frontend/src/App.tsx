@@ -10,6 +10,7 @@ import StudentForm from "./components/StudentForm";
 import GoogleFormSync from "./components/GoogleFormSync";
 import Asistencias from "./components/Asistencias";
 import Agenda from "./components/Agenda";
+import TrabajosEvaluaciones from "./components/TrabajosEvaluaciones";
 import AdminEscuela from "./components/AdminEscuela";
 import AdminCurso from "./components/AdminCurso";
 import AdminMateria from "./components/AdminMateria";
@@ -38,7 +39,7 @@ export default function App() {
   const [adminMateriaOpen, setAdminMateriaOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [notaFinalMode, setNotaFinalMode] = useState("auto");
-  const [tab, setTab] = useState<"alumnos" | "asistencias" | "agenda">("alumnos");
+  const [tab, setTab] = useState<"alumnos" | "asistencias" | "agenda" | "trabajos">("alumnos");
   const [importModal, setImportModal] = useState<"excel" | "paste" | null>(null);
   const [importFile, setImportFile] = useState<File | null>(null);
   const [importListText, setImportListText] = useState("");
@@ -130,7 +131,7 @@ export default function App() {
 
             {/* Tabs */}
             <div className="flex gap-1 border-b" style={{ borderColor: "var(--border-color)" }}>
-              {(["alumnos", "asistencias", "agenda"] as const).map(t => (
+              {(["alumnos", "asistencias", "agenda", "trabajos"] as const).map(t => (
                 <button key={t} onClick={() => setTab(t)}
                   className="px-4 py-2 text-sm font-medium rounded-t-lg border border-b-0 -mb-px transition-colors"
                   style={{
@@ -138,9 +139,9 @@ export default function App() {
                     color: tab === t ? "var(--text-primary)" : "var(--text-secondary)",
                     borderColor: "var(--border-color)",
                     borderTop: tab === t
-                      ? `3px solid ${t === "alumnos" ? "var(--accent)" : t === "asistencias" ? "#f59e0b" : "#8b5cf6"}`
+                      ? `3px solid ${t === "alumnos" ? "var(--accent)" : t === "asistencias" ? "#f59e0b" : t === "agenda" ? "#8b5cf6" : "#e91e63"}`
                       : "3px solid transparent",
-                  }}>{t === "alumnos" ? "Alumnos" : t === "asistencias" ? "Asistencias" : "Agenda"}</button>
+                  }}>{t === "alumnos" ? "Alumnos" : t === "asistencias" ? "Asistencias" : t === "agenda" ? "Agenda" : "Trabajos"}</button>
               ))}
             </div>
 
@@ -198,6 +199,17 @@ export default function App() {
               <div className="flex flex-col">
                 <Card>
                   <Agenda materiaId={Number(materiaId)} />
+                </Card>
+              </div>
+            )}
+
+            {/* Trabajos tab */}
+            {tab === "trabajos" && (
+              <div className="flex flex-col">
+                <Card padding={false}>
+                  <div className="p-3">
+                    <TrabajosEvaluaciones alumnos={alumnos} materiaId={Number(materiaId)} onRefresh={loadAlumnos} />
+                  </div>
                 </Card>
               </div>
             )}

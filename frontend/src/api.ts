@@ -178,13 +178,15 @@ export async function getFormLink(token: string): Promise<FormLink | null> {
   if (error) return null;
   return data;
 }
-export async function submitForm(token: string, apellido: string, nombre: string): Promise<{ duplicado: boolean; message: string }> {
+export async function submitForm(token: string, apellido: string, nombre: string, pc?: string): Promise<{ duplicado: boolean; message: string }> {
   const link = await getFormLink(token);
   if (!link) throw new Error("Formulario no encontrado");
   const fullName = `${apellido.toUpperCase().trim()}, ${nombre.toUpperCase().trim()}`;
   const { data: exists } = await supabase.from("alumnos").select("id").eq("apellidoNombre", fullName).eq("escuelaId", link.escuelaId).eq("cursoId", link.cursoId).eq("materiaId", link.materiaId).eq("anioLectivo", link.anioLectivo).maybeSingle();
   if (exists) return { duplicado: true, message: "Ya estás registrado" };
-  const { error } = await supabase.from("alumnos").insert({ apellidoNombre: fullName, escuelaId: link.escuelaId, cursoId: link.cursoId, materiaId: link.materiaId, anioLectivo: link.anioLectivo });
+  const insertData: any = { apellidoNombre: fullName, escuelaId: link.escuelaId, cursoId: link.cursoId, materiaId: link.materiaId, anioLectivo: link.anioLectivo };
+  if (pc && pc.trim()) insertData.pc = pc.trim().toUpperCase();
+  const { error } = await supabase.from("alumnos").insert(insertData);
   if (error) throw error;
   return { duplicado: false, message: "Alumno agregado correctamente" };
 }

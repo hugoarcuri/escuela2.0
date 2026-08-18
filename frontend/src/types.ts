@@ -14,6 +14,7 @@ export interface AlumnoDB {
   notaFinalManual: number | null;
   observaciones: string;
   recursante: boolean;
+  pc: string | null;
   anioLectivo: number; escuelaId: number; cursoId: number; materiaId: number;
 }
 export interface Alumno extends AlumnoDB {
@@ -82,6 +83,43 @@ export function mapAlumno(a: AlumnoDB, modoManual: boolean): Alumno {
     notaAsistencia1: null,
     notaAsistencia2: null,
   };
+}
+
+export type CalificacionCualitativa = "M" | "R" | "B" | "MB";
+
+export interface TrabajoColumn {
+  key: string;
+  notaKey: keyof Pick<AlumnoDB, "nota1" | "nota2" | "nota3" | "nota4" | "nota5" | "nota6">;
+  label: string;
+  semester: 1 | 2;
+}
+
+export const TRABAJOS_COLUMNS: TrabajoColumn[] = [
+  { key: "T1", notaKey: "nota1", label: "T1", semester: 1 },
+  { key: "T2", notaKey: "nota2", label: "T2", semester: 1 },
+  { key: "E1", notaKey: "nota3", label: "E1", semester: 1 },
+  { key: "T4", notaKey: "nota4", label: "T4", semester: 2 },
+  { key: "T5", notaKey: "nota5", label: "T5", semester: 2 },
+  { key: "E2", notaKey: "nota6", label: "E2", semester: 2 },
+];
+
+export const CALIFICACION_MAP: Record<CalificacionCualitativa, number> = { M: 2, R: 5, B: 8, MB: 10 };
+export const CALIFICACION_CYCLE: (CalificacionCualitativa | null)[] = [null, "M", "R", "B", "MB"];
+
+export function cualitativaToNumerica(c: CalificacionCualitativa): number {
+  return CALIFICACION_MAP[c];
+}
+export function numericaToCualitativa(n: number | null): CalificacionCualitativa | null {
+  if (n === null) return null;
+  if (n < 4) return "M";
+  if (n < 7) return "R";
+  if (n < 9) return "B";
+  return "MB";
+}
+
+export function calcTrabajoAverage(columns: TrabajoColumn[], getVal: (k: string) => number | null): number | null {
+  const vals = columns.map(c => getVal(c.key)).filter((v): v is number => v !== null);
+  return vals.length > 0 ? Math.round((vals.reduce((s, v) => s + v, 0) / vals.length) * 100) / 100 : null;
 }
 
 export interface AgendaItem {
