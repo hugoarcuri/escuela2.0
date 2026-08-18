@@ -156,7 +156,7 @@ export default function StudentTable({ alumnos, onRefresh, onEdit, materiaId }: 
   const csLast: React.CSSProperties = { borderBottom: "1px solid var(--border-color)", color: "var(--text-primary)", padding: "6px 4px", fontSize: "0.75rem" };
 
   return (
-    <div className="flex flex-col" style={{ height: "100%" }}>
+    <div className="flex flex-col">
       {savedMsg && (
         <div className="fixed top-4 right-4 z-50 px-4 py-2 rounded-lg text-sm font-medium shadow-lg"
           style={{ backgroundColor: savedMsg.includes("✓") ? "var(--success)" : "var(--danger)", color: "#fff" }}>
@@ -185,7 +185,7 @@ export default function StudentTable({ alumnos, onRefresh, onEdit, materiaId }: 
       </div>
 
       {/* Table wrapper for scroll */}
-      <div className="flex-1 overflow-auto" style={{ minHeight: 0 }}>
+      <div style={{ minHeight: 0 }}>
         <table className="w-full" style={{ borderCollapse: "separate", borderSpacing: 0, fontSize: "0.75rem" }}>
           <TableHeader allSelected={selected.size === sorted.length} onToggleAll={toggleAll} hasRows={sorted.length > 0} materiaId={materiaId} />
           <tbody>

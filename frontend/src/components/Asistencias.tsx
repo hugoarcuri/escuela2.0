@@ -287,7 +287,7 @@ export default function Asistencias({ alumnos, materiaId, dia }: Props) {
   }
 
   return (
-    <div className="flex flex-col" style={{ height: "100%" }}>
+    <div className="flex flex-col">
       {toast && (
         <div className="fixed top-4 right-4 z-50 px-4 py-2 rounded-lg text-sm font-medium shadow-lg"
           style={{ backgroundColor: toast.includes("✗") ? "var(--danger)" : "var(--success)", color: "#fff" }}>
@@ -359,7 +359,7 @@ export default function Asistencias({ alumnos, materiaId, dia }: Props) {
         </div>
       )}
 
-      <div style={{ flex: 1, minHeight: 0, overflow: "auto", borderRadius: 8, border: "1px solid var(--border-color)" }}>
+      <div style={{ borderRadius: 8, border: "1px solid var(--border-color)" }}>
         <table className="w-full text-sm" style={{ borderCollapse: "collapse" }}>
           <thead>
             <tr>

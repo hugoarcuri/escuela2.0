@@ -82,9 +82,9 @@ export default function App() {
   const schoolInfo = getSchoolInfo(escuelas, escuelaId);
 
   return (
-    <div className="h-screen flex flex-col" style={{ backgroundColor: "var(--bg-secondary)" }}>
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: "var(--bg-secondary)" }}>
       <Header theme={theme} onToggleTheme={toggleTheme} schoolInfo={schoolInfo} />
-      <main className="flex-1 min-h-0 max-w-7xl mx-auto w-full px-4 py-4 space-y-3 flex flex-col overflow-hidden">
+      <main className="max-w-7xl mx-auto w-full px-4 py-4 space-y-3 flex flex-col">
 
         {/* Top bar: year + settings + tools */}
         <div className="flex flex-wrap items-center justify-center gap-3">
@@ -146,8 +146,8 @@ export default function App() {
 
             {/* Alumnos tab */}
             {tab === "alumnos" && (
-              <div className="flex-1 min-h-0 flex flex-col">
-                <Card padding={false} className="flex-1 min-h-0 flex flex-col overflow-hidden">
+              <div className="flex flex-col">
+                <Card padding={false}>
                   <div className="p-3 space-y-1 shrink-0">
                     <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
                       <SectionTitle>Alumnos</SectionTitle>
@@ -177,7 +177,7 @@ export default function App() {
                     <GoogleFormSync escuelaId={Number(escuelaId)} cursoId={Number(cursoId)} materiaId={Number(materiaId)} anioLectivo={anioLectivo} onSync={loadAlumnos} />
                   </div>
 
-                  <div className="border-t flex-1 min-h-0 scrollable" style={{ borderColor: "var(--border-color)" }}>
+                  <div className="border-t" style={{ borderColor: "var(--border-color)" }}>
                     <StudentTable alumnos={alumnos} onRefresh={loadAlumnos} onEdit={a => { setEditingAlumno(a); setFormOpen(true); }} materiaId={Number(materiaId)} />
                   </div>
                 </Card>
@@ -186,22 +186,18 @@ export default function App() {
 
             {/* Asistencias tab */}
             {tab === "asistencias" && (
-              <div className="flex-1 min-h-0 flex flex-col">
-                <Card className="flex-1 min-h-0 flex flex-col overflow-hidden">
-                  <div className="flex-1 min-h-0 scrollable">
-                    <Asistencias alumnos={alumnos} materiaId={Number(materiaId)} dia={sm?.dia || ""} />
-                  </div>
+              <div className="flex flex-col">
+                <Card>
+                  <Asistencias alumnos={alumnos} materiaId={Number(materiaId)} dia={sm?.dia || ""} />
                 </Card>
               </div>
             )}
 
             {/* Agenda tab */}
             {tab === "agenda" && (
-              <div className="flex-1 min-h-0 flex flex-col">
-                <Card className="flex-1 min-h-0 flex flex-col overflow-hidden">
-                  <div className="flex-1 min-h-0 scrollable">
-                    <Agenda materiaId={Number(materiaId)} />
-                  </div>
+              <div className="flex flex-col">
+                <Card>
+                  <Agenda materiaId={Number(materiaId)} />
                 </Card>
               </div>
             )}
