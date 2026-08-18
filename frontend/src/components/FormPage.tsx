@@ -58,7 +58,7 @@ export default function FormPage() {
               placeholder="Juan" />
           </div>
           <div style={{ marginBottom: 16 }}>
-            <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#374151", marginBottom: 4 }}>Nombre de la PC <span style={{ color: "#9ca3af", fontWeight: 400 }}>(opcional)</span></label>
+            <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#374151", marginBottom: 4 }}>Nombre de la PC</label>
             <input value={pc} onChange={e => setPc(e.target.value)}
               style={{ width: "100%", padding: "10px 14px", border: "1px solid #d1d5db", borderRadius: 8, fontSize: 15, outline: "none", boxSizing: "border-box" }}
               placeholder="PC1" />
