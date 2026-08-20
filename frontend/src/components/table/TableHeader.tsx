@@ -29,6 +29,7 @@ interface ColDef {
   campo?: Campo;
   minW?: number;
   group?: "1C" | "2C" | "none";
+  thickLeft?: boolean;
 }
 
 const TOOLTIPS: Record<string, string> = {
@@ -52,15 +53,15 @@ const TOOLTIPS: Record<string, string> = {
 const COL_DEFS: ColDef[] = [
   { key: "", label: "", tooltip: "", minW: 36 },
   { key: "Apellido y Nombre", label: "Apellido y Nombre", tooltip: "Apellido y Nombre del alumno", minW: 200 },
-  { key: "N 1", label: "", tooltip: "", campo: "N 1", minW: 52, group: "1C" },
-  { key: "N 2", label: "", tooltip: "", campo: "N 2", minW: 52, group: "1C" },
-  { key: "N 3", label: "", tooltip: "", campo: "N 3", minW: 52, group: "1C" },
+  { key: "N 1", label: "", tooltip: "", campo: "N 1", minW: 65, group: "1C" },
+  { key: "N 2", label: "", tooltip: "", campo: "N 2", minW: 65, group: "1C" },
+  { key: "N 3", label: "", tooltip: "", campo: "N 3", minW: 65, group: "1C" },
   { key: "N.A 1", label: "N.A 1", tooltip: "Nota de Acreditación 1°C", minW: 54, group: "1C" },
   { key: "Inf 1", label: "Inf 1", tooltip: "Informe 1°C", minW: 50, group: "1C" },
   { key: "1°C", label: "1°C", tooltip: "Promedio 1°C", minW: 50, group: "1C" },
-  { key: "N 4", label: "", tooltip: "", campo: "N 4", minW: 52, group: "2C" },
-  { key: "N 5", label: "", tooltip: "", campo: "N 5", minW: 52, group: "2C" },
-  { key: "N 6", label: "", tooltip: "", campo: "N 6", minW: 52, group: "2C" },
+  { key: "N 4", label: "", tooltip: "", campo: "N 4", minW: 65, group: "2C", thickLeft: true },
+  { key: "N 5", label: "", tooltip: "", campo: "N 5", minW: 65, group: "2C" },
+  { key: "N 6", label: "", tooltip: "", campo: "N 6", minW: 65, group: "2C" },
   { key: "N.A 2", label: "N.A 2", tooltip: "Nota de Acreditación 2°C", minW: 54, group: "2C" },
   { key: "Inf 2", label: "Inf 2", tooltip: "Informe 2°C", minW: 50, group: "2C" },
   { key: "2°C", label: "2°C", tooltip: "Promedio 2°C", minW: 50, group: "2C" },
@@ -133,7 +134,7 @@ export default function TableHeader({ allSelected, onToggleAll, hasRows, materia
   const groups = [
     { label: "", colSpan: 2 },
     { label: "Primer Cuatrimestre", colSpan: 6 },
-    { label: "Segundo Cuatrimestre", colSpan: 6 },
+    { label: "Segundo Cuatrimestre", colSpan: 6, thickLeft: true },
     { label: "", colSpan: 3 },
   ];
 
@@ -148,6 +149,7 @@ export default function TableHeader({ allSelected, onToggleAll, hasRows, materia
               style={{
                 ...(isLast ? thGroupLast : thGroup),
                 position: "sticky", top: 0, zIndex: gi === 0 ? 16 : (gi === 1 || gi === 2 ? 12 : 11),
+                borderLeft: (g as any).thickLeft ? "3px solid var(--accent)" : undefined,
               }}>
               {g.label}
             </th>
@@ -173,6 +175,7 @@ export default function TableHeader({ allSelected, onToggleAll, hasRows, materia
                 top: isCheck || isName ? style.top as any : 28,
                 zIndex: isCheck ? 16 : isName ? 15 : 11,
                 minWidth: c.minW || 50,
+                borderLeft: c.thickLeft ? "3px solid var(--accent)" : style.borderLeft,
               }}
               title={c.tooltip || undefined}>
               {c.key === "" ? (
