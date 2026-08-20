@@ -71,7 +71,8 @@ const btnTab: React.CSSProperties = {
 
 export default function Asistencias({ alumnos, materiaId, dia }: Props) {
   const hoy = new Date();
-  const [vista, setVista] = useState<"dia" | "mes" | "anio">("mes");
+  const [vista, setVista] = useState<"dia" | "mes" | "anio" | "cuatrimestre">("mes");
+  const [cuatrimestre, setCuatrimestre] = useState<1 | 2>(1);
   const [anio, setAnio] = useState(hoy.getFullYear());
   const [mes, setMes] = useState(hoy.getMonth() + 1);
   const [diaActual, setDiaActual] = useState(hoy.toISOString().slice(0, 10));
@@ -81,6 +82,9 @@ export default function Asistencias({ alumnos, materiaId, dia }: Props) {
   const [ctxMenu, setCtxMenu] = useState<{ x: number; y: number; alumnoId: number; fecha: string } | null>(null);
   const [detailModal, setDetailModal] = useState<{ alumnoId: number; fecha: string } | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const CUATRIMESTRE_MESES: Record<1 | 2, number[]> = { 1: [3, 4, 5, 6, 7], 2: [8, 9, 10, 11, 12] };
+  const CUATRIMESTRE_LABELS: Record<1 | 2, string> = { 1: "1er Cuatrimestre (Mar-Jul)", 2: "2do Cuatrimestre (Ago-Dic)" };
 
   function showToast(msg: string) {
     setToast(msg);
@@ -98,7 +102,13 @@ export default function Asistencias({ alumnos, materiaId, dia }: Props) {
     async function load() {
       let records: Asistencia[] = [];
       try {
-        if (vista === "anio") records = await getAsistenciasDelAnio(materiaId, anio);
+        if (vista === "cuatrimestre") {
+          records = await getAsistenciasDelAnio(materiaId, anio);
+          records = records.filter(r => {
+            const m = new Date(r.fecha).getMonth() + 1;
+            return CUATRIMESTRE_MESES[cuatrimestre].includes(m);
+          });
+        } else if (vista === "anio") records = await getAsistenciasDelAnio(materiaId, anio);
         else if (vista === "mes") records = await getAsistenciasDelMes(materiaId, anio, mes);
         else {
           records = await getAsistenciasDelMes(materiaId, anio, mes);
@@ -117,7 +127,7 @@ export default function Asistencias({ alumnos, materiaId, dia }: Props) {
             : map[`${r.alumnoId}:${m}`] || "0";
         }
       }
-      if (vista === "anio") {
+      if (vista === "anio" || vista === "cuatrimestre") {
         for (const key of Object.keys(map)) {
           const parts = key.split(":");
           const alumnoId = parts[0];
@@ -131,7 +141,7 @@ export default function Asistencias({ alumnos, materiaId, dia }: Props) {
     }
     load();
     return () => { cancelled = true; };
-  }, [vista, materiaId, anio, mes, diaActual]);
+  }, [vista, cuatrimestre, materiaId, anio, mes, diaActual]);
 
   function toggleEstado(alumnoId: number, fecha: string) {
     setAsistencias(prev => {
@@ -297,12 +307,12 @@ export default function Asistencias({ alumnos, materiaId, dia }: Props) {
 
       <div className="flex flex-wrap items-center gap-1 p-2 rounded-lg mb-1" style={{ backgroundColor: "var(--bg-card)", border: "1px solid var(--border-color)" }}>
         <div className="flex gap-0.5">
-          {(["dia", "mes", "anio"] as const).map(v => (
+          {(["dia", "mes", "cuatrimestre", "anio"] as const).map(v => (
             <button key={v} onClick={() => setVista(v)} style={{
               ...btnTab,
               backgroundColor: vista === v ? "var(--accent)" : "var(--bg-secondary)",
               color: vista === v ? "#fff" : "var(--text-primary)",
-            }}>{v === "dia" ? "Día" : v === "mes" ? "Mes" : "Año"}</button>
+            }}>{v === "dia" ? "Día" : v === "mes" ? "Mes" : v === "cuatrimestre" ? "Cuatrimestre" : "Año"}</button>
           ))}
         </div>
         {vista === "dia" && (
@@ -315,6 +325,17 @@ export default function Asistencias({ alumnos, materiaId, dia }: Props) {
         )}
         {vista !== "dia" && (
           <>
+            {vista === "cuatrimestre" && (
+              <div className="flex gap-0.5">
+                {([1, 2] as const).map(c => (
+                  <button key={c} onClick={() => setCuatrimestre(c)} style={{
+                    ...btnTab,
+                    backgroundColor: cuatrimestre === c ? (c === 1 ? "var(--accent)" : "#f59e0b") : "var(--bg-secondary)",
+                    color: cuatrimestre === c ? "#fff" : "var(--text-primary)",
+                  }}>{c}° Cuat</button>
+                ))}
+              </div>
+            )}
             {vista === "mes" && (
               <div className="flex items-center gap-0.5">
                 <button onClick={mesAnterior}
@@ -337,7 +358,10 @@ export default function Asistencias({ alumnos, materiaId, dia }: Props) {
             </select>
           </>
         )}
-        {vista !== "anio" && (
+        {vista === "cuatrimestre" && (
+          <span className="text-xs" style={{ color: "var(--text-secondary)" }}>{CUATRIMESTRE_LABELS[cuatrimestre]}</span>
+        )}
+        {vista !== "anio" && vista !== "cuatrimestre" && (
           <span className="text-xs" style={{ color: "var(--text-secondary)" }}>{vista === "dia" ? 1 : totalClasesMes} clase{vista === "mes" && totalClasesMes !== 1 ? "s" : ""}</span>
         )}
         {vista === "mes" && !dia && (
@@ -345,15 +369,21 @@ export default function Asistencias({ alumnos, materiaId, dia }: Props) {
         )}
       </div>
 
-      {vista !== "anio" && (
+      {(vista === "dia" || vista === "mes" || vista === "cuatrimestre") && (
         <div className="flex items-center gap-3 px-2 py-0.5 mb-1 rounded text-xs" style={{ backgroundColor: "var(--bg-secondary)", color: "var(--text-secondary)" }}>
-          <span>🗓️ <b style={{ color: "var(--text-primary)" }}>{vista === "dia" ? 1 : totalClasesMes}</b> clases</span>
-          {summaryClases > 0 && (
+          {vista === "cuatrimestre" ? (
+            <span>📊 <b style={{ color: "var(--text-primary)" }}>{CUATRIMESTRE_LABELS[cuatrimestre]}</b></span>
+          ) : (
             <>
-              <span>📊 <b style={{ color: pctGeneral >= 75 ? "var(--success)" : pctGeneral >= 50 ? "#f59e0b" : "var(--danger)" }}>{pctGeneral}%</b> prom.</span>
-              <span>❌ <b style={{ color: "var(--danger)" }}>{summaryAusencias}</b> aus.</span>
-              <span>🔵 <b style={{ color: "var(--accent)" }}>{summaryLicencias}</b> lic.</span>
-              <span>⬜ <b style={{ color: "#e91e63" }}>{summaryParos}</b> paro</span>
+              <span>🗓️ <b style={{ color: "var(--text-primary)" }}>{vista === "dia" ? 1 : totalClasesMes}</b> clases</span>
+              {summaryClases > 0 && (
+                <>
+                  <span>📊 <b style={{ color: pctGeneral >= 75 ? "var(--success)" : pctGeneral >= 50 ? "#f59e0b" : "var(--danger)" }}>{pctGeneral}%</b> prom.</span>
+                  <span>❌ <b style={{ color: "var(--danger)" }}>{summaryAusencias}</b> aus.</span>
+                  <span>🔵 <b style={{ color: "var(--accent)" }}>{summaryLicencias}</b> lic.</span>
+                  <span>⬜ <b style={{ color: "#e91e63" }}>{summaryParos}</b> paro</span>
+                </>
+              )}
             </>
           )}
         </div>
@@ -432,6 +462,10 @@ export default function Asistencias({ alumnos, materiaId, dia }: Props) {
                 <th key={i} className="px-1 py-1.5 text-center font-medium uppercase tracking-wider border-b sticky top-0 z-10"
                   style={{ ...thStyle, minWidth: 60 }}>{m.slice(0, 3)}</th>
               ))}
+              {vista === "cuatrimestre" && CUATRIMESTRE_MESES[cuatrimestre].map(m => (
+                <th key={m} className="px-1 py-1.5 text-center font-medium uppercase tracking-wider border-b sticky top-0 z-10"
+                  style={{ ...thStyle, minWidth: 70 }}>{MESES[m - 3]?.slice(0, 3)}</th>
+              ))}
               {vista !== "dia" && (
                 <th className="px-2 py-1.5 text-center font-medium uppercase tracking-wider border-b sticky top-0 z-10"
                   style={{ ...thStyle, minWidth: 100 }}>Total</th>
@@ -505,6 +539,15 @@ export default function Asistencias({ alumnos, materiaId, dia }: Props) {
                     const cell = asistencias[`${a.id}:${m}`];
                     return (
                       <td key={i} className="px-1 py-1 text-center border-b text-xs" style={{ borderColor: "var(--border-color)", color: cell && cell !== "—" ? (parseInt(cell) >= 75 ? "var(--success)" : parseInt(cell) >= 50 ? "#f59e0b" : "var(--danger)") : "var(--text-secondary)" }}>
+                        {cell || "—"}
+                      </td>
+                    );
+                  })}
+                  {vista === "cuatrimestre" && CUATRIMESTRE_MESES[cuatrimestre].map(m => {
+                    const mStr = String(m).padStart(2, "0");
+                    const cell = asistencias[`${a.id}:${mStr}`];
+                    return (
+                      <td key={m} className="px-1 py-1 text-center border-b text-xs" style={{ borderColor: "var(--border-color)", color: cell && cell !== "—" ? (parseInt(cell) >= 75 ? "var(--success)" : parseInt(cell) >= 50 ? "#f59e0b" : "var(--danger)") : "var(--text-secondary)" }}>
                         {cell || "—"}
                       </td>
                     );
