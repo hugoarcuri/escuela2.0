@@ -305,11 +305,12 @@ export default function Asistencias({ alumnos, materiaId, dia }: Props) {
         </div>
       )}
 
-      <div className="flex flex-wrap items-center gap-1 p-2 rounded-lg mb-1" style={{ backgroundColor: "var(--bg-card)", border: "1px solid var(--border-color)" }}>
+      <div className="flex flex-wrap items-center gap-1 p-1.5 md:p-2 rounded-lg mb-1" style={{ backgroundColor: "var(--bg-card)", border: "1px solid var(--border-color)" }}>
         <div className="flex gap-0.5">
           {(["dia", "mes", "cuatrimestre", "anio"] as const).map(v => (
             <button key={v} onClick={() => setVista(v)} style={{
               ...btnTab,
+              padding: "3px 6px", fontSize: 11,
               backgroundColor: vista === v ? "var(--accent)" : "var(--bg-secondary)",
               color: vista === v ? "#fff" : "var(--text-primary)",
             }}>{v === "dia" ? "Día" : v === "mes" ? "Mes" : v === "cuatrimestre" ? "Cuatrimestre" : "Año"}</button>
@@ -390,34 +391,34 @@ export default function Asistencias({ alumnos, materiaId, dia }: Props) {
       )}
 
       <div className="scroll-x" style={{ borderRadius: 8, border: "1px solid var(--border-color)" }}>
-        <table className="w-full text-sm" style={{ borderCollapse: "collapse" }}>
+        <table className="w-full text-sm" style={{ borderCollapse: "collapse", fontSize: "clamp(0.7rem, 2.5vw, 0.875rem)" }}>
           <thead>
             <tr>
               <th className="px-2 py-1.5 text-left font-medium uppercase tracking-wider border-b sticky top-0 z-10"
-                style={{ ...thStyle, minWidth: 150, position: "sticky", left: 0, zIndex: 10 }}>Alumno</th>
+                style={{ ...thStyle, minWidth: 110, position: "sticky", left: 0, zIndex: 10, fontSize: "0.75rem" }}>Alumno</th>
               {vista === "dia" && (
                 <th className="px-2 py-1.5 text-center font-medium uppercase tracking-wider border-b sticky top-0 z-10"
-                  style={{ ...thStyle, minWidth: 90 }}>
+                  style={{ ...thStyle, minWidth: 65 }}>
                   <div className="flex flex-col items-center gap-0.5">
                     <span>Asistencia</span>
                     <div className="flex justify-center gap-0.5">
                        <button onClick={() => marcarTodos(diaActual, "P")}
-                        className="text-[10px] md:text-[10px] px-2 md:px-1 py-1 md:py-0.5 rounded min-h-[28px] md:min-h-0 hover:opacity-80"
+                        className="text-[9px] px-1.5 md:px-1 py-0.5 rounded hover:opacity-80"
                         style={{ color: "var(--success)" }}>P</button>
                       <button onClick={() => marcarTodos(diaActual, "A")}
-                        className="text-[10px] md:text-[10px] px-2 md:px-1 py-1 md:py-0.5 rounded min-h-[28px] md:min-h-0 hover:opacity-80"
+                        className="text-[9px] px-1.5 md:px-1 py-0.5 rounded hover:opacity-80"
                         style={{ color: "var(--danger)" }}>A</button>
                       <button onClick={() => marcarTodos(diaActual, "Lic")}
-                        className="text-[10px] md:text-[10px] px-2 md:px-1 py-1 md:py-0.5 rounded min-h-[28px] md:min-h-0 hover:opacity-80"
+                        className="text-[9px] px-1.5 md:px-1 py-0.5 rounded hover:opacity-80"
                         style={{ color: "var(--accent)" }}>Lic</button>
                       <button onClick={() => marcarTodos(diaActual, "F")}
-                        className="text-[10px] md:text-[10px] px-2 md:px-1 py-1 md:py-0.5 rounded min-h-[28px] md:min-h-0 hover:opacity-80"
+                        className="text-[9px] px-1.5 md:px-1 py-0.5 rounded hover:opacity-80"
                         style={{ color: "#94a3b8" }}>F</button>
                       <button onClick={() => marcarTodos(diaActual, "Paro")}
-                        className="text-[10px] md:text-[10px] px-2 md:px-1 py-1 md:py-0.5 rounded min-h-[28px] md:min-h-0 hover:opacity-80"
+                        className="text-[9px] px-1.5 md:px-1 py-0.5 rounded hover:opacity-80"
                         style={{ color: "#e91e63" }}>Paro</button>
                       <button onClick={() => limpiarDia(diaActual)}
-                        className="text-[10px] md:text-[10px] px-2 md:px-1 py-1 md:py-0.5 rounded min-h-[28px] md:min-h-0 hover:opacity-80"
+                        className="text-[9px] px-1.5 md:px-1 py-0.5 rounded hover:opacity-80"
                         style={{ color: "var(--text-secondary)" }} title="Limpiar asistencias del día">✕</button>
                     </div>
                   </div>
@@ -430,28 +431,28 @@ export default function Asistencias({ alumnos, materiaId, dia }: Props) {
                 const esHoy = fecha === hoy.toISOString().slice(0, 10);
                 return (
                 <th key={fecha} className="px-1 py-1.5 text-center font-medium uppercase tracking-wider border-b sticky top-0 z-10"
-                  style={{ ...thStyle, minWidth: 90, backgroundColor: feriado ? "color-mix(in srgb, #f59e0b 8%, var(--bg-card))" : esHoy ? "color-mix(in srgb, var(--accent) 8%, var(--bg-card))" : "var(--bg-card)" }}>
+                  style={{ ...thStyle, minWidth: 55, backgroundColor: feriado ? "color-mix(in srgb, #f59e0b 8%, var(--bg-card))" : esHoy ? "color-mix(in srgb, var(--accent) 8%, var(--bg-card))" : "var(--bg-card)" }}>
                   <div className="whitespace-nowrap">{diaNum} {MESES[mes - 3]?.slice(0, 3)}</div>
                   {feriado && <div className="text-[8px] mt-0.5 truncate" style={{ color: "#94a3b8" }}>{feriado.nombre}</div>}
                   {!feriado && (
-                    <div className="flex justify-center gap-0.5 mt-0.5">
+                    <div className="flex justify-center gap-px mt-0.5">
                       <button onClick={() => marcarTodos(fecha, "P")}
-                        className="text-[10px] px-2 md:px-1 py-1 md:py-0.5 rounded min-h-[28px] md:min-h-0 hover:opacity-80"
+                        className="text-[9px] px-1 md:px-1 py-0.5 rounded hover:opacity-80"
                         style={{ color: "var(--success)" }}>P</button>
                       <button onClick={() => marcarTodos(fecha, "A")}
-                        className="text-[10px] px-2 md:px-1 py-1 md:py-0.5 rounded min-h-[28px] md:min-h-0 hover:opacity-80"
+                        className="text-[9px] px-1 md:px-1 py-0.5 rounded hover:opacity-80"
                         style={{ color: "var(--danger)" }}>A</button>
                       <button onClick={() => marcarTodos(fecha, "Lic")}
-                        className="text-[10px] px-2 md:px-1 py-1 md:py-0.5 rounded min-h-[28px] md:min-h-0 hover:opacity-80"
+                        className="text-[9px] px-1 md:px-1 py-0.5 rounded hover:opacity-80"
                         style={{ color: "var(--accent)" }}>Lic</button>
                       <button onClick={() => marcarTodos(fecha, "F")}
-                        className="text-[10px] px-2 md:px-1 py-1 md:py-0.5 rounded min-h-[28px] md:min-h-0 hover:opacity-80"
+                        className="text-[9px] px-1 md:px-1 py-0.5 rounded hover:opacity-80"
                         style={{ color: "#94a3b8" }}>F</button>
                       <button onClick={() => marcarTodos(fecha, "Paro")}
-                        className="text-[10px] px-2 md:px-1 py-1 md:py-0.5 rounded min-h-[28px] md:min-h-0 hover:opacity-80"
+                        className="text-[9px] px-1 md:px-1 py-0.5 rounded hover:opacity-80"
                         style={{ color: "#e91e63" }}>Paro</button>
                       <button onClick={() => limpiarDia(fecha)}
-                        className="text-[10px] px-2 md:px-1 py-1 md:py-0.5 rounded min-h-[28px] md:min-h-0 hover:opacity-80"
+                        className="text-[9px] px-1 md:px-1 py-0.5 rounded hover:opacity-80"
                         style={{ color: "var(--text-secondary)" }} title="Limpiar asistencias del día">✕</button>
                     </div>
                   )}
@@ -460,15 +461,15 @@ export default function Asistencias({ alumnos, materiaId, dia }: Props) {
               })}
               {vista === "anio" && MESES.map((m, i) => (
                 <th key={i} className="px-1 py-1.5 text-center font-medium uppercase tracking-wider border-b sticky top-0 z-10"
-                  style={{ ...thStyle, minWidth: 60 }}>{m.slice(0, 3)}</th>
+                  style={{ ...thStyle, minWidth: 50 }}>{m.slice(0, 3)}</th>
               ))}
               {vista === "cuatrimestre" && CUATRIMESTRE_MESES[cuatrimestre].map(m => (
                 <th key={m} className="px-1 py-1.5 text-center font-medium uppercase tracking-wider border-b sticky top-0 z-10"
-                  style={{ ...thStyle, minWidth: 70 }}>{MESES[m - 3]?.slice(0, 3)}</th>
+                  style={{ ...thStyle, minWidth: 50 }}>{MESES[m - 3]?.slice(0, 3)}</th>
               ))}
               {vista !== "dia" && (
                 <th className="px-2 py-1.5 text-center font-medium uppercase tracking-wider border-b sticky top-0 z-10"
-                  style={{ ...thStyle, minWidth: 100 }}>Total</th>
+                  style={{ ...thStyle, minWidth: 65 }}>Total</th>
               )}
             </tr>
           </thead>
@@ -480,7 +481,7 @@ export default function Asistencias({ alumnos, materiaId, dia }: Props) {
                 <tr key={a.id} className="transition-colors" style={{ borderColor: "var(--border-color)" }}
                   onMouseOver={e => { e.currentTarget.style.backgroundColor = "var(--hover-bg)"; }}
                   onMouseOut={e => { e.currentTarget.style.backgroundColor = "transparent"; }}>
-                  <td className="px-2 py-1 font-medium border-b text-sm sticky left-0 z-5"
+                  <td className="px-1.5 md:px-2 py-1 font-medium border-b text-[11px] md:text-sm sticky left-0 z-5 truncate max-w-[110px]"
                     style={{ borderColor: "var(--border-color)", color: "var(--text-primary)", backgroundColor: "var(--bg-card)", position: "sticky", left: 0 }}>
                     {a.apellidoNombre}
                   </td>
@@ -489,7 +490,7 @@ export default function Asistencias({ alumnos, materiaId, dia }: Props) {
                       <button onClick={() => handleCellClick(a.id, diaActual)}
                         onDoubleClick={() => setDetailModal({ alumnoId: a.id, fecha: diaActual })}
                         onContextMenu={e => handleContextMenu(e, a.id, diaActual)}
-                        className="w-10 h-10 md:w-8 md:h-8 rounded-full text-xs font-bold border-2 transition-all hover:scale-110"
+                        className="w-8 h-8 md:w-8 md:h-8 rounded-full text-[11px] font-bold border-2 transition-all hover:scale-110"
                         style={(() => {
                           const estado = asistencias[`${a.id}`] || "-";
                           const est = ESTADOS.find(e => e.key === estado)!;
@@ -521,7 +522,7 @@ export default function Asistencias({ alumnos, materiaId, dia }: Props) {
                         <button onClick={() => handleCellClick(a.id, fecha)}
                           onDoubleClick={() => setDetailModal({ alumnoId: a.id, fecha })}
                           onContextMenu={e => handleContextMenu(e, a.id, fecha)}
-                          className="w-9 h-9 md:w-7 md:h-7 rounded-full text-xs font-bold border transition-all hover:scale-110"
+                          className="w-7 h-7 md:w-7 md:h-7 rounded-full text-[10px] font-bold border transition-all hover:scale-110"
                           style={{
                             backgroundColor: "transparent",
                             color: estado === "-" ? "var(--text-secondary)" : est.color,
@@ -593,14 +594,14 @@ export default function Asistencias({ alumnos, materiaId, dia }: Props) {
         </table>
       </div>
 
-      <div className="flex items-center gap-3 px-2 py-1 mt-1 text-xs rounded-lg" style={{ color: "var(--text-secondary)", backgroundColor: "var(--bg-card)", border: "1px solid var(--border-color)" }}>
+      <div className="flex flex-wrap items-center gap-2 md:gap-3 px-1.5 md:px-2 py-1 mt-1 text-[10px] md:text-xs rounded-lg" style={{ color: "var(--text-secondary)", backgroundColor: "var(--bg-card)", border: "1px solid var(--border-color)" }}>
         {ESTADOS.filter(e => e.key !== "-").map(e => (
-          <span key={e.key} className="flex items-center gap-1">
-            <span style={{ display: "inline-block", width: 9, height: 9, borderRadius: 2, backgroundColor: e.color, opacity: 0.65 }} />
-            <span style={{ color: e.color, fontWeight: 500, fontSize: 12 }}>{e.label}</span>
+          <span key={e.key} className="flex items-center gap-0.5 md:gap-1">
+            <span style={{ display: "inline-block", width: 7, height: 7, borderRadius: 2, backgroundColor: e.color, opacity: 0.65 }} />
+            <span style={{ color: e.color, fontWeight: 500, fontSize: "inherit" }}>{e.label}</span>
           </span>
         ))}
-        <span className="ml-auto" style={{ opacity: 0.5, fontSize: 11 }}>Clic→alt · Doble→detalle · Der→menú</span>
+        <span className="ml-auto hidden md:inline" style={{ opacity: 0.5, fontSize: 11 }}>Clic→alt · Doble→detalle · Der→menú</span>
       </div>
 
       {ctxMenu && (
