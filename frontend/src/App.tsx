@@ -84,18 +84,18 @@ export default function App() {
   return (
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: "var(--bg-secondary)" }}>
       <Header theme={theme} onToggleTheme={toggleTheme} schoolInfo={schoolInfo} />
-      <main className="max-w-7xl mx-auto w-full px-4 py-4 space-y-3 flex flex-col">
+      <main className="max-w-7xl mx-auto w-full px-3 md:px-4 py-2 md:py-4 space-y-2 md:space-y-3 flex flex-col">
 
         {/* Top bar: year + settings + tools */}
-        <div className="flex flex-wrap items-center justify-center gap-3">
-          <div className="flex items-center gap-1.5">
-            <label className="text-xs font-medium" style={{ color: "var(--text-secondary)" }}>Año:</label>
+        <div className="flex flex-wrap items-center justify-center gap-1.5 md:gap-3">
+          <div className="flex items-center gap-1">
+            <label className="text-[10px] md:text-xs font-medium" style={{ color: "var(--text-secondary)" }}>Año:</label>
             <select value={anioLectivo} onChange={e => setAnioLectivo(Number(e.target.value))}
-              className="input !w-auto !py-1 !text-xs">
+              className="input !w-auto !py-0.5 md:!py-1 !text-xs !min-h-0 md:!min-h-0 !px-2">
               {[2026, 2027, 2028].map(a => <option key={a} value={a}>{a}</option>)}
             </select>
           </div>
-          <button onClick={() => setSettingsOpen(true)} className="btn btn-ghost btn-sm">Ajustes</button>
+          <button onClick={() => setSettingsOpen(true)} className="btn btn-ghost btn-sm !text-xs md:!text-sm !py-1 md:!py-1.5">Ajustes</button>
           <DropdownActions label="Base de Datos" actions={[
             { label: "Exportar Backup", onClick: exportBackup },
             { label: "Importar Backup", onClick: () => { const i = document.createElement("input"); i.type = "file"; i.accept = ".json"; i.onchange = async (e: any) => { const f = e.target.files?.[0]; if (f) { try { await importBackup(f); await alert("Datos restaurados"); loadAlumnos(); } catch { await alert("Error"); } } }; i.click(); } },
@@ -148,20 +148,20 @@ export default function App() {
             {tab === "alumnos" && (
               <div className="flex flex-col">
                 <Card padding={false}>
-                  <div className="p-3 space-y-1 shrink-0">
-                    <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+                  <div className="p-2 md:p-3 space-y-1.5 shrink-0">
+                    <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
                       <SectionTitle>Alumnos</SectionTitle>
-                      <div className="flex items-center gap-1.5">
-                        <button onClick={() => { setEditingAlumno(null); setFormOpen(true); }} className="btn btn-primary btn-sm">+ Agregar</button>
+                      <div className="flex items-center gap-1">
+                        <button onClick={() => { setEditingAlumno(null); setFormOpen(true); }} className="btn btn-primary btn-sm !text-xs md:!text-sm !px-2 md:!px-3">+ Agregar</button>
                         <button onClick={async () => {
                           if (alumnos.length === 0) return;
                           const id = await prompt("Ingrese el ID del alumno a editar:");
                           if (id) { const a = alumnos.find(x => x.id === parseInt(id)); if (a) { setEditingAlumno(a); setFormOpen(true); } else await alert("Alumno no encontrado"); }
-                        }} className="btn btn-secondary btn-sm" disabled={alumnos.length === 0}>Editar</button>
+                        }} className="btn btn-secondary btn-sm !text-xs md:!text-sm !px-2 md:!px-3" disabled={alumnos.length === 0}>Editar</button>
                         <button onClick={async () => {
                           const id = await prompt("Ingrese el ID del alumno a eliminar:");
                           if (id) { await deleteAlumno(parseInt(id)); loadAlumnos(); }
-                        }} className="btn btn-danger btn-sm" disabled={alumnos.length === 0}>Eliminar</button>
+                        }} className="btn btn-danger btn-sm !text-xs md:!text-sm !px-2 md:!px-3" disabled={alumnos.length === 0}>Eliminar</button>
                         <DropdownActions label="Herramientas" actions={[
                           { label: "Eliminar Todos", onClick: async () => { const ok = await confirm("¿Eliminar TODOS los alumnos?"); if (!ok) return; const r = await deleteAllAlumnos(Number(escuelaId), Number(cursoId), Number(materiaId)); await alert(`Se eliminaron ${r.deleted} alumno(s)`); loadAlumnos(); }, variant: "danger" },
                           { label: "Importar Excel", onClick: () => setImportModal("excel") },
@@ -307,22 +307,29 @@ export default function App() {
 
       {/* Bottom nav - mobile only */}
       {typeof materiaId === "number" && materiaId > 0 && (
-        <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 border-t flex"
-          style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-color)" }}>
+        <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 flex border-t"
+          style={{
+            backgroundColor: "var(--bg-card)",
+            borderColor: "var(--border-color)",
+            boxShadow: "0 -2px 8px rgba(0,0,0,0.08)",
+            paddingBottom: "env(safe-area-inset-bottom, 0px)",
+          }}>
           {([
             { key: "alumnos" as const, label: "Alumnos", icon: "📋", color: "var(--accent)" },
             { key: "asistencias" as const, label: "Asistencias", icon: "✅", color: "#f59e0b" },
             { key: "agenda" as const, label: "Agenda", icon: "📅", color: "#8b5cf6" },
           ]).map(t => (
             <button key={t.key} onClick={() => setTab(t.key)}
-              className="flex-1 flex flex-col items-center justify-center py-2 gap-0.5 transition-colors"
+              className="flex-1 flex flex-col items-center justify-center pt-1.5 pb-1 gap-0.5 transition-all active:scale-95"
               style={{
                 color: tab === t.key ? t.color : "var(--text-secondary)",
                 backgroundColor: "transparent",
-                borderTop: tab === t.key ? `2px solid ${t.color}` : "2px solid transparent",
               }}>
-              <span className="text-xl leading-none">{t.icon}</span>
-              <span className="text-[10px] font-medium">{t.label}</span>
+              <span className="text-lg leading-none">{t.icon}</span>
+              <span className="text-[9px] font-semibold tracking-wide">{t.label}</span>
+              {tab === t.key && (
+                <span className="w-4 h-0.5 rounded-full mt-0.5" style={{ backgroundColor: t.color }} />
+              )}
             </button>
           ))}
         </nav>

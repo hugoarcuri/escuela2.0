@@ -50,9 +50,9 @@ export default function Selectors({
   }
 
   return (
-    <div className="flex flex-wrap gap-3 items-end">
-      <div className="flex-1 min-w-0 w-full md:w-auto md:min-w-[200px]">
-        <label className="block text-xs font-medium mb-1" style={{ color: "var(--text-secondary)" }}>Escuela</label>
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3 items-end">
+      <div className="min-w-0">
+        <label className="block text-[10px] md:text-xs font-medium mb-0.5 md:mb-1 truncate" style={{ color: "var(--text-secondary)" }}>Escuela</label>
         <div className="flex gap-1">
           <div ref={escuelaRef} className="relative flex-1">
             <div role="button" tabIndex={0} onClick={() => setEscuelaOpen(!escuelaOpen)}
@@ -113,37 +113,37 @@ export default function Selectors({
               </div>
             )}
           </div>
-          <button onClick={onAdminEscuela} className="p-2 md:p-2 rounded-lg border hover:bg-[var(--hover-bg)] transition-colors touch-target" title="Administrar escuelas" style={s}>
+          <button onClick={onAdminEscuela} className="p-1.5 md:p-2 rounded-lg border hover:bg-[var(--hover-bg)] transition-colors shrink-0" title="Administrar escuelas" style={s}>
             <Gear />
           </button>
         </div>
       </div>
 
-      <div className="flex-1 min-w-0 w-full md:w-auto md:min-w-[180px]">
-        <label className="block text-xs font-medium mb-1" style={{ color: "var(--text-secondary)" }}>Curso</label>
+      <div className="min-w-0">
+        <label className="block text-[10px] md:text-xs font-medium mb-0.5 md:mb-1 truncate" style={{ color: "var(--text-secondary)" }}>Curso</label>
         <div className="flex gap-1">
           <select value={cursoId} onChange={e => onCursoChange(e.target.value ? Number(e.target.value) : "")}
             disabled={!escuelaId}
-            className="flex-1 rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)] disabled:opacity-50"
+            className="flex-1 rounded-lg border px-2 md:px-3 py-1.5 md:py-2 text-xs md:text-sm outline-none focus:ring-2 focus:ring-[var(--accent)] disabled:opacity-50"
             style={s}>
             <option value="">Seleccionar curso</option>
             {cursos.map(c => <option key={c.id} value={c.id}>{c.nombre}{c.grupo ? ` - ${c.grupo}` : ""} {c.turno ? `(${c.turno})` : ""}</option>)}
           </select>
-          <button onClick={onAdminCurso} className="p-2 md:p-2 rounded-lg border hover:bg-[var(--hover-bg)] transition-colors touch-target" title="Administrar cursos" style={s}>
+          <button onClick={onAdminCurso} className="p-1.5 md:p-2 rounded-lg border hover:bg-[var(--hover-bg)] transition-colors shrink-0" title="Administrar cursos" style={s}>
             <Gear />
           </button>
         </div>
       </div>
 
-      <div className="flex-1 min-w-0 w-full md:w-auto md:min-w-[180px]">
-        <label className="block text-xs font-medium mb-1" style={{ color: "var(--text-secondary)" }}>Materia</label>
+      <div className="min-w-0">
+        <label className="block text-[10px] md:text-xs font-medium mb-0.5 md:mb-1 truncate" style={{ color: "var(--text-secondary)" }}>Materia</label>
         <div className="flex gap-1">
           <select value={materiaId} onChange={e => {
             if (e.target.value === "__add__") { onAdminMateria(); return; }
             onMateriaChange(e.target.value ? Number(e.target.value) : "");
           }}
             disabled={!cursoId}
-            className="flex-1 rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)] disabled:opacity-50"
+            className="flex-1 rounded-lg border px-2 md:px-3 py-1.5 md:py-2 text-xs md:text-sm outline-none focus:ring-2 focus:ring-[var(--accent)] disabled:opacity-50"
             style={s}>
             <option value="">Seleccionar materia</option>
             {materias.map(m => <option key={m.id} value={m.id}>
@@ -151,19 +151,19 @@ export default function Selectors({
             </option>)}
             <option value="__add__" className="font-semibold" style={{ color: "var(--accent)" }}>+ Agregar nueva materia</option>
           </select>
-          <button onClick={onAdminMateria} className="p-2 md:p-2 rounded-lg border hover:bg-[var(--hover-bg)] transition-colors touch-target" title="Administrar materias" style={s}>
+          <button onClick={onAdminMateria} className="p-1.5 md:p-2 rounded-lg border hover:bg-[var(--hover-bg)] transition-colors shrink-0" title="Administrar materias" style={s}>
             <Gear />
           </button>
         </div>
       </div>
 
-      <div className="flex-1 min-w-0 w-full md:w-auto md:min-w-[200px]">
-        <label className="block text-xs font-medium mb-1" style={{ color: "var(--text-secondary)" }}>Buscar alumno</label>
+      <div className="col-span-2 min-w-0">
+        <label className="block text-[10px] md:text-xs font-medium mb-0.5 md:mb-1 truncate" style={{ color: "var(--text-secondary)" }}>Buscar alumno</label>
         <div className="relative">
           <span className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "var(--text-secondary)" }}><Search /></span>
           <input type="text" value={search} onChange={e => onSearchChange(e.target.value)}
-            placeholder="Buscar por apellido y nombre..."
-            className="w-full rounded-lg border pl-10 pr-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]"
+            placeholder="Buscar..."
+            className="w-full rounded-lg border pl-8 md:pl-10 pr-2 md:pr-3 py-1.5 md:py-2 text-xs md:text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]"
             style={{ backgroundColor: "var(--bg-card)", color: "var(--text-primary)", borderColor: "var(--border-color)" }} />
         </div>
       </div>

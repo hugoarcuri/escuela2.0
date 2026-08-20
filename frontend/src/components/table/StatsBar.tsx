@@ -25,10 +25,10 @@ export default function StatsBar({ alumnos }: Props) {
   ];
 
   return (
-    <div className="flex flex-wrap items-center gap-1.5">
+    <div className="flex flex-nowrap md:flex-wrap items-center gap-1 md:gap-1.5 overflow-x-auto pb-1 -mx-1 px-1">
       {items.map(item => (
         <div key={item.label}
-          className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs"
+          className="inline-flex items-center gap-1 rounded-md px-1.5 md:px-2 py-0.5 text-[10px] md:text-xs shrink-0"
           style={{ backgroundColor: "var(--bg-secondary)" }}>
           <span className="text-xs leading-none">{item.icon}</span>
           <span className="font-semibold leading-none" style={item.color ? { color: item.color } : { color: "var(--text-primary)" }}>{item.value}</span>

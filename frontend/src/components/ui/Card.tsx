@@ -8,7 +8,7 @@ interface Props {
 
 export default function Card({ children, className = "", padding = true }: Props) {
   return (
-    <div className={`card ${padding ? "p-3" : ""} ${className}`}>
+    <div className={`card ${padding ? "p-2 md:p-3" : ""} ${className}`}>
       {children}
     </div>
   );
