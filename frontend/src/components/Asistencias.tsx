@@ -122,9 +122,9 @@ export default function Asistencias({ alumnos, materiaId, dia }: Props) {
         else if (vista === "mes") map[`${r.alumnoId}:${r.fecha}`] = r.estado;
         else {
           const m = r.fecha.slice(5, 7);
-          map[`${r.alumnoId}:${m}`] = r.estado === "P" || r.estado === "Lic" || r.estado === "F"
-            ? (map[`${r.alumnoId}:${m}`] || "0") + 1
-            : map[`${r.alumnoId}:${m}`] || "0";
+          const key = `${r.alumnoId}:${m}`;
+          const isPresente = r.estado === "P" || r.estado === "Lic" || r.estado === "F";
+          map[key] = String(Number(map[key] || "0") + (isPresente ? 1 : 0));
         }
       }
       if (vista === "anio" || vista === "cuatrimestre") {
@@ -493,7 +493,7 @@ export default function Asistencias({ alumnos, materiaId, dia }: Props) {
                           const estado = asistencias[`${a.id}`] || "-";
                           const est = ESTADOS.find(e => e.key === estado)!;
                           return {
-                            backgroundColor: getEstadoBg(estado),
+                            backgroundColor: "transparent",
                             color: estado === "-" ? "var(--text-secondary)" : est.color,
                             borderColor: estado === "-" ? "var(--border-color)" : est.color,
                             opacity: estado === "-" ? 0.35 : 1,
@@ -512,7 +512,7 @@ export default function Asistencias({ alumnos, materiaId, dia }: Props) {
                     return (
                       <td key={fecha} className="px-1 py-1 text-center border-b" style={{
                         borderColor: "var(--border-color)",
-                        backgroundColor: esFeriado ? "color-mix(in srgb, #f59e0b 8%, transparent)" : getEstadoBg(estado),
+                        backgroundColor: esFeriado ? "color-mix(in srgb, #f59e0b 8%, transparent)" : "transparent",
                       }}>
                         {esFeriado ? (
                           <span className="text-xs" style={{ color: "#94a3b8" }}>☕</span>
@@ -522,7 +522,7 @@ export default function Asistencias({ alumnos, materiaId, dia }: Props) {
                           onContextMenu={e => handleContextMenu(e, a.id, fecha)}
                           className="w-7 h-7 rounded-full text-xs font-bold border transition-all hover:scale-110"
                           style={{
-                            backgroundColor: estado === "-" ? "transparent" : getEstadoBg(estado),
+                            backgroundColor: "transparent",
                             color: estado === "-" ? "var(--text-secondary)" : est.color,
                             borderColor: estado === "-" ? "var(--border-color)" : est.color,
                             opacity: estado === "-" ? 0.35 : 1,
