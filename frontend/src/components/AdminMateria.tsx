@@ -60,10 +60,10 @@ export default function AdminMateria({ onClose, onChanged, initialEscuelaId, ini
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto" style={{ backgroundColor: "var(--bg-card)" }}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-0 md:p-4">
+      <div className="rounded-none md:rounded-xl shadow-xl w-full max-w-lg max-h-[100vh] md:max-h-[90vh] overflow-y-auto" style={{ backgroundColor: "var(--bg-card)" }}>
         <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: "var(--border-color)" }}>
-          <h2 className="text-lg font-semibold">Administrar Materias</h2><button onClick={onClose} className="p-1 rounded hover:bg-[var(--hover-bg)]" style={{ color: "var(--text-secondary)" }}>✕</button>
+          <h2 className="text-lg font-semibold">Administrar Materias</h2><button onClick={onClose} className="p-2 rounded hover:bg-[var(--hover-bg)] touch-target" style={{ color: "var(--text-secondary)" }}>✕</button>
         </div>
         <div className="p-4 space-y-4">
           {editing && (
@@ -71,26 +71,26 @@ export default function AdminMateria({ onClose, onChanged, initialEscuelaId, ini
               Editando: {editing.nombre} ({editing.dia || "sin día"} · {editing.turno || "sin turno"})
             </div>
           )}
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-col md:flex-row flex-wrap gap-2">
             <select value={escuelaId} onChange={e => { setEscuelaId(Number(e.target.value)); setForm(f => ({ ...f, cursoId: 0 })); setEditing(null); }}
-              className="rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]" style={s}>
+              className="flex-1 min-w-0 rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]" style={s}>
               <option value={0}>Escuela</option>
               {escuelas.map(e => <option key={e.id} value={e.id}>{e.nombre}</option>)}
             </select>
             <select value={form.cursoId} onChange={e => { setForm(f => ({ ...f, cursoId: Number(e.target.value) })); setEditing(null); }}
-              disabled={!escuelaId} className="rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)] disabled:opacity-50" style={s}>
+              disabled={!escuelaId} className="flex-1 min-w-0 rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)] disabled:opacity-50" style={s}>
               <option value={0}>Curso</option>
               {cursos.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
             </select>
             <input type="text" placeholder="Materia" value={form.nombre} onChange={e => setForm(f => ({ ...f, nombre: e.target.value }))}
-              className="rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]" style={s} />
+              className="flex-1 min-w-0 rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]" style={s} />
             <select value={form.dia} onChange={e => setForm(f => ({ ...f, dia: e.target.value }))}
-              className="rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]" style={s}>
+              className="flex-1 min-w-0 rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]" style={s}>
               <option value="">Día</option>
               {DIAS.map(d => <option key={d} value={d}>{d}</option>)}
             </select>
             <select value={form.turno} onChange={e => setForm(f => ({ ...f, turno: e.target.value }))}
-              className="rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]" style={s}>
+              className="flex-1 min-w-0 rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]" style={s}>
               <option value="">Turno</option>
               {TURNOS.map(t => <option key={t} value={t}>{t}</option>)}
             </select>
@@ -113,8 +113,8 @@ export default function AdminMateria({ onClose, onChanged, initialEscuelaId, ini
                   {m.turno && <span className="text-xs px-1.5 py-0.5 rounded" style={{ backgroundColor: "var(--bg-secondary)", color: "var(--text-secondary)" }}>{m.turno}</span>}
                 </div>
                 <div className="flex gap-1">
-                  <button onClick={() => editItem(m)} className="text-xs px-2 py-1 rounded hover:bg-[var(--hover-bg)]" style={{ color: "var(--accent)" }}>Editar</button>
-                  <button onClick={() => handleDelete(m.id)} className="text-xs px-2 py-1 rounded hover:bg-[var(--hover-bg)]" style={{ color: "var(--danger)" }}>Eliminar</button>
+                  <button onClick={() => editItem(m)} className="text-xs px-2 py-1 rounded hover:bg-[var(--hover-bg)] min-h-[44px]" style={{ color: "var(--accent)" }}>Editar</button>
+                  <button onClick={() => handleDelete(m.id)} className="text-xs px-2 py-1 rounded hover:bg-[var(--hover-bg)] min-h-[44px]" style={{ color: "var(--danger)" }}>Eliminar</button>
                 </div>
               </div>
             ))}

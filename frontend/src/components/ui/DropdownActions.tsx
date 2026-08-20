@@ -33,12 +33,12 @@ export default function DropdownActions({ label, actions }: Props) {
         </svg>
       </button>
       {open && (
-        <div className="absolute right-0 mt-1 z-50 min-w-[180px] py-1 rounded-xl border" style={{
+        <div className="absolute right-0 mt-1 z-50 min-w-[180px] py-1 rounded-xl border max-w-[calc(100vw-2rem)]" style={{
           backgroundColor: "var(--bg-card)", borderColor: "var(--border-color)", boxShadow: "var(--shadow-md)"
         }}>
           {actions.map((a, i) => (
             <button key={i} onClick={() => { a.onClick(); setOpen(false); }}
-              className="w-full flex items-center gap-2 px-3 py-1.5 text-sm text-left transition-colors"
+              className="w-full flex items-center gap-2 px-3 py-2 md:py-1.5 text-sm text-left transition-colors touch-target"
               style={{ color: a.variant === "danger" ? "var(--danger)" : "var(--text-primary)" }}
               onMouseOver={e => e.currentTarget.style.backgroundColor = "var(--hover-bg)"}
               onMouseOut={e => e.currentTarget.style.backgroundColor = "transparent"}>

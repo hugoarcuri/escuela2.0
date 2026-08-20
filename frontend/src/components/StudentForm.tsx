@@ -43,11 +43,11 @@ export default function StudentForm({ alumno, escuelaId, cursoId, materiaId, ani
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="rounded-xl shadow-xl w-full max-w-md" style={{ backgroundColor: "var(--bg-card)" }}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-0 md:p-4">
+      <div className="rounded-none md:rounded-xl shadow-xl w-full max-w-md" style={{ backgroundColor: "var(--bg-card)" }}>
         <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: "var(--border-color)" }}>
           <h2 className="text-lg font-semibold">{alumno ? "Editar Alumno" : "Agregar Alumno"}</h2>
-          <button onClick={onClose} className="p-1 rounded hover:bg-[var(--hover-bg)]" style={{ color: "var(--text-secondary)" }}>✕</button>
+          <button onClick={onClose} className="p-2 rounded hover:bg-[var(--hover-bg)] touch-target" style={{ color: "var(--text-secondary)" }}>✕</button>
         </div>
         <form onSubmit={handleSubmit} className="p-4 space-y-4">
           {error && <div className="p-3 rounded-lg text-sm" style={{ backgroundColor: "rgba(239,68,68,0.1)", color: "var(--danger)" }}>{error}</div>}

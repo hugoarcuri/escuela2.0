@@ -38,8 +38,8 @@ export default function FormPage() {
   );
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#f3f4f6", padding: 20 }}>
-      <div style={{ background: "white", borderRadius: 16, boxShadow: "0 4px 24px rgba(0,0,0,.1)", padding: 40, maxWidth: 420, width: "100%" }}>
+    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#f3f4f6", padding: "clamp(10px, 3vw, 20px)" }}>
+      <div style={{ background: "white", borderRadius: 16, boxShadow: "0 4px 24px rgba(0,0,0,.1)", padding: "clamp(20px, 5vw, 40px)", maxWidth: 420, width: "100%" }}>
         <h1 style={{ fontSize: 22, color: "#1f2937", marginBottom: 8, textAlign: "center" }}>Formulario de Inscripción</h1>
         <p style={{ fontSize: 14, color: "#6b7280", marginBottom: 24, textAlign: "center" }}>Completá tus datos para registrarte en el curso</p>
         {error && <div style={{ padding: "10px 14px", borderRadius: 8, fontSize: 13, marginBottom: 16, textAlign: "center", background: "#fef2f2", color: "#dc2626", border: "1px solid #fecaca" }}>{error}</div>}

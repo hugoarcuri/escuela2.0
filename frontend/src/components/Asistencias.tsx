@@ -389,35 +389,35 @@ export default function Asistencias({ alumnos, materiaId, dia }: Props) {
         </div>
       )}
 
-      <div style={{ borderRadius: 8, border: "1px solid var(--border-color)" }}>
+      <div className="scroll-x" style={{ borderRadius: 8, border: "1px solid var(--border-color)" }}>
         <table className="w-full text-sm" style={{ borderCollapse: "collapse" }}>
           <thead>
             <tr>
               <th className="px-2 py-1.5 text-left font-medium uppercase tracking-wider border-b sticky top-0 z-10"
-                style={{ ...thStyle, minWidth: 180 }}>Alumno</th>
+                style={{ ...thStyle, minWidth: 150, position: "sticky", left: 0, zIndex: 10 }}>Alumno</th>
               {vista === "dia" && (
                 <th className="px-2 py-1.5 text-center font-medium uppercase tracking-wider border-b sticky top-0 z-10"
                   style={{ ...thStyle, minWidth: 90 }}>
                   <div className="flex flex-col items-center gap-0.5">
                     <span>Asistencia</span>
                     <div className="flex justify-center gap-0.5">
-                      <button onClick={() => marcarTodos(diaActual, "P")}
-                        className="text-[10px] px-1 py-0.5 rounded hover:opacity-80"
+                       <button onClick={() => marcarTodos(diaActual, "P")}
+                        className="text-[10px] md:text-[10px] px-2 md:px-1 py-1 md:py-0.5 rounded min-h-[28px] md:min-h-0 hover:opacity-80"
                         style={{ color: "var(--success)" }}>P</button>
                       <button onClick={() => marcarTodos(diaActual, "A")}
-                        className="text-[10px] px-1 py-0.5 rounded hover:opacity-80"
+                        className="text-[10px] md:text-[10px] px-2 md:px-1 py-1 md:py-0.5 rounded min-h-[28px] md:min-h-0 hover:opacity-80"
                         style={{ color: "var(--danger)" }}>A</button>
                       <button onClick={() => marcarTodos(diaActual, "Lic")}
-                        className="text-[10px] px-1 py-0.5 rounded hover:opacity-80"
+                        className="text-[10px] md:text-[10px] px-2 md:px-1 py-1 md:py-0.5 rounded min-h-[28px] md:min-h-0 hover:opacity-80"
                         style={{ color: "var(--accent)" }}>Lic</button>
                       <button onClick={() => marcarTodos(diaActual, "F")}
-                        className="text-[10px] px-1 py-0.5 rounded hover:opacity-80"
+                        className="text-[10px] md:text-[10px] px-2 md:px-1 py-1 md:py-0.5 rounded min-h-[28px] md:min-h-0 hover:opacity-80"
                         style={{ color: "#94a3b8" }}>F</button>
                       <button onClick={() => marcarTodos(diaActual, "Paro")}
-                        className="text-[10px] px-1 py-0.5 rounded hover:opacity-80"
+                        className="text-[10px] md:text-[10px] px-2 md:px-1 py-1 md:py-0.5 rounded min-h-[28px] md:min-h-0 hover:opacity-80"
                         style={{ color: "#e91e63" }}>Paro</button>
                       <button onClick={() => limpiarDia(diaActual)}
-                        className="text-[10px] px-1 py-0.5 rounded hover:opacity-80"
+                        className="text-[10px] md:text-[10px] px-2 md:px-1 py-1 md:py-0.5 rounded min-h-[28px] md:min-h-0 hover:opacity-80"
                         style={{ color: "var(--text-secondary)" }} title="Limpiar asistencias del día">✕</button>
                     </div>
                   </div>
@@ -436,22 +436,22 @@ export default function Asistencias({ alumnos, materiaId, dia }: Props) {
                   {!feriado && (
                     <div className="flex justify-center gap-0.5 mt-0.5">
                       <button onClick={() => marcarTodos(fecha, "P")}
-                        className="text-[10px] px-1 py-0.5 rounded hover:opacity-80"
+                        className="text-[10px] px-2 md:px-1 py-1 md:py-0.5 rounded min-h-[28px] md:min-h-0 hover:opacity-80"
                         style={{ color: "var(--success)" }}>P</button>
                       <button onClick={() => marcarTodos(fecha, "A")}
-                        className="text-[10px] px-1 py-0.5 rounded hover:opacity-80"
+                        className="text-[10px] px-2 md:px-1 py-1 md:py-0.5 rounded min-h-[28px] md:min-h-0 hover:opacity-80"
                         style={{ color: "var(--danger)" }}>A</button>
                       <button onClick={() => marcarTodos(fecha, "Lic")}
-                        className="text-[10px] px-1 py-0.5 rounded hover:opacity-80"
+                        className="text-[10px] px-2 md:px-1 py-1 md:py-0.5 rounded min-h-[28px] md:min-h-0 hover:opacity-80"
                         style={{ color: "var(--accent)" }}>Lic</button>
                       <button onClick={() => marcarTodos(fecha, "F")}
-                        className="text-[10px] px-1 py-0.5 rounded hover:opacity-80"
+                        className="text-[10px] px-2 md:px-1 py-1 md:py-0.5 rounded min-h-[28px] md:min-h-0 hover:opacity-80"
                         style={{ color: "#94a3b8" }}>F</button>
                       <button onClick={() => marcarTodos(fecha, "Paro")}
-                        className="text-[10px] px-1 py-0.5 rounded hover:opacity-80"
+                        className="text-[10px] px-2 md:px-1 py-1 md:py-0.5 rounded min-h-[28px] md:min-h-0 hover:opacity-80"
                         style={{ color: "#e91e63" }}>Paro</button>
                       <button onClick={() => limpiarDia(fecha)}
-                        className="text-[10px] px-1 py-0.5 rounded hover:opacity-80"
+                        className="text-[10px] px-2 md:px-1 py-1 md:py-0.5 rounded min-h-[28px] md:min-h-0 hover:opacity-80"
                         style={{ color: "var(--text-secondary)" }} title="Limpiar asistencias del día">✕</button>
                     </div>
                   )}
@@ -480,7 +480,8 @@ export default function Asistencias({ alumnos, materiaId, dia }: Props) {
                 <tr key={a.id} className="transition-colors" style={{ borderColor: "var(--border-color)" }}
                   onMouseOver={e => { e.currentTarget.style.backgroundColor = "var(--hover-bg)"; }}
                   onMouseOut={e => { e.currentTarget.style.backgroundColor = "transparent"; }}>
-                  <td className="px-2 py-1 font-medium border-b text-sm" style={{ borderColor: "var(--border-color)", color: "var(--text-primary)" }}>
+                  <td className="px-2 py-1 font-medium border-b text-sm sticky left-0 z-5"
+                    style={{ borderColor: "var(--border-color)", color: "var(--text-primary)", backgroundColor: "var(--bg-card)", position: "sticky", left: 0 }}>
                     {a.apellidoNombre}
                   </td>
                   {vista === "dia" && (
@@ -488,7 +489,7 @@ export default function Asistencias({ alumnos, materiaId, dia }: Props) {
                       <button onClick={() => handleCellClick(a.id, diaActual)}
                         onDoubleClick={() => setDetailModal({ alumnoId: a.id, fecha: diaActual })}
                         onContextMenu={e => handleContextMenu(e, a.id, diaActual)}
-                        className="w-8 h-8 rounded-full text-xs font-bold border-2 transition-all hover:scale-110"
+                        className="w-10 h-10 md:w-8 md:h-8 rounded-full text-xs font-bold border-2 transition-all hover:scale-110"
                         style={(() => {
                           const estado = asistencias[`${a.id}`] || "-";
                           const est = ESTADOS.find(e => e.key === estado)!;
@@ -520,7 +521,7 @@ export default function Asistencias({ alumnos, materiaId, dia }: Props) {
                         <button onClick={() => handleCellClick(a.id, fecha)}
                           onDoubleClick={() => setDetailModal({ alumnoId: a.id, fecha })}
                           onContextMenu={e => handleContextMenu(e, a.id, fecha)}
-                          className="w-7 h-7 rounded-full text-xs font-bold border transition-all hover:scale-110"
+                          className="w-9 h-9 md:w-7 md:h-7 rounded-full text-xs font-bold border transition-all hover:scale-110"
                           style={{
                             backgroundColor: "transparent",
                             color: estado === "-" ? "var(--text-secondary)" : est.color,

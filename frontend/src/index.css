@@ -212,3 +212,44 @@ select.input { cursor: pointer; }
 .gap-2 { gap: 0.5rem; }
 .gap-3 { gap: 0.75rem; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+/* === Mobile Responsive === */
+@media (max-width: 768px) {
+  .panel { padding: 0.75rem; }
+  .btn-sm { padding: 0.5rem 0.75rem; font-size: 0.8125rem; min-height: 44px; }
+  .btn-xs { padding: 0.45rem 0.6rem; font-size: 0.75rem; min-height: 44px; }
+  .input { padding: 0.625rem 0.75rem; min-height: 44px; font-size: 16px; }
+  .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; }
+  .table-container th { font-size: 0.625rem; padding: 0.5rem 0.35rem; }
+  .table-container td { font-size: 0.75rem; padding: 0.375rem 0.35rem; }
+  .modal-mobile { max-width: 100% !important; border-radius: 0 !important; max-height: 100vh !important; height: 100vh !important; }
+  .hide-mobile { display: none !important; }
+}
+
+/* Scroll containers for tables */
+.scroll-x {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+}
+
+/* Sticky column support (requires scroll-x parent) */
+.sticky-col {
+  position: sticky;
+  z-index: 5;
+  background-color: var(--bg-card);
+}
+
+/* Bottom nav spacer */
+@media (max-width: 768px) {
+  main { padding-bottom: 72px !important; }
+}
+
+/* Touch-friendly targets */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}

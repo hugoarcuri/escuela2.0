@@ -255,11 +255,11 @@ export default function Agenda({ materiaId }: Props) {
       </div>
 
       {formOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="rounded-xl shadow-xl w-full max-w-md p-5" style={{ backgroundColor: "var(--bg-card)" }}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-0 md:p-4">
+          <div className="rounded-none md:rounded-xl shadow-xl w-full max-w-md p-4 md:p-5" style={{ backgroundColor: "var(--bg-card)" }}>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-base font-semibold" style={{ color: "var(--text-primary)" }}>{editId ? "Editar" : "Nuevo"} evento</h2>
-              <button onClick={() => setFormOpen(false)} className="p-1 rounded hover:bg-[var(--hover-bg)]" style={{ color: "var(--text-secondary)" }}>✕</button>
+              <button onClick={() => setFormOpen(false)} className="p-2 rounded hover:bg-[var(--hover-bg)] touch-target" style={{ color: "var(--text-secondary)" }}>✕</button>
             </div>
             <div className="space-y-3">
               <div>

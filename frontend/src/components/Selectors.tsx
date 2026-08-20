@@ -51,7 +51,7 @@ export default function Selectors({
 
   return (
     <div className="flex flex-wrap gap-3 items-end">
-      <div className="flex-1 min-w-[200px]">
+      <div className="flex-1 min-w-0 w-full md:w-auto md:min-w-[200px]">
         <label className="block text-xs font-medium mb-1" style={{ color: "var(--text-secondary)" }}>Escuela</label>
         <div className="flex gap-1">
           <div ref={escuelaRef} className="relative flex-1">
@@ -103,7 +103,7 @@ export default function Selectors({
                         </div>
                       </button>
                       <button onClick={(ev) => { ev.stopPropagation(); onEditEscuela(e.id); setEscuelaOpen(false); }}
-                        className="p-1.5 rounded opacity-0 group-hover:opacity-100 hover:bg-[var(--hover-bg)] transition-all shrink-0"
+                        className="p-1.5 rounded md:opacity-0 md:group-hover:opacity-100 hover:bg-[var(--hover-bg)] transition-all shrink-0 touch-target"
                         title="Editar escuela" style={{ color: "var(--accent)" }}>
                         <Pencil size={13} />
                       </button>
@@ -113,13 +113,13 @@ export default function Selectors({
               </div>
             )}
           </div>
-          <button onClick={onAdminEscuela} className="p-2 rounded-lg border hover:bg-[var(--hover-bg)] transition-colors" title="Administrar escuelas" style={s}>
+          <button onClick={onAdminEscuela} className="p-2 md:p-2 rounded-lg border hover:bg-[var(--hover-bg)] transition-colors touch-target" title="Administrar escuelas" style={s}>
             <Gear />
           </button>
         </div>
       </div>
 
-      <div className="flex-1 min-w-[180px]">
+      <div className="flex-1 min-w-0 w-full md:w-auto md:min-w-[180px]">
         <label className="block text-xs font-medium mb-1" style={{ color: "var(--text-secondary)" }}>Curso</label>
         <div className="flex gap-1">
           <select value={cursoId} onChange={e => onCursoChange(e.target.value ? Number(e.target.value) : "")}
@@ -129,13 +129,13 @@ export default function Selectors({
             <option value="">Seleccionar curso</option>
             {cursos.map(c => <option key={c.id} value={c.id}>{c.nombre}{c.grupo ? ` - ${c.grupo}` : ""} {c.turno ? `(${c.turno})` : ""}</option>)}
           </select>
-          <button onClick={onAdminCurso} className="p-2 rounded-lg border hover:bg-[var(--hover-bg)] transition-colors" title="Administrar cursos" style={s}>
+          <button onClick={onAdminCurso} className="p-2 md:p-2 rounded-lg border hover:bg-[var(--hover-bg)] transition-colors touch-target" title="Administrar cursos" style={s}>
             <Gear />
           </button>
         </div>
       </div>
 
-      <div className="flex-1 min-w-[180px]">
+      <div className="flex-1 min-w-0 w-full md:w-auto md:min-w-[180px]">
         <label className="block text-xs font-medium mb-1" style={{ color: "var(--text-secondary)" }}>Materia</label>
         <div className="flex gap-1">
           <select value={materiaId} onChange={e => {
@@ -151,13 +151,13 @@ export default function Selectors({
             </option>)}
             <option value="__add__" className="font-semibold" style={{ color: "var(--accent)" }}>+ Agregar nueva materia</option>
           </select>
-          <button onClick={onAdminMateria} className="p-2 rounded-lg border hover:bg-[var(--hover-bg)] transition-colors" title="Administrar materias" style={s}>
+          <button onClick={onAdminMateria} className="p-2 md:p-2 rounded-lg border hover:bg-[var(--hover-bg)] transition-colors touch-target" title="Administrar materias" style={s}>
             <Gear />
           </button>
         </div>
       </div>
 
-      <div className="flex-1 min-w-[200px]">
+      <div className="flex-1 min-w-0 w-full md:w-auto md:min-w-[200px]">
         <label className="block text-xs font-medium mb-1" style={{ color: "var(--text-secondary)" }}>Buscar alumno</label>
         <div className="relative">
           <span className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "var(--text-secondary)" }}><Search /></span>

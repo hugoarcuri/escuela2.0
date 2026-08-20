@@ -40,26 +40,26 @@ export default function AdminCurso({ onClose, onChanged }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto" style={{ backgroundColor: "var(--bg-card)" }}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-0 md:p-4">
+      <div className="rounded-none md:rounded-xl shadow-xl w-full max-w-lg max-h-[100vh] md:max-h-[90vh] overflow-y-auto" style={{ backgroundColor: "var(--bg-card)" }}>
         <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: "var(--border-color)" }}>
-          <h2 className="text-lg font-semibold">Administrar Cursos</h2><button onClick={onClose} className="p-1 rounded hover:bg-[var(--hover-bg)]" style={{ color: "var(--text-secondary)" }}>✕</button>
+          <h2 className="text-lg font-semibold">Administrar Cursos</h2><button onClick={onClose} className="p-2 rounded hover:bg-[var(--hover-bg)] touch-target" style={{ color: "var(--text-secondary)" }}>✕</button>
         </div>
         <div className="p-4 space-y-4">
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-col md:flex-row flex-wrap gap-2">
             <select value={form.escuelaId} onChange={e => { setForm(f => ({ ...f, escuelaId: Number(e.target.value) })); setEditing(null); }}
-              className="rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]" style={s}>
+              className="flex-1 min-w-0 rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]" style={s}>
               <option value={0}>Seleccionar escuela</option>
               {escuelas.map(e => <option key={e.id} value={e.id}>{e.nombre}</option>)}
             </select>
             <input type="number" placeholder="Año" value={form.anio} onChange={e => setForm(f => ({ ...f, anio: e.target.value }))}
-              className="w-20 rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]" style={s} />
+              className="flex-1 md:w-20 rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]" style={s} />
             <input type="text" placeholder="División" value={form.division} onChange={e => setForm(f => ({ ...f, division: e.target.value }))}
-              className="w-24 rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]" style={s} />
+              className="flex-1 md:w-24 rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]" style={s} />
             <input type="text" placeholder="Grupo" value={form.grupo} onChange={e => setForm(f => ({ ...f, grupo: e.target.value }))}
-              className="w-24 rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]" style={s} />
+              className="flex-1 md:w-24 rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]" style={s} />
             <input type="text" placeholder="Turno" value={form.turno} onChange={e => setForm(f => ({ ...f, turno: e.target.value }))}
-              className="w-28 rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]" style={s} />
+              className="flex-1 md:w-28 rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]" style={s} />
             <button onClick={handleSave} className="btn-primary text-sm px-3 py-2">{editing ? "Actualizar" : "Agregar"}</button>
             {editing && <button onClick={resetForm} className="btn-secondary text-sm px-3 py-2">Cancelar</button>}
           </div>
@@ -68,8 +68,8 @@ export default function AdminCurso({ onClose, onChanged }: Props) {
               <div key={c.id} className="flex items-center justify-between p-2 rounded-lg hover:bg-[var(--hover-bg)]">
                 <div className="text-sm font-medium">{c.nombre} {c.grupo ? `- ${c.grupo}` : ""} {c.turno ? `(${c.turno})` : ""}</div>
                 <div className="flex gap-1">
-                  <button onClick={() => editItem(c)} className="text-xs px-2 py-1 rounded hover:bg-[var(--hover-bg)]" style={{ color: "var(--accent)" }}>Editar</button>
-                  <button onClick={() => handleDelete(c.id)} className="text-xs px-2 py-1 rounded hover:bg-[var(--hover-bg)]" style={{ color: "var(--danger)" }}>Eliminar</button>
+                  <button onClick={() => editItem(c)} className="text-xs px-2 py-1 rounded hover:bg-[var(--hover-bg)] min-h-[44px]" style={{ color: "var(--accent)" }}>Editar</button>
+                  <button onClick={() => handleDelete(c.id)} className="text-xs px-2 py-1 rounded hover:bg-[var(--hover-bg)] min-h-[44px]" style={{ color: "var(--danger)" }}>Eliminar</button>
                 </div>
               </div>
             ))}

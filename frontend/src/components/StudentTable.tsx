@@ -192,8 +192,8 @@ export default function StudentTable({ alumnos, onRefresh, onEdit, materiaId }: 
       </div>
 
       {/* Table wrapper for scroll */}
-      <div style={{ minHeight: 0 }}>
-        <table className="w-full" style={{ borderCollapse: "separate", borderSpacing: 0, fontSize: "0.75rem" }}>
+      <div className="scroll-x" style={{ minHeight: 0 }}>
+        <table className="w-full" style={{ borderCollapse: "separate", borderSpacing: 0, fontSize: "0.75rem", minWidth: 1000 }}>
           <TableHeader allSelected={selected.size === sorted.length} onToggleAll={toggleAll} hasRows={sorted.length > 0} materiaId={materiaId} />
           <tbody>
             {sorted.map((a, idx) => {
@@ -254,7 +254,7 @@ export default function StudentTable({ alumnos, onRefresh, onEdit, materiaId }: 
                   <td className="font-medium" style={stickyStyle}
                     onClick={() => onEdit(a)}>
                     <button onClick={e => { e.stopPropagation(); toggleRecursante(a.id, !a.recursante); }}
-                      className="inline-flex items-center justify-center w-4 h-4 mr-1.5 rounded text-[9px] font-bold transition-all duration-150 hover:scale-110 active:scale-95"
+                      className="inline-flex items-center justify-center w-5 h-5 md:w-4 md:h-4 mr-1.5 rounded text-[10px] md:text-[9px] font-bold transition-all duration-150 hover:scale-110 active:scale-95"
                       style={{
                         backgroundColor: a.recursante ? "var(--danger)" : "transparent",
                         color: a.recursante ? "#fff" : "var(--text-secondary)",

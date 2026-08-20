@@ -128,8 +128,8 @@ export default function App() {
               </div>
             )}
 
-            {/* Tabs */}
-            <div className="flex gap-1 border-b" style={{ borderColor: "var(--border-color)" }}>
+            {/* Tabs - desktop only */}
+            <div className="hidden md:flex gap-1 border-b" style={{ borderColor: "var(--border-color)" }}>
               {(["alumnos", "asistencias", "agenda"] as const).map(t => (
                 <button key={t} onClick={() => setTab(t)}
                   className="px-4 py-2 text-sm font-medium rounded-t-lg border border-b-0 -mb-px transition-colors"
@@ -233,11 +233,11 @@ export default function App() {
 
       {/* Settings modal */}
       {settingsOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="rounded-xl shadow-xl w-full max-w-md p-6" style={{ backgroundColor: "var(--bg-card)" }}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-0 md:p-4">
+          <div className="rounded-none md:rounded-xl shadow-xl w-full max-w-md p-4 md:p-6" style={{ backgroundColor: "var(--bg-card)" }}>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold">Ajustes</h2>
-              <button onClick={() => setSettingsOpen(false)} className="p-1 rounded hover:bg-[var(--hover-bg)]" style={{ color: "var(--text-secondary)" }}>✕</button>
+              <button onClick={() => setSettingsOpen(false)} className="p-2 rounded hover:bg-[var(--hover-bg)] touch-target" style={{ color: "var(--text-secondary)" }}>✕</button>
             </div>
             <div className="space-y-4">
               <div>
@@ -261,11 +261,11 @@ export default function App() {
 
       {/* Import Excel modal */}
       {importModal === "excel" && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="rounded-xl shadow-xl w-full max-w-md p-6" style={{ backgroundColor: "var(--bg-card)" }}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-0 md:p-4">
+          <div className="rounded-none md:rounded-xl shadow-xl w-full max-w-md p-4 md:p-6" style={{ backgroundColor: "var(--bg-card)" }}>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold">Importar Excel</h2>
-              <button onClick={() => { setImportModal(null); setImportFile(null); }} className="p-1 rounded hover:bg-[var(--hover-bg)]" style={{ color: "var(--text-secondary)" }}>✕</button>
+              <button onClick={() => { setImportModal(null); setImportFile(null); }} className="p-2 rounded hover:bg-[var(--hover-bg)] touch-target" style={{ color: "var(--text-secondary)" }}>✕</button>
             </div>
             <div className="space-y-3">
               <p className="text-sm" style={{ color: "var(--text-secondary)" }}>Seleccioná un archivo de Excel (.xlsx) con los nombres de los alumnos.</p>
@@ -282,11 +282,11 @@ export default function App() {
 
       {/* Paste list modal */}
       {importModal === "paste" && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="rounded-xl shadow-xl w-full max-w-md p-6" style={{ backgroundColor: "var(--bg-card)" }}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-0 md:p-4">
+          <div className="rounded-none md:rounded-xl shadow-xl w-full max-w-md p-4 md:p-6" style={{ backgroundColor: "var(--bg-card)" }}>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold">Pegar Lista</h2>
-              <button onClick={() => { setImportModal(null); setImportListText(""); }} className="p-1 rounded hover:bg-[var(--hover-bg)]" style={{ color: "var(--text-secondary)" }}>✕</button>
+              <button onClick={() => { setImportModal(null); setImportListText(""); }} className="p-2 rounded hover:bg-[var(--hover-bg)] touch-target" style={{ color: "var(--text-secondary)" }}>✕</button>
             </div>
             <div className="space-y-3">
               <p className="text-sm" style={{ color: "var(--text-secondary)" }}>Pegá los nombres, uno por línea.</p>
@@ -304,6 +304,29 @@ export default function App() {
       {confirmModal}
       {promptModal}
       {alertModal}
+
+      {/* Bottom nav - mobile only */}
+      {typeof materiaId === "number" && materiaId > 0 && (
+        <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 border-t flex"
+          style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-color)" }}>
+          {([
+            { key: "alumnos" as const, label: "Alumnos", icon: "📋", color: "var(--accent)" },
+            { key: "asistencias" as const, label: "Asistencias", icon: "✅", color: "#f59e0b" },
+            { key: "agenda" as const, label: "Agenda", icon: "📅", color: "#8b5cf6" },
+          ]).map(t => (
+            <button key={t.key} onClick={() => setTab(t.key)}
+              className="flex-1 flex flex-col items-center justify-center py-2 gap-0.5 transition-colors"
+              style={{
+                color: tab === t.key ? t.color : "var(--text-secondary)",
+                backgroundColor: "transparent",
+                borderTop: tab === t.key ? `2px solid ${t.color}` : "2px solid transparent",
+              }}>
+              <span className="text-xl leading-none">{t.icon}</span>
+              <span className="text-[10px] font-medium">{t.label}</span>
+            </button>
+          ))}
+        </nav>
+      )}
     </div>
   );
 }

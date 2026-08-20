@@ -14,12 +14,12 @@ export function useConfirm() {
   }
 
   const modal = state ? (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4">
-      <div className="rounded-xl shadow-xl w-full max-w-md p-6" style={{ backgroundColor: "var(--bg-card)" }}>
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-0 md:p-4">
+      <div className="rounded-none md:rounded-xl shadow-xl w-full max-w-md p-4 md:p-6" style={{ backgroundColor: "var(--bg-card)" }}>
         <p className="text-sm mb-6" style={{ color: "var(--text-primary)" }}>{state.message}</p>
         <div className="flex justify-end gap-3">
-          <button onClick={state.onCancel} className="px-4 py-2 rounded-lg text-sm font-medium transition-colors" style={{ backgroundColor: "var(--bg-secondary)", color: "var(--text-primary)" }}>Cancelar</button>
-          <button onClick={state.onConfirm} className="px-4 py-2 rounded-lg text-sm font-medium text-white transition-colors" style={{ backgroundColor: "var(--danger)" }}>Confirmar</button>
+          <button onClick={state.onCancel} className="px-4 py-2 rounded-lg text-sm font-medium transition-colors min-h-[44px]" style={{ backgroundColor: "var(--bg-secondary)", color: "var(--text-primary)" }}>Cancelar</button>
+          <button onClick={state.onConfirm} className="px-4 py-2 rounded-lg text-sm font-medium text-white transition-colors min-h-[44px]" style={{ backgroundColor: "var(--danger)" }}>Confirmar</button>
         </div>
       </div>
     </div>
@@ -67,16 +67,16 @@ function PromptModal({ title, message, defaultValue, onConfirm, onCancel }: Prom
   const [value, setValue] = useState(defaultValue || "");
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4">
-      <div className="rounded-xl shadow-xl w-full max-w-md p-6" style={{ backgroundColor: "var(--bg-card)" }}>
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-0 md:p-4">
+      <div className="rounded-none md:rounded-xl shadow-xl w-full max-w-md p-4 md:p-6" style={{ backgroundColor: "var(--bg-card)" }}>
         <h3 className="text-base font-semibold mb-2" style={{ color: "var(--text-primary)" }}>{title}</h3>
         {message && <p className="text-xs mb-3" style={{ color: "var(--text-secondary)" }}>{message}</p>}
         <input type="text" value={value} onChange={e => setValue(e.target.value)} autoFocus
           className="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)] mb-4"
           style={{ backgroundColor: "var(--bg-card)", color: "var(--text-primary)", borderColor: "var(--border-color)" }} />
         <div className="flex justify-end gap-3">
-          <button onClick={onCancel} className="px-4 py-2 rounded-lg text-sm font-medium transition-colors" style={{ backgroundColor: "var(--bg-secondary)", color: "var(--text-primary)" }}>Cancelar</button>
-          <button onClick={() => onConfirm(value)} className="px-4 py-2 rounded-lg text-sm font-medium text-white transition-colors" style={{ backgroundColor: "var(--accent)" }}>Aceptar</button>
+          <button onClick={onCancel} className="px-4 py-2 rounded-lg text-sm font-medium transition-colors min-h-[44px]" style={{ backgroundColor: "var(--bg-secondary)", color: "var(--text-primary)" }}>Cancelar</button>
+          <button onClick={() => onConfirm(value)} className="px-4 py-2 rounded-lg text-sm font-medium text-white transition-colors min-h-[44px]" style={{ backgroundColor: "var(--accent)" }}>Aceptar</button>
         </div>
       </div>
     </div>
@@ -98,11 +98,11 @@ export function useAlert() {
   }
 
   const modal = state ? (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4">
-      <div className="rounded-xl shadow-xl w-full max-w-md p-6" style={{ backgroundColor: "var(--bg-card)" }}>
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-0 md:p-4">
+      <div className="rounded-none md:rounded-xl shadow-xl w-full max-w-md p-4 md:p-6" style={{ backgroundColor: "var(--bg-card)" }}>
         <p className="text-sm mb-6" style={{ color: "var(--text-primary)" }}>{state.message}</p>
         <div className="flex justify-end">
-          <button onClick={state.onClose} className="px-4 py-2 rounded-lg text-sm font-medium text-white transition-colors" style={{ backgroundColor: "var(--accent)" }}>Aceptar</button>
+          <button onClick={state.onClose} className="px-4 py-2 rounded-lg text-sm font-medium text-white transition-colors min-h-[44px]" style={{ backgroundColor: "var(--accent)" }}>Aceptar</button>
         </div>
       </div>
     </div>
