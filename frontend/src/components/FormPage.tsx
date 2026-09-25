@@ -17,7 +17,6 @@ export default function FormPage() {
   const { token } = useParams<{ token: string }>();
   const [apellido, setApellido] = useState("");
   const [nombre, setNombre] = useState("");
-  const [pc, setPc] = useState("");
   const [msg, setMsg] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -47,9 +46,9 @@ export default function FormPage() {
     if (!token || !apellido || !nombre) return;
     setLoading(true); setError(""); setMsg("");
     try {
-      const result = await submitForm(token, apellido, nombre, pc);
+      const result = await submitForm(token, apellido, nombre);
       if (result.duplicado) setMsg(result.message);
-      else { setMsg("Alumno agregado correctamente"); setApellido(""); setNombre(""); setPc(""); }
+      else { setMsg("Alumno agregado correctamente"); setApellido(""); setNombre(""); }
     } catch (e: unknown) {
       setError(getErrorMessage(e));
     }
@@ -90,12 +89,6 @@ export default function FormPage() {
             <input value={nombre} onChange={e => setNombre(e.target.value)} required
               style={{ width: "100%", padding: "10px 14px", border: "1px solid #d1d5db", borderRadius: 8, fontSize: 15, outline: "none", boxSizing: "border-box" }}
               placeholder="Juan" />
-          </div>
-          <div style={{ marginBottom: 16 }}>
-            <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#374151", marginBottom: 4 }}>Nombre de la PC</label>
-            <input value={pc} onChange={e => setPc(e.target.value)}
-              style={{ width: "100%", padding: "10px 14px", border: "1px solid #d1d5db", borderRadius: 8, fontSize: 15, outline: "none", boxSizing: "border-box" }}
-              placeholder="PC1" />
           </div>
           <button type="submit" disabled={loading}
             style={{ width: "100%", padding: 12, background: loading ? "#93c5fd" : "#2563eb", color: "white", border: "none", borderRadius: 8, fontSize: 15, fontWeight: 600, cursor: loading ? "not-allowed" : "pointer", marginTop: 8 }}>
