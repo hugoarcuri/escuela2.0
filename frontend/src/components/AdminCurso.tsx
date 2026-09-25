@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import type { Curso, Escuela, CursoFormData } from "../types";
 import { getCursos, createCurso, updateCurso, deleteCurso, getEscuelas } from "../api";
 import { useConfirm, useAlert } from "./Modals";
@@ -6,6 +6,14 @@ import { useConfirm, useAlert } from "./Modals";
 interface Props { onClose: () => void; onChanged: () => void; }
 
 const s: React.CSSProperties = { backgroundColor: "var(--bg-card)", color: "var(--text-primary)", borderColor: "var(--border-color)" };
+
+function getErrorMessage(error: unknown): string {
+  if (typeof error === "object" && error !== null) {
+    const value = error as { message?: unknown };
+    if (typeof value.message === "string" && value.message) return value.message;
+  }
+  return "Error al guardar";
+}
 
 export default function AdminCurso({ onClose, onChanged }: Props) {
   const [list, setList] = useState<Curso[]>([]);
@@ -15,28 +23,55 @@ export default function AdminCurso({ onClose, onChanged }: Props) {
   const { confirm, modal: confirmModal } = useConfirm();
   const { alert, modal: alertModal } = useAlert();
 
-  const load = useCallback(async () => { setEscuelas(await getEscuelas()); }, []);
-  const loadCursos = useCallback(async () => { if (form.escuelaId) setList(await getCursos(form.escuelaId)); }, [form.escuelaId]);
-  useEffect(() => { load(); }, [load]);
-  useEffect(() => { loadCursos(); }, [loadCursos]);
+  useEffect(() => {
+    let cancelled = false;
+    void getEscuelas().then(value => {
+      if (!cancelled) setEscuelas(value);
+    });
+    return () => { cancelled = true; };
+  }, []);
 
-  function resetForm() { setForm({ anio: "", division: "", grupo: "", turno: "", escuelaId: escuelas[0]?.id || 0 }); setEditing(null); }
+  useEffect(() => {
+    if (!form.escuelaId) return;
+    let cancelled = false;
+    void getCursos(form.escuelaId).then(value => {
+      if (!cancelled) setList(value);
+    });
+    return () => { cancelled = true; };
+  }, [form.escuelaId]);
+
+  function resetForm() {
+    setForm(current => ({ anio: "", division: "", grupo: "", turno: "", escuelaId: current.escuelaId || escuelas[0]?.id || 0 }));
+    setEditing(null);
+  }
 
   function editItem(c: Curso) { setEditing(c); setForm({ anio: String(c.anio), division: c.division, grupo: c.grupo || "", turno: c.turno || "", escuelaId: c.escuelaId }); }
 
   async function handleSave() {
-    if (!form.anio || !form.division || !form.escuelaId) { await alert("Completá año, división y escuela"); return; }
+    const anio = Number(form.anio);
+    const faltaTurno = !editing && !form.turno.trim();
+    if (!form.anio.trim() || !form.division.trim() || !form.grupo.trim() || !form.escuelaId || !Number.isInteger(anio) || faltaTurno) {
+      await alert(editing ? "Completá año, división y grupo" : "Completá año, división, grupo y turno");
+      return;
+    }
+    const escuelaId = form.escuelaId;
     try {
       if (editing) await updateCurso(editing.id, form);
       else await createCurso(form);
-      resetForm(); loadCursos(); onChanged();
-    } catch (err: any) { await alert(err?.response?.data?.error || "Error al guardar"); }
+      resetForm();
+      setList(await getCursos(escuelaId));
+      onChanged();
+    } catch (err: unknown) { await alert(getErrorMessage(err)); }
   }
 
   async function handleDelete(id: number) {
     const ok = await confirm("¿Eliminar este curso? Se eliminarán también sus materias y alumnos.");
     if (!ok) return;
-    await deleteCurso(id); loadCursos(); onChanged(); resetForm();
+    const escuelaId = form.escuelaId;
+    await deleteCurso(id);
+    if (escuelaId) setList(await getCursos(escuelaId));
+    onChanged();
+    resetForm();
   }
 
   return (
@@ -47,26 +82,26 @@ export default function AdminCurso({ onClose, onChanged }: Props) {
         </div>
         <div className="p-4 space-y-4">
           <div className="flex flex-col md:flex-row flex-wrap gap-2">
-            <select value={form.escuelaId} onChange={e => { setForm(f => ({ ...f, escuelaId: Number(e.target.value) })); setEditing(null); }}
-              className="flex-1 min-w-0 rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]" style={s}>
+            <select value={form.escuelaId} disabled={editing !== null} onChange={e => { const escuelaId = Number(e.target.value); setForm(f => ({ ...f, escuelaId })); if (!escuelaId) setList([]); setEditing(null); }}
+              className="flex-1 min-w-0 rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)] disabled:opacity-60" style={s}>
               <option value={0}>Seleccionar escuela</option>
               {escuelas.map(e => <option key={e.id} value={e.id}>{e.nombre}</option>)}
             </select>
-            <input type="number" placeholder="Año" value={form.anio} onChange={e => setForm(f => ({ ...f, anio: e.target.value }))}
+            <input type="number" placeholder="Año *" required value={form.anio} onChange={e => setForm(f => ({ ...f, anio: e.target.value }))}
               className="flex-1 md:w-20 rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]" style={s} />
-            <input type="text" placeholder="División" value={form.division} onChange={e => setForm(f => ({ ...f, division: e.target.value }))}
+            <input type="text" placeholder="División *" required value={form.division} onChange={e => setForm(f => ({ ...f, division: e.target.value }))}
               className="flex-1 md:w-24 rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]" style={s} />
-            <input type="text" placeholder="Grupo" value={form.grupo} onChange={e => setForm(f => ({ ...f, grupo: e.target.value }))}
+            <input type="text" placeholder="Grupo *" required value={form.grupo} onChange={e => setForm(f => ({ ...f, grupo: e.target.value }))}
               className="flex-1 md:w-24 rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]" style={s} />
-            <input type="text" placeholder="Turno" value={form.turno} onChange={e => setForm(f => ({ ...f, turno: e.target.value }))}
-              className="flex-1 md:w-28 rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]" style={s} />
+            {!editing && <input type="text" placeholder="Turno *" required value={form.turno} onChange={e => setForm(f => ({ ...f, turno: e.target.value }))}
+              className="flex-1 md:w-28 rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]" style={s} />}
             <button onClick={handleSave} className="btn-primary text-sm px-3 py-2">{editing ? "Actualizar" : "Agregar"}</button>
             {editing && <button onClick={resetForm} className="btn-secondary text-sm px-3 py-2">Cancelar</button>}
           </div>
           <div className="space-y-1 max-h-60 overflow-y-auto">
             {list.map(c => (
-              <div key={c.id} className="flex items-center justify-between p-2 rounded-lg hover:bg-[var(--hover-bg)]">
-                <div className="text-sm font-medium">{c.nombre} {c.grupo ? `- ${c.grupo}` : ""} {c.turno ? `(${c.turno})` : ""}</div>
+              <div key={c.id} className={`flex items-center justify-between p-2 rounded-lg hover:bg-[var(--hover-bg)] ${editing?.id === c.id ? 'ring-2 ring-[var(--accent)]' : ''}`}>
+                <div className="text-sm font-medium">{c.anio}° {c.division}{c.grupo ? ` - ${c.grupo}` : ""} {c.turno ? `(${c.turno})` : ""}</div>
                 <div className="flex gap-1">
                   <button onClick={() => editItem(c)} className="text-xs px-2 py-1 rounded hover:bg-[var(--hover-bg)] min-h-[44px]" style={{ color: "var(--accent)" }}>Editar</button>
                   <button onClick={() => handleDelete(c.id)} className="text-xs px-2 py-1 rounded hover:bg-[var(--hover-bg)] min-h-[44px]" style={{ color: "var(--danger)" }}>Eliminar</button>

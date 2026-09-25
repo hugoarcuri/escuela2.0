@@ -30,14 +30,20 @@ export async function getCursos(escuelaId: number): Promise<Curso[]> {
   return data ?? [];
 }
 export async function createCurso(d: CursoFormData): Promise<Curso> {
-  const nombre = d.grupo ? `${d.anio}° ${d.division} - ${d.grupo}` : `${d.anio}° ${d.division}`;
-  const { data, error } = await supabase.from("cursos").insert({ nombre, anio: parseInt(d.anio), division: d.division, grupo: d.grupo || null, turno: d.turno, escuelaId: d.escuelaId }).select().single();
+  const anio = Number(d.anio);
+  const division = d.division.trim();
+  const grupo = d.grupo.trim();
+  const nombre = grupo ? `${anio}° ${division} - ${grupo}` : `${anio}° ${division}`;
+  const { data, error } = await supabase.from("cursos").insert({ nombre, anio, division, grupo: grupo || null, turno: d.turno.trim(), escuelaId: d.escuelaId }).select().single();
   if (error) throw error;
   return data;
 }
 export async function updateCurso(id: number, d: CursoFormData): Promise<Curso> {
-  const nombre = d.grupo ? `${d.anio}° ${d.division} - ${d.grupo}` : `${d.anio}° ${d.division}`;
-  const { data, error } = await supabase.from("cursos").update({ nombre, anio: parseInt(d.anio), division: d.division, grupo: d.grupo || null, turno: d.turno }).eq("id", id).select().single();
+  const anio = Number(d.anio);
+  const division = d.division.trim();
+  const grupo = d.grupo.trim();
+  const nombre = grupo ? `${anio}° ${division} - ${grupo}` : `${anio}° ${division}`;
+  const { data, error } = await supabase.from("cursos").update({ nombre, anio, division, grupo: grupo || null }).eq("id", id).select().single();
   if (error) throw error;
   return data;
 }
