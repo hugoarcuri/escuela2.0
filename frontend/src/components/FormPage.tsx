@@ -3,6 +3,16 @@ import { useParams } from "react-router-dom";
 import { getFormLink, submitForm } from "../api";
 import type { FormLink } from "../types";
 
+function getErrorMessage(error: unknown): string {
+  if (typeof error === "object" && error !== null) {
+    const value = error as { code?: unknown; message?: unknown; details?: unknown; hint?: unknown };
+    const parts = [value.code, value.message, value.details, value.hint]
+      .filter((part): part is string => typeof part === "string" && part.length > 0);
+    if (parts.length > 0) return parts.join(" · ");
+  }
+  return "Error al registrar. Intentalo de nuevo.";
+}
+
 export default function FormPage() {
   const { token } = useParams<{ token: string }>();
   const [apellido, setApellido] = useState("");
@@ -41,7 +51,7 @@ export default function FormPage() {
       if (result.duplicado) setMsg(result.message);
       else { setMsg("Alumno agregado correctamente"); setApellido(""); setNombre(""); setPc(""); }
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Error al registrar. Intentalo de nuevo.");
+      setError(getErrorMessage(e));
     }
     setLoading(false);
   }
