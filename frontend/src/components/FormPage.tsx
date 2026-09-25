@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { getFormLink, submitForm } from "../api";
+import type { FormLink } from "../types";
 
 export default function FormPage() {
   const { token } = useParams<{ token: string }>();
@@ -10,11 +11,26 @@ export default function FormPage() {
   const [msg, setMsg] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [valid, setValid] = useState(false);
+  const [linkState, setLinkState] = useState<{ token: string; value: FormLink | null }>();
 
   useEffect(() => {
-    if (token) getFormLink(token).then(l => setValid(!!l)).catch(() => setValid(false));
+    if (!token) return;
+    let cancelled = false;
+    void getFormLink(token)
+      .then(value => {
+        if (!cancelled) setLinkState({ token, value });
+      })
+      .catch(() => {
+        if (!cancelled) setLinkState({ token, value: null });
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [token]);
+
+  const currentLink = !token ? null : linkState?.token === token ? linkState.value : undefined;
+  const checking = currentLink === undefined;
+  const valid = currentLink !== null;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -24,9 +40,17 @@ export default function FormPage() {
       const result = await submitForm(token, apellido, nombre, pc);
       if (result.duplicado) setMsg(result.message);
       else { setMsg("Alumno agregado correctamente"); setApellido(""); setNombre(""); setPc(""); }
-    } catch { setError("Error al registrar. Intentalo de nuevo."); }
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Error al registrar. Intentalo de nuevo.");
+    }
     setLoading(false);
   }
+
+  if (checking) return (
+    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#f3f4f6", padding: 20 }}>
+      <p style={{ color: "#6b7280" }}>Verificando enlace...</p>
+    </div>
+  );
 
   if (!valid) return (
     <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#f3f4f6", padding: 20 }}>

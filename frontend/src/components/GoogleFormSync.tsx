@@ -37,7 +37,9 @@ export default function GoogleFormSync({ escuelaId, cursoId, materiaId, anioLect
         const count = await pollFormCount(link);
         if (lastCount !== null && count > lastCount) { setNewStudentMsg(true); onSync(); setTimeout(() => setNewStudentMsg(false), 4000); }
         setStudentCount(count); setLastCount(count);
-      } catch {}
+      } catch {
+        return;
+      }
     }, 30000);
     return () => clearInterval(interval);
   }, [token, lastCount, onSync]);
@@ -48,10 +50,13 @@ export default function GoogleFormSync({ escuelaId, cursoId, materiaId, anioLect
     try {
       const link = await generateFormLink(escuelaId, cursoId, materiaId, anioLectivo);
       setToken(link.token);
-      setFormUrl(`${window.location.origin}/escuela2.0/#/form/${link.token}`);
+      const basePath = window.location.pathname
+        .replace(/\/index\.html$/, "/")
+        .replace(/\/?$/, "/");
+      setFormUrl(`${window.location.origin}${basePath}#/form/${encodeURIComponent(link.token)}`);
       const count = await pollFormCount(link);
       setStudentCount(count); setLastCount(count);
-    } catch (e: any) {
+    } catch (e: unknown) {
       console.error("Error al generar formulario", e);
     } finally { setGenerating(false); }
   }
