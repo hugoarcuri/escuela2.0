@@ -1,11 +1,20 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import type { Curso, Escuela, CursoFormData } from "../types";
 import { getCursos, createCurso, updateCurso, deleteCurso, getEscuelas } from "../api";
 import { useConfirm, useAlert } from "./Modals";
 
-interface Props { onClose: () => void; onChanged: () => void; }
+interface Props {
+  initialEscuelaId?: number;
+  initialCursoId?: number;
+  onClose: () => void;
+  onChanged: () => void;
+}
 
 const s: React.CSSProperties = { backgroundColor: "var(--bg-card)", color: "var(--text-primary)", borderColor: "var(--border-color)" };
+
+function courseToForm(curso: Curso): CursoFormData {
+  return { anio: String(curso.anio), division: curso.division, grupo: curso.grupo || "", turno: curso.turno || "", escuelaId: curso.escuelaId };
+}
 
 function getErrorMessage(error: unknown): string {
   if (typeof error === "object" && error !== null) {
@@ -15,11 +24,12 @@ function getErrorMessage(error: unknown): string {
   return "Error al guardar";
 }
 
-export default function AdminCurso({ onClose, onChanged }: Props) {
+export default function AdminCurso({ initialEscuelaId, initialCursoId, onClose, onChanged }: Props) {
   const [list, setList] = useState<Curso[]>([]);
   const [escuelas, setEscuelas] = useState<Escuela[]>([]);
-  const [form, setForm] = useState<CursoFormData>({ anio: "", division: "", grupo: "", turno: "", escuelaId: 0 });
+  const [form, setForm] = useState<CursoFormData>({ anio: "", division: "", grupo: "", turno: "", escuelaId: initialEscuelaId ?? 0 });
   const [editing, setEditing] = useState<Curso | null>(null);
+  const initialCourseApplied = useRef(false);
   const { confirm, modal: confirmModal } = useConfirm();
   const { alert, modal: alertModal } = useAlert();
 
@@ -35,17 +45,26 @@ export default function AdminCurso({ onClose, onChanged }: Props) {
     if (!form.escuelaId) return;
     let cancelled = false;
     void getCursos(form.escuelaId).then(value => {
-      if (!cancelled) setList(value);
+      if (cancelled) return;
+      setList(value);
+      if (initialCursoId && !initialCourseApplied.current && form.escuelaId === initialEscuelaId) {
+        initialCourseApplied.current = true;
+        const selected = value.find(curso => curso.id === initialCursoId);
+        if (selected) {
+          setEditing(selected);
+          setForm(courseToForm(selected));
+        }
+      }
     });
     return () => { cancelled = true; };
-  }, [form.escuelaId]);
+  }, [form.escuelaId, initialCursoId, initialEscuelaId]);
 
   function resetForm() {
     setForm(current => ({ anio: "", division: "", grupo: "", turno: "", escuelaId: current.escuelaId || escuelas[0]?.id || 0 }));
     setEditing(null);
   }
 
-  function editItem(c: Curso) { setEditing(c); setForm({ anio: String(c.anio), division: c.division, grupo: c.grupo || "", turno: c.turno || "", escuelaId: c.escuelaId }); }
+  function editItem(c: Curso) { setEditing(c); setForm(courseToForm(c)); }
 
   async function handleSave() {
     const anio = Number(form.anio);

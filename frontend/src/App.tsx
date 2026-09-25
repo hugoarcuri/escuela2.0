@@ -225,7 +225,12 @@ export default function App() {
 
       {/* Admin modals */}
       {adminEscuelaOpen && <AdminEscuela editId={editEscuelaId} onClose={() => { setAdminEscuelaOpen(false); setEditEscuelaId(null); }} onChanged={refreshSelections} />}
-      {adminCursoOpen && <AdminCurso onClose={() => setAdminCursoOpen(false)} onChanged={refreshSelections} />}
+      {adminCursoOpen && <AdminCurso
+        initialEscuelaId={escuelaId ? Number(escuelaId) : undefined}
+        initialCursoId={cursoId ? Number(cursoId) : undefined}
+        onClose={() => setAdminCursoOpen(false)}
+        onChanged={refreshSelections}
+      />}
       {adminMateriaOpen && <AdminMateria onClose={() => setAdminMateriaOpen(false)} onChanged={refreshSelections}
         initialEscuelaId={escuelaId ? Number(escuelaId) : undefined}
         initialCursoId={cursoId ? Number(cursoId) : undefined}
